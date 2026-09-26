@@ -7,6 +7,8 @@ from app.api.v1.api import api_router
 
 settings = get_settings()
 
+_seed_done = False
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -23,6 +25,18 @@ async def startup_event():
     print("=== STARTUP: explicit startup event ===")
     init_db()
     print("=== STARTUP: explicit init_db completed ===")
+
+
+# Fallback: lazy seed on first request (guaranteed to run)
+@app.middleware("http")
+async def ensure_seed(request, call_next):
+    global _seed_done
+    if not _seed_done:
+        print("=== LAZY SEED: first request, running init_db ===")
+        init_db()
+        _seed_done = True
+        print("=== LAZY SEED: completed ===")
+    return await call_next(request)
 
 
 app = FastAPI(
