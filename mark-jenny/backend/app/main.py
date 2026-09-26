@@ -10,8 +10,19 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("=== STARTUP: lifespan started ===")
     init_db()
+    print("=== STARTUP: init_db completed ===")
     yield
+    print("=== SHUTDOWN ===")
+
+
+# Fallback: explicit startup event in case lifespan isn't triggered
+@app.on_event("startup")
+async def startup_event():
+    print("=== STARTUP: explicit startup event ===")
+    init_db()
+    print("=== STARTUP: explicit init_db completed ===")
 
 
 app = FastAPI(
