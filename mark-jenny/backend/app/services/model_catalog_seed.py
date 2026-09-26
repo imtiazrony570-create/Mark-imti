@@ -57,6 +57,7 @@ _SEED = [
     ("NVIDIA", "qwen/qwen3-coder-480b-a35b-instruct", "Qwen3 Coder 480B (NVIDIA)", ["CHAT", "CODING"], 262144, 0, 0),
     ("TOGETHER", "meta-llama/Llama-3.3-70B-Instruct-Turbo", "Llama 3.3 70B (Together)", ["CHAT", "REASONING", "CODING"], 131072, 0, 0),
     ("TOGETHER", "Qwen/Qwen3-235B-A22B", "Qwen3 235B (Together)", ["CHAT", "REASONING", "CODING"], 131072, 0, 0),
+    ("TOGETHER", "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo", "Llama 3.2 11B Vision (Together)", ["CHAT", "REASONING", "CODING", "VISION"], 131072, 0, 0),
     ("FIREWORKS", "accounts/fireworks/models/llama-v3p3-70b-instruct", "Llama 3.3 70B (Fireworks)", ["CHAT", "REASONING", "CODING"], 131072, 0, 0),
     ("FIREWORKS", "accounts/fireworks/models/deepseek-v3", "DeepSeek V3 (Fireworks)", ["CHAT", "REASONING", "CODING"], 131072, 0, 0),
     ("HUGGINGFACE", "meta-llama/Llama-3.3-70B-Instruct", "Llama 3.3 70B (Hugging Face)", ["CHAT", "REASONING", "CODING"], 131072, 0, 0),

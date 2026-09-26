@@ -52,7 +52,7 @@ export default function AIPage() {
       "bg-indigo-100 text-indigo-700", "bg-teal-100 text-teal-700",
       "bg-pink-100 text-pink-700", "bg-amber-100 text-amber-700",
     ];
-    return catalog.map((c, i) => ({
+    const base = catalog.map((c, i) => ({
       id: c.provider,
       name: c.label,
       models: "",
@@ -61,6 +61,8 @@ export default function AIPage() {
       desc: c.note,
       free: c.free_tier,
     }));
+    // Put Together AI first as the recommended default (free tier, vision + code + reasoning)
+    return base.sort((a, b) => (a.id === "TOGETHER" ? -1 : b.id === "TOGETHER" ? 1 : 0));
   }, [catalog]);
 
   const handleRefreshModels = async () => {
@@ -274,16 +276,26 @@ export default function AIPage() {
                               </div>
                             );
                           })()}
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              onClick={() => handleSave(prov.id)}
-                              disabled={(!keys[prov.id]?.trim() && prov.id !== "OLLAMA") || saving === prov.id}
-                            >
-                              {saving === prov.id ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Key className="mr-1 h-3 w-3" />}
-                              {configured ? "Update Key" : "Save Key"}
-                            </Button>
-                            {configured && prov.id !== "OLLAMA" && (
+<div className="flex gap-2">
+                             <Button
+                               size="sm"
+                               onClick={() => handleSave(prov.id)}
+                               disabled={(!keys[prov.id]?.trim() && prov.id !== "OLLAMA") || saving === prov.id}
+                             >
+                               {saving === prov.id ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Key className="mr-1 h-3 w-3" />}
+                               {configured ? "Update Key" : "Save Key"}
+                             </Button>
+                             {!configured && prov.url && prov.url !== "#" && (
+                               <a
+                                 href={prov.url}
+                                 target="_blank"
+                                 rel="noopener noreferrer"
+                                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors"
+                               >
+                                 <ExternalLink className="h-3 w-3" /> Get Free Key
+                               </a>
+                             )}
+                             {configured && prov.id !== "OLLAMA" && (
                               <>
                                 <Button size="sm" variant="outline" onClick={() => handleReTest(prov.id)} disabled={saving === prov.id}>
                                   {saving === prov.id ? <Loader2 className="mr-1 h-3 w-3 animate-spin" /> : <Zap className="mr-1 h-3 w-3" />}

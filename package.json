@@ -1,0 +1,24 @@
+{
+  "name": "mark",
+  "version": "1.0.0",
+  "description": "",
+  "main": "test-chat.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevinclientmanager-sketch/Mark-Jenny.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kevinclientmanager-sketch/Mark-Jenny/issues"
+  },
+  "homepage": "https://github.com/kevinclientmanager-sketch/Mark-Jenny#readme",
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}
