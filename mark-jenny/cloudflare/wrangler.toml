@@ -11,10 +11,10 @@ compatibility_flags = ["nodejs_compat"]
 enabled = true
 
 [vars]
-# Non-secret defaults. Secrets are set with:
-#   wrangler secret put BACKEND_URL
-BACKEND_URL = "https://mark-imti-backend.hf.space"
-# Browser origins allowed to call the API. Must match the Pages domain.
+# Non-secret defaults only. BACKEND_URL is a *secret* (set with
+# `wrangler secret put BACKEND_URL`) so the real host is never in the repo or
+# in the uploaded bundle. Do not also declare it under [vars] - Cloudflare
+# rejects a name that exists in both places.
 CORS_ORIGINS = "https://mark-imti.pages.dev,http://localhost:3000"
 
 [env.production]
