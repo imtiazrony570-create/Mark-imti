@@ -1,69 +1,132 @@
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { serve } from "@hono/node-server";
+/**
+ * Mark-Imti edge API.
+ *
+ * Sits in front of the Python backend and does three things at the edge:
+ *  1. CORS, so the browser never needs the backend's origin allow-list.
+ *  2. A reverse proxy for /api/v1/* so the frontend can call a single origin.
+ *  3. A WebSocket proxy for /api/v1/ws/tasks, which is what carries live task
+ *     updates. Without this the task stream silently dies.
+ *
+ * The Python app itself cannot run in Workers (SQLAlchemy/psycopg2 are not
+ * available in the isolate), so BACKEND_URL must point at a real host.
+ */
 
-// Note: This is a Cloudflare Workers wrapper. The actual FastAPI app runs in Python.
-// For Cloudflare Workers, we have two options:
-// 1. Run Python via Pyodide (limited)
-// 2. Keep Python backend on a separate host (Fly.io/Railway) and use Workers as edge proxy
-// 3. Rewrite backend in TypeScript for Workers (major rewrite)
+export interface Env {
+  BACKEND_URL: string;
+  CORS_ORIGINS?: string;
+}
 
-// This is a minimal edge proxy that:
-// - Handles CORS at edge
-// - Proxies API requests to the Python backend (on Fly.io/Railway)
-// - Serves static assets from Cloudflare Pages
+const WS_PATHS = ["/api/v1/ws/tasks"];
 
-const app = new Hono();
+function corsHeaders(origin: string | null, env: Env): Record<string, string> {
+  const allowed = (env.CORS_ORIGINS ?? "")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const allow = origin && allowed.includes(origin) ? origin : allowed[0] ?? "*";
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Credentials": "true",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Requested-With",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
+}
 
-app.use("*", cors({
-  origin: ["https://mark-imti.pages.dev", "http://localhost:3000"],
-  allowHeaders: ["Content-Type", "Authorization"],
-  allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  credentials: true,
-}));
+function backendOrigin(env: Env): URL {
+  // BACKEND_URL is a secret so the real host is not baked into the bundle.
+  return new URL(env.BACKEND_URL);
+}
 
-// Health check at edge (instant, no cold start)
-app.get("/health", (c) => c.json({ status: "healthy", edge: true }));
+/** Turn an incoming request into the equivalent request for the backend. */
+function rewrite(request: Request, env: Env, path: string): Request {
+  const target = new URL(path, backendOrigin(env));
+  return new Request(target.toString(), request);
+}
 
-// Proxy all /api/v1/* to the Python backend
-app.all("/api/v1/*", async (c) => {
-  const backendUrl = c.env.BACKEND_URL || "https://mark-imti-backend.fly.dev"; // Set via wrangler secret
-  const url = new URL(c.req.url);
-  url.hostname = new URL(backendUrl).hostname;
-  url.protocol = new URL(backendUrl).protocol;
-  url.port = new URL(backendUrl).port;
+export default {
+  async fetch(request: Request, env: Env): Promise<Response> {
+    const url = new URL(request.url);
+    const origin = request.headers.get("Origin");
+    const cors = corsHeaders(origin, env);
 
-  const headers = new Headers(c.req.header());
-  headers.set("host", url.hostname);
-  headers.set("x-forwarded-for", c.req.header("cf-connecting-ip") || "");
-  headers.set("x-forwarded-proto", "https");
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: cors });
+    }
 
-  const response = await fetch(url.toString(), {
-    method: c.req.method,
-    headers,
-    body: c.req.method !== "GET" && c.req.method !== "HEAD" ? await c.req.arrayBuffer() : undefined,
-    redirect: "manual",
-  });
+    // Edge-local health check: answers even if the backend is cold or down,
+    // which makes "is the edge up" and "is the app up" separate questions.
+    if (url.pathname === "/health") {
+      return new Response(JSON.stringify({ status: "healthy", edge: true }), {
+        headers: { ...cors, "content-type": "application/json" },
+      });
+    }
 
-  return new Response(response.body, {
-    status: response.status,
-    headers: response.headers,
-  });
-});
+    if (WS_PATHS.includes(url.pathname)) {
+      return proxyWebSocket(request, env, cors);
+    }
 
-// WebSocket proxy for /api/v1/ws/tasks
-app.get("/api/v1/ws/tasks", async (c) => {
-  const backendUrl = c.env.BACKEND_URL || "https://mark-imti-backend.fly.dev";
-  const wsUrl = backendUrl.replace("https://", "wss://") + "/api/v1/ws/tasks" + c.req.url.split("/api/v1/ws/tasks")[1];
-  
-  const upgradeHeader = c.req.header("upgrade");
-  if (upgradeHeader !== "websocket") {
-    return c.text("Expected WebSocket upgrade", 400);
+    if (url.pathname.startsWith("/api/")) {
+      const upstream = await fetch(rewrite(request, env, url.pathname + url.search));
+      const headers = new Headers(upstream.headers);
+      for (const [k, v] of Object.entries(cors)) headers.set(k, v);
+      return new Response(upstream.body, { status: upstream.status, headers });
+    }
+
+    return new Response("Not found", { status: 404, headers: cors });
+  },
+};
+
+/**
+ * Cloudflare gives us a WebSocketPair; one end goes to the browser, the other is
+ * handed to fetch() as the request body, which tunnels it to the backend.
+ */
+async function proxyWebSocket(
+  request: Request,
+  env: Env,
+  cors: Record<string, string>,
+): Promise<Response> {
+  if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") {
+    return new Response("Expected a WebSocket upgrade", { status: 400, headers: cors });
   }
 
-  // Cloudflare Workers doesn't support WebSocket proxy directly in the same way
-  // This is a placeholder - actual WS proxy requires Durable Objects
-  return c.text("WebSocket proxy requires Durable Objects. Use backend directly: " + wsUrl, 501);
-});
+  const target = new URL(request.url);
+  const upstreamUrl = new URL(backendOrigin(env));
+  target.protocol = upstreamUrl.protocol === "https:" ? "wss:" : "ws:";
+  target.host = upstreamUrl.host;
 
-export default app;
+  const pair = new WebSocketPair();
+  const client = pair[0];
+  const server = pair[1];
+
+  server.accept();
+  try {
+    const upstream = await fetch(target.toString(), { headers: request.headers });
+    if (upstream.webSocket) {
+      // Relay frames in both directions until either side closes.
+      client.addEventListener("message", (e) => {
+        try {
+          server.send(e.data as string | ArrayBuffer);
+        } catch {
+          /* peer went away */
+        }
+      });
+      client.addEventListener("close", () => server.close(1000, "client closed"));
+      server.addEventListener("message", (e) => {
+        try {
+          client.send(e.data as string | ArrayBuffer);
+        } catch {
+          /* peer went away */
+        }
+      });
+      server.addEventListener("close", () => client.close(1000, "backend closed"));
+    } else {
+      server.close(1011, "backend refused the upgrade");
+    }
+  } catch (err) {
+    server.close(1011, `edge error: ${String(err)}`);
+  }
+
+  return new Response(null, { status: 101, webSocket: client, headers: cors });
+}
