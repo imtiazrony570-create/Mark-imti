@@ -12,31 +12,8 @@ _seed_done = False
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print("=== STARTUP: lifespan started ===")
     init_db()
-    print("=== STARTUP: init_db completed ===")
     yield
-    print("=== SHUTDOWN ===")
-
-
-# Fallback: explicit startup event in case lifespan isn't triggered
-@app.on_event("startup")
-async def startup_event():
-    print("=== STARTUP: explicit startup event ===")
-    init_db()
-    print("=== STARTUP: explicit init_db completed ===")
-
-
-# Fallback: lazy seed on first request (guaranteed to run)
-@app.middleware("http")
-async def ensure_seed(request, call_next):
-    global _seed_done
-    if not _seed_done:
-        print("=== LAZY SEED: first request, running init_db ===")
-        init_db()
-        _seed_done = True
-        print("=== LAZY SEED: completed ===")
-    return await call_next(request)
 
 
 app = FastAPI(
@@ -66,6 +43,24 @@ from app.core.rate_limit import rate_limit_middleware
 app.middleware("http")(rate_limit_middleware)
 
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
+
+
+@app.middleware("http")
+async def ensure_seeded_once(request, call_next):
+    """Run init_db() on the first request if the lifespan hook never fired.
+
+    Some ASGI servers skip the lifespan entirely, which previously left the
+    database without tables and without the seeded agent roster. Runs at most
+    once per process and never blocks the response on failure.
+    """
+    global _seed_done
+    if not _seed_done:
+        _seed_done = True
+        try:
+            init_db()
+        except Exception as exc:  # seeding must never break requests
+            print(f"init_db skipped: {type(exc).__name__}: {exc}")
+    return await call_next(request)
 
 
 @app.get("/health")

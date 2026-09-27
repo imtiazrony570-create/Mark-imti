@@ -10,18 +10,20 @@ def _seed_default_provider_and_model(db) -> None:
     """Seed all free-tier providers with sensible default models so the user
     only needs to paste their API keys in /ai."""
     from app.models.agent import ModelProviderConfig, ModelProvider
-    from app.models.user import User
+    from app.models.user import User, UserRole
     from app.core.security import get_password_hash
 
-    # Ensure there's at least one user (the master admin)
+    # Ensure there's at least one user (the master admin). User has a `role`
+    # enum rather than an is_superuser flag, so use UserRole.ADMIN.
     admin = db.query(User).filter(User.email == "kevin.clientmanager@gmail.com").first()
     if not admin:
         admin = User(
             email="kevin.clientmanager@gmail.com",
             hashed_password=get_password_hash("Masteradmin"),
             full_name="Kevin Client Manager",
+            role=UserRole.ADMIN,
             is_active=True,
-            is_superuser=True,
+            is_verified=True,
         )
         db.add(admin)
         db.flush()
