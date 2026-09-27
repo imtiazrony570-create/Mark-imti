@@ -7,8 +7,8 @@ settings = get_settings()
 
 
 def _seed_default_provider_and_model(db) -> None:
-    """Ensure Together AI is the default provider with a vision model, so chat works
-    out of the box once the user adds a free Together AI key."""
+    """Seed all free-tier providers with sensible default models so the user
+    only needs to paste their API keys in /ai."""
     from app.models.agent import ModelProviderConfig, ModelProvider
     from app.models.user import User
     from app.core.security import get_password_hash
@@ -26,37 +26,54 @@ def _seed_default_provider_and_model(db) -> None:
         db.add(admin)
         db.flush()
 
-    # Upsert Together AI as the default provider for this user
-    cfg = db.query(ModelProviderConfig).filter(
-        ModelProviderConfig.user_id == admin.id,
-        ModelProviderConfig.provider == ModelProvider.TOGETHER,
-    ).first()
+    # All free-tier providers with sensible default models
+    FREE_PROVIDERS = [
+        # (provider, default_model, is_default, description)
+        (ModelProvider.GROQ, "llama-3.3-70b-versatile", True,
+         "Unlimited free, no card, fastest inference, great code/reasoning"),
+        (ModelProvider.OPENROUTER, "google/gemini-2.5-flash:free", False,
+         "Free :free models, one key for 100+ models"),
+        (ModelProvider.NVIDIA, "meta/llama-3.3-70b-instruct", False,
+         "Free tier, strong open models"),
+        (ModelProvider.CEREBRAS, "llama-3.3-70b", False,
+         "Free tier, very fast inference"),
+        (ModelProvider.FIREWORKS, "accounts/fireworks/models/llama-v3p3-70b-instruct", False,
+         "Free tier credits on signup"),
+        (ModelProvider.HUGGINGFACE, "meta-llama/Llama-3.3-70B-Instruct", False,
+         "Free tier, open models via router"),
+    ]
 
-    if not cfg:
-        cfg = ModelProviderConfig(
-            user_id=admin.id,
-            provider=ModelProvider.TOGETHER,
-            is_default=True,
-            config={"model": "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo"},
-        )
-        db.add(cfg)
-    else:
-        cfg.is_default = True
-        cfg.config = {"model": "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo"}
+    for provider, default_model, is_default, _desc in FREE_PROVIDERS:
+        cfg = db.query(ModelProviderConfig).filter(
+            ModelProviderConfig.user_id == admin.id,
+            ModelProviderConfig.provider == provider,
+        ).first()
 
-    # Ensure user settings point to this as default
+        if not cfg:
+            cfg = ModelProviderConfig(
+                user_id=admin.id,
+                provider=provider,
+                is_default=is_default,
+                config={"model": default_model},
+            )
+            db.add(cfg)
+        else:
+            cfg.is_default = is_default
+            cfg.config = {"model": default_model}
+
+    # Ensure user settings point to the primary default (Groq)
     from app.models.user_settings import UserSettings
     prefs = db.query(UserSettings).filter(UserSettings.user_id == admin.id).first()
     if not prefs:
         prefs = UserSettings(
             user_id=admin.id,
-            default_model="meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
-            default_provider="TOGETHER",
+            default_model="llama-3.3-70b-versatile",
+            default_provider="GROQ",
         )
         db.add(prefs)
     else:
-        prefs.default_model = "meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo"
-        prefs.default_provider = "TOGETHER"
+        prefs.default_model = "llama-3.3-70b-versatile"
+        prefs.default_provider = "GROQ"
 
     db.commit()
 
@@ -77,7 +94,7 @@ def init_db() -> None:
             if created:
                 print(f"Agent roster ensured ({created} new agent(s))!")
             _seed_default_provider_and_model(db)
-            print("Default provider/model seeded (Together AI + vision model).")
+            print("Default providers seeded: Groq (default), OpenRouter, NVIDIA, Cerebras, Fireworks, Hugging Face.")
         finally:
             db.close()
     except Exception as exc:  # never block startup on seeding
