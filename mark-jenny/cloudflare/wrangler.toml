@@ -1,0 +1,25 @@
+name = "mark-imti-backend"
+main = "src/index.ts"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+ENVIRONMENT = "production"
+API_V1_PREFIX = "/api/v1"
+
+# Neon database (set via wrangler secret put)
+# DATABASE_URL = "postgresql://..."
+
+# JWT secret (set via wrangler secret put)
+# SECRET_KEY = "..."
+
+# CORS
+CORS_ORIGIN_REGEX = "https://mark-imti.pages.dev"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mark-imti"
+database_id = "your-d1-id-here"  # Replace after `wrangler d1 create mark-imti`
+
+[assets]
+directory = "public"

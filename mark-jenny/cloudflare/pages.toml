@@ -1,0 +1,17 @@
+# Cloudflare Pages configuration for Next.js frontend
+# Deploy: wrangler pages deploy frontend/out --project-name=mark-imti
+
+# Build command (run in frontend directory):
+# npm run build && next export
+
+# Environment variables (set in Cloudflare Pages dashboard):
+# NEXT_PUBLIC_API_URL = https://mark-imti-backend.your-subdomain.workers.dev/api/v1
+# NEXT_PUBLIC_WS_URL = wss://mark-imti-backend.your-subdomain.workers.dev/api/v1/ws
+
+# Build settings:
+# Build command: npm run build && next export
+# Build output directory: frontend/out
+# Root directory: frontend
+
+# Edge functions (if needed): functions/
+# Redirects: _redirects file in public/
