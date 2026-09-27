@@ -1,4 +1,4 @@
-"""Simple launcher:  python main.py   (or  python -m uvicorn main:app --port 8000)"""
+"""Launcher:  python main.py   (or  python -m uvicorn app.main:app --port 8000)"""
 import os
 import sys
 import uvicorn
@@ -7,4 +7,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
+    # reload=True would fork a watcher in production, which breaks on every
+    # container host (Fly, HF Spaces, Render). Enable it only for local dev.
+    reload = os.environ.get("RELOAD", "0") == "1"
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=port,
+        reload=reload,
+        log_level=os.environ.get("LOG_LEVEL", "info"),
+    )
