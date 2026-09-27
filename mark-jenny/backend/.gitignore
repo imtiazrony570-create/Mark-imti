@@ -2,3 +2,6 @@
 # credential vault salt - machine specific, never commit
 credentials/
 mcp/
+
+# local signing key generated at runtime - never commit
+.secret_key
