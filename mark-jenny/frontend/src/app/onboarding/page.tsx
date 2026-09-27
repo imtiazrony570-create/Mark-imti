@@ -44,6 +44,13 @@ export default function OnboardingPage() {
     } catch (e) { console.error(e); } finally { setSaving(false); }
   };
 
+  // Leave onboarding without running the finish handler: no theme write, no
+  // provider call, just mark it done and go to chat.
+  const skipOnboarding = () => {
+    localStorage.setItem("onboarded", "true");
+    router.replace("/chat");
+  };
+
   const STEPS = [
     {
       title: "What should I call you?",
@@ -148,8 +155,10 @@ export default function OnboardingPage() {
               <Button variant="ghost" onClick={() => setStep(step - 1)}><ArrowLeft className="mr-2 h-4 w-4" />Back</Button>
             ) : <div />}
             <div className="flex gap-2">
-              {current.canSkip && step < STEPS.length - 1 && (
-                <Button variant="ghost" onClick={() => setStep(step + 1)}>Skip</Button>
+              {/* Skip used to advance one step and was hidden on the last step,
+                  so there was no way out of onboarding. It now exits to chat. */}
+              {current.canSkip && (
+                <Button variant="ghost" onClick={skipOnboarding}>Skip</Button>
               )}
               {step < STEPS.length - 1 ? (
                 <Button onClick={() => setStep(step + 1)}>Next <ArrowRight className="ml-2 h-4 w-4" /></Button>

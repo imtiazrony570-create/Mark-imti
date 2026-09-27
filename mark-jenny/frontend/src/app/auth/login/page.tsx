@@ -29,7 +29,15 @@ export default function LoginPage() {
       } else {
         await register(email, password);
       }
-      const dest = localStorage.getItem("onboarded") ? "/" : "/onboarding";
+      // Honour ?redirect=/somewhere, e.g. /auth/login?redirect=/chat sends a
+      // logged-out user away from the page they wanted. Only same-origin
+      // absolute paths are accepted so this cannot become an open redirect.
+      const params = new URLSearchParams(window.location.search);
+      const requested = params.get("redirect") || "";
+      const isSafePath = requested.startsWith("/") && !requested.startsWith("//");
+      const dest = isSafePath
+        ? requested
+        : localStorage.getItem("onboarded") ? "/" : "/onboarding";
       router.push(dest);
       router.refresh();
     } catch (err: unknown) {

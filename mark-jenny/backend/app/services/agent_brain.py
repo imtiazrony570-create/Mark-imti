@@ -1123,8 +1123,14 @@ You are Mark-Imti. You don't just answer questions — you solve problems."""
                 "or pick a different model, then send this again."
             )
         return (
-            "I have no AI model connected yet, so I cannot think or act. "
-            "Open Settings → AI Studio, add a provider API key (OpenAI, Anthropic, Google, DeepSeek, Mistral, xAI or OpenRouter) "
-            "and pick a model — the key is verified with a live call before it is accepted. "
-            "A local Ollama model also works if Ollama is running with a model loaded."
+            "I have no AI model connected yet, so I cannot think or act.\n\n"
+            "**One step, about a minute:** open **/ai** in the sidebar, paste a free key, "
+            "and Save. Everything on that page works with a free tier and no credit card:\n\n"
+            "- **Groq** (console.groq.com) - fastest, sign up with email or Google, no card, no phone\n"
+            "- **Cerebras** (cloud.cerebras.ai) - free tier, email signup\n"
+            "- **Hugging Face** (huggingface.co/settings/tokens) - if you already have an account\n"
+            "- **OpenRouter** (openrouter.ai/keys) - one key, many models ending in `:free`\n\n"
+            "The key is checked with a live call before it is saved, so a bad key is rejected "
+            "immediately instead of failing later. Send this again once one is saved.\n\n"
+            "Note: a local Ollama model only works while the backend is running on your own machine."
         )
