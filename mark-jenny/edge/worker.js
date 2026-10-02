@@ -383,7 +383,7 @@ const MANIFEST=`{
   "background_color":"#0b1020",
   "theme_color":"#0b1020",
   "description":"Professional personal AI workspace"
-}\`;
+}`;
 const SW=`const C="mark-imti-v1";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/","/manifest.webmanifest"]))));self.addEventListener("fetch",e=>{if(e.request.method==="GET"&&new URL(e.request.url).origin===location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const c=x.clone();caches.open(C).then(k=>k.put(e.request,c));return x}).catch(()=>caches.match("/"))))});\`;
 
 addEventListener("fetch",event=>event.respondWith((async()=>{
