@@ -1,4 +1,5 @@
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mark-imti-api.kevin-clientmanager.workers.dev/api/v1';
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mark-imti-api.imtiazrony570.workers.dev/api/v1';
+const STATIC_MODE = process.env.NEXT_PUBLIC_STATIC_MODE === 'true';
 
 class ApiError extends Error {
   constructor(public status: number, message: string, public data?: unknown) {
@@ -54,7 +55,7 @@ function writeDB(db: any) {
 }
 function ensureDB() {
   const db = readDB();
-  if (!db.user) db.user = { id: 1, email: 'local@mark-imti.app', full_name: 'Local User', avatar_url: null, role: 'user', is_active: true, is_verified: true, created_at: new Date().toISOString(), last_login_at: null };
+  if (!db.user) db.user = { id: 1, email: (typeof window !== 'undefined' && localStorage.getItem('mark.local.email')) || 'local@mark-imti.app', full_name: 'Local User', avatar_url: null, role: 'user', is_active: true, is_verified: true, created_at: new Date().toISOString(), last_login_at: null };
   if (!Array.isArray(db.chats)) db.chats = [];
   if (!Array.isArray(db.providers)) db.providers = [];
   if (!Array.isArray(db.projects)) db.projects = [];
