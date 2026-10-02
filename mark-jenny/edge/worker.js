@@ -102,7 +102,8 @@ body.dark .danger{background:#35151a;border-color:#5f2229;color:#fda4af}
     {id:"CUSTOM",name:"Custom OpenAI-compatible",desc:"Connect a compatible endpoint of your choice.",base:"",model:""}
   ];
   let state=load();
-  const pathRoutes={"/home":"/home","/chat":"/chat","/projects":"/projects","/models":"/models","/skills":"/skills","/library":"/library","/settings":"/settings"};\n  let route=location.hash.slice(1)||pathRoutes[location.pathname]||"/home";
+  const pathRoutes={"/home":"/home","/chat":"/chat","/projects":"/projects","/models":"/models","/skills":"/skills","/library":"/library","/settings":"/settings"};
+  let route=location.hash.slice(1)||pathRoutes[location.pathname]||"/home";
   let currentChatId=state.chats[0]?.id||null;
   let searchQuery="";
   let mobileOpen=false;
