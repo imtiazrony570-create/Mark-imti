@@ -47,7 +47,7 @@ export const chatApi = {
     return api.post<ChatDetail>(`/chats`, data);
   },
   get: async (id: number): Promise<ChatDetail> => api.get<ChatDetail>(`/chats/${id}`),
-  update: async (id: number, data: { title?: string }): Promise<Chat> => api.patch<Chat>(`/chats/${id}`, data),
+  update: async (id: number, data: { title?: string; project_id?: number | null }): Promise<Chat> => api.patch<Chat>(`/chats/${id}`, data),
   delete: async (id: number): Promise<{message:string}> => api.delete<{message:string}>(`/chats/${id}`),
   listMessages: async (chatId: number): Promise<Message[]> => api.get<Message[]>(`/chats/${chatId}/messages`),
   sendMessage: async (chatId: number, data: { content: string; project_id?: number; attachments?: number[]; connectors?: number[]; think?: boolean; model?: string }): Promise<Message> => {
