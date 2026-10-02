@@ -221,23 +221,15 @@ export default function ChatPage() {
   }, [projectId, openTab]);
 
   const closeTab = useCallback((chatId: number) => {
-    if (pinned.includes(chatId)) return; // Pinned tabs can't close — unpin first
     setOpenTabs((prev) => {
       const next = prev.filter((t) => t.id !== chatId);
-      if (activeChatId === chatId && next.length > 0) {
-        setActiveChatId(next[next.length - 1].id);
-      } else if (next.length === 0) {
-        // All tabs closed — create a fresh chat
-        chatApi.create({}).then((c) => {
-          setChats((prev) => [c, ...prev]);
-          setActiveChatId(c.id);
-          setMessages([]);
-          setOpenTabs([{ id: c.id, title: c.title || "New session" }]);
-        });
+      if (activeChatId === chatId) {
+        setActiveChatId(next[next.length - 1]?.id ?? null);
+        if (next.length === 0) setMessages([]);
       }
       return next;
     });
-  }, [activeChatId, pinned]);
+  }, [activeChatId]);
 
   const handleTabSelect = useCallback((chatId: number) => {
     setActiveChatId(chatId);
@@ -262,18 +254,18 @@ export default function ChatPage() {
       const res = await chatApi.list({ page: 1, page_size: 50 });
       setChats(res.chats);
       setPinned(loadPinned());
-      if (!activeChatId && res.chats.length) {
+      if (mode === "chat" && !projectId && !activeChatId && res.chats.length) {
         setActiveChatId(res.chats[0].id);
         openTab(res.chats[0].id, res.chats[0].title ?? undefined);
       }
-      if (!res.chats.length) {
+      if (mode === "chat" && !projectId && !res.chats.length) {
         const c = await chatApi.create({});
         setChats([c]);
         setActiveChatId(c.id);
         openTab(c.id, c.title || "New session");
       }
     } catch (e) { console.error(e); } finally { setLoadingChats(false); }
-  }, [activeChatId, openTab]);
+  }, [activeChatId, openTab, mode, projectId]);
 
   useEffect(() => { try { localStorage.setItem("mark.sidebarMode", mode); } catch {} }, [mode]);
   useEffect(() => {
