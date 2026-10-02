@@ -201,7 +201,7 @@ function bind(){
  document.querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>{state.ui.settingsSection=b.dataset.setting;save();render()});
  document.querySelectorAll("[data-profile]").forEach(e=>e.addEventListener("input",()=>{state.data.profile[e.dataset.profile]=e.value}));
  document.querySelectorAll("[data-setting-toggle]").forEach(b=>b.onclick=()=>{const k=b.dataset.settingToggle;if(k==="theme")state.data.appearance.theme=state.data.appearance.theme==="dark"?"light":"dark";if(k==="density")state.data.appearance.density=state.data.appearance.density==="comfortable"?"compact":"comfortable";save();render()});
- document.addEventListener("keydown",keyHandler,{once:true});
+ document.onkeydown=keyHandler;
 }
 function keyHandler(e){if(e.key==="Escape"&&state.ui.settingsOpen){state.ui.settingsOpen=false;save();render();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();state.ui.settingsOpen=true;save();render()}}
 function closeSidebar(){document.getElementById("sidebar")?.classList.remove("open")}
