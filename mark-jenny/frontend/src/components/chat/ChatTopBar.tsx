@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { setSearchOpen } from "@/lib/nav/search-store";
 import { setSettingsOpen } from "@/lib/nav/settings-store";
 import { cn } from "@/lib/utils";
-import { DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu";
 
 export interface Tab {
   id: number;
@@ -236,22 +235,25 @@ export function ChatTopBar({
               {tab.pinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
               {tab.pinned ? "Unpin" : "Pin"}
             </button>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger><FolderKanban className="h-3 w-3" /> Add to Project</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent className="w-56">
-                {!projects?.length ? (
-                  <button disabled className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-zinc-400">No projects yet</button>
-                ) : projects.map((project) => (
-                  <button
-                    key={project.id}
-                    onClick={(e) => { e.stopPropagation(); onAddToProject?.(tab.id, project.id); setMenuTab(null); }}
-                    className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                  >
-                    {project.name || `Project #${project.id}`}
-                  </button>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (!projects?.length) {
+                  window.alert("Create a project first, then add this chat to it.");
+                  return;
+                }
+                const options = projects.map((project) => `${project.id}: ${project.name || `Project #${project.id}`}`).join("\n");
+                const raw = window.prompt(`Enter the project ID to add this chat to:\n\n${options}`);
+                const id = Number(raw);
+                if (Number.isInteger(id) && projects.some((project) => project.id === id)) {
+                  onAddToProject?.(tab.id, id);
+                }
+                setMenuTab(null);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700"
+            >
+              <FolderKanban className="h-3 w-3" /> Add to Project
+            </button>
             <button
               onClick={(e) => { e.stopPropagation(); onToggleMute?.(tab.id); setMenuTab(null); }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700"
