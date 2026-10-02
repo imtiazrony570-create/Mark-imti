@@ -82,7 +82,13 @@ function fmt(s){try{return new Date(s).toLocaleString([],{month:"short",day:"num
 const icons={quick:"✣",schedule:"◷",skills:"✧",library:"▤",projects:"▱",chat:"◉",pin:"⚑",settings:"⚙",browser:"◎",search:"⌕",plus:"＋",close:"×",send:"↑",back:"‹",forward:"›",reload:"↻",external:"↗",trash:"⌫",edit:"✎"};
 function toast(msg){const el=document.createElement("div");el.className="toast";el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
 function route(section,extra={}){state.ui.section=section;Object.assign(state.ui,extra);save();render()}
-function setMode(mode){state.ui.mode=mode;if(mode==="imti"&&!["quick","chat","schedule","skills","pinned-chats"].includes(state.ui.section))state.ui.section="quick";if(mode==="mark"&&!["quick","library","skills","projects","pinned-projects"].includes(state.ui.section))state.ui.section="quick";if(mode==="browser")state.ui.section="browser";save();render()}
+function setMode(mode){
+ state.ui.mode=mode;
+ if(mode==="imti"&&![ "quick","chat","schedule","skills","pinned-chats","search" ].includes(state.ui.section))state.ui.section="quick";
+ if(mode==="mark"&&![ "quick","chat","library","skills","projects","pinned-projects" ].includes(state.ui.section))state.ui.section="quick";
+ if(mode==="browser"&&![ "quick","schedule","library","skills","pinned-browser-sessions","browser" ].includes(state.ui.section))state.ui.section="browser";
+ save();render();
+}
 function currentChat(){return state.data.chats.find(c=>c.id===state.ui.chatId)||state.data.chats[0]||null}
 function currentProject(){return state.data.projects.find(p=>p.id===state.ui.projectId)||state.data.projects[0]||null}
 function modeLabel(){return state.ui.mode==="imti"?"IMTI":state.ui.mode==="mark"?"MARK":"BROWSER"}
@@ -222,10 +228,10 @@ function settingsPanel(){
 function field(label,key,ph,disabled=false,type="input"){const v=state.data.profile[key]||"";if(type==="textarea")return'<div class="field"><label>'+label+'</label><small>'+ph+'</small><textarea data-profile="'+key+'">'+esc(v)+'</textarea></div>';return'<div class="field"><label>'+label+'</label><input data-profile="'+key+'" value="'+esc(v)+'" placeholder="'+esc(ph)+'" '+(disabled?"disabled":"")+'></div>'}
 function settingRow(title,desc,on,key){return'<div class="settingrow"><button class="switch '+(on?"on":"")+'" data-setting-toggle="'+key+'"></button><strong>'+title+'</strong><span>'+desc+'</span></div>'}
 function render(){
- const section=state.ui.section;
- let main="";
- if(state.ui.mode==="browser")main=browserView();
- else if(section==="chat")main=chatView();
+ const section=state.ui.section;let main="";
+ if(state.ui.mode==="browser"){
+  main=(section==="browser"||section==="pinned-browser-sessions")?browserView():(section==="quick"?quickView():section==="library"||section==="skills"||section==="schedule"?listView(section):quickView());
+ }else if(section==="chat")main=chatView();
  else if(section==="quick")main=quickView();
  else if(section==="search")main=searchView();
  else if(section==="projects"||section==="pinned-projects"||section==="library"||section==="skills"||section==="schedule"||section==="pinned-chats")main=listView(section);
@@ -274,33 +280,36 @@ function deleteChat(id){if(!confirm("Delete this chat?"))return;state.data.chats
 function bind(){
  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
  document.querySelectorAll("[data-section]").forEach(b=>b.onclick=()=>{state.ui.section=b.dataset.section;save();render();closeSidebar()});
- document.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>{state.ui.chatId=b.dataset.chat;state.ui.mode="imti";state.ui.section="chat";save();render();closeSidebar()});
- document.querySelectorAll("[data-project]").forEach(b=>b.onclick=()=>{state.ui.projectId=b.dataset.project;state.ui.mode="mark";state.ui.section="project";save();render();closeSidebar()});
- document.querySelectorAll("[data-suggest]").forEach(b=>b.onclick=()=>sendChat(b.dataset.suggest));
- document.querySelectorAll("[data-open-chat]").forEach(b=>b.onclick=()=>{state.ui.chatId=b.dataset.openChat;state.ui.mode="imti";state.ui.section="chat";save();render()});
+ document.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>openChatTab(b.dataset.chat,"imti"));
+ document.querySelectorAll("[data-project]").forEach(b=>b.onclick=()=>openProject(b.dataset.project));
+ document.querySelectorAll("[data-browser-session]").forEach(b=>b.onclick=()=>{state.ui.mode="browser";state.ui.section="browser";state.ui.browserSessionId=b.dataset.browserSession;save();render();closeSidebar()});
+ document.querySelectorAll("[data-chat-tab]").forEach(b=>b.onclick=()=>openChatTab(b.dataset.chatTab,state.ui.mode==="mark"?"mark":"imti"));
+ document.querySelectorAll("[data-close-chat-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.closeChatTab;state.ui.openChatIds=(state.ui.openChatIds||[]).filter(x=>x!==id);if(state.ui.chatId===id){const next=state.ui.openChatIds.at(-1);if(next)state.ui.chatId=next;else state.ui.section="quick"}save();render()});
+ document.querySelectorAll("[data-browser-tab]").forEach(b=>b.onclick=()=>{const ss=currentBrowserSession();if(ss){ss.activeTabId=b.dataset.browserTab;ss.updatedAt=now();state.ui.section="browser";save();render()}});
+ document.querySelectorAll("[data-close-browser-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();closeBrowserTab(b.dataset.closeBrowserTab)});
+ document.querySelectorAll("[data-pin-browser-session]").forEach(b=>b.onclick=e=>{e.stopPropagation();const ss=state.data.browserSessions.find(x=>x.id===b.dataset.pinBrowserSession);if(ss)ss.pinned=!ss.pinned;save();render()});
+ document.querySelectorAll("[data-suggest]").forEach(b=>b.onclick=()=>{if(state.ui.mode==="browser")browseQuery(b.dataset.suggest);else sendChat(b.dataset.suggest)});
+ document.querySelectorAll("[data-open-chat]").forEach(b=>b.onclick=()=>openChatTab(b.dataset.openChat,"imti"));
  document.querySelectorAll("[data-pin-chat],[data-pin-chat2]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.pinChat||b.dataset.pinChat2;const c=state.data.chats.find(x=>x.id===id);if(c)c.pinned=!c.pinned;save();render()});
  document.querySelectorAll("[data-delete-chat]").forEach(b=>b.onclick=()=>deleteChat(b.dataset.deleteChat));
- document.querySelectorAll("[data-open-library]").forEach(b=>b.onclick=()=>{state.ui.mode="mark";state.ui.section="library";save();render()});
+ document.querySelectorAll("[data-open-library]").forEach(b=>b.onclick=()=>{state.ui.mode=state.ui.mode==="browser"?"browser":"mark";state.ui.section="library";save();render()});
  const gs=document.getElementById("globalSearch");if(gs)gs.addEventListener("input",()=>{state.ui.searchQuery=gs.value;render();setTimeout(()=>{const x=document.getElementById("globalSearch");if(x){x.focus();x.selectionStart=x.value.length}},0)});
- document.querySelectorAll("[data-open-project]").forEach(b=>b.onclick=()=>{state.ui.projectId=b.dataset.openProject;state.ui.mode="mark";state.ui.section="project";save();render()});
+ document.querySelectorAll("[data-open-project]").forEach(b=>b.onclick=()=>openProject(b.dataset.openProject));
  document.querySelectorAll("[data-edit-project]").forEach(b=>b.onclick=()=>editProject(b.dataset.editProject));
  document.querySelectorAll("[data-delete-project]").forEach(b=>b.onclick=()=>deleteProject(b.dataset.deleteProject));
- document.querySelectorAll("[data-toggle-project]").forEach(b=>b.onclick=()=>{const p=state.data.projects.find(x=>x.id===b.dataset.toggleProject);if(p)p.pinned=!p.pinned;save();render()});
+ document.querySelectorAll("[data-toggle-project]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=state.data.projects.find(x=>x.id===b.dataset.toggleProject);if(p)p.pinned=!p.pinned;save();render()});
  document.querySelectorAll("[data-toggle-library]").forEach(b=>b.onclick=()=>{const x=state.data.library.find(x=>x.id===b.dataset.toggleLibrary);if(x)x.pinned=!x.pinned;save();render()});
  document.querySelectorAll("[data-delete-library]").forEach(b=>b.onclick=()=>{state.data.library=state.data.library.filter(x=>x.id!==b.dataset.deleteLibrary);save();render()});
  document.querySelectorAll("[data-toggle-schedule]").forEach(b=>b.onclick=()=>{const x=state.data.schedules.find(x=>x.id===b.dataset.toggleSchedule);if(x)x.enabled=!x.enabled;save();render()});
  document.querySelectorAll("[data-delete-schedule]").forEach(b=>b.onclick=()=>{state.data.schedules=state.data.schedules.filter(x=>x.id!==b.dataset.deleteSchedule);save();render()});
  document.querySelectorAll("[data-skill]").forEach(b=>b.onclick=()=>{const x=state.data.skills.find(x=>x.id===b.dataset.skill);if(x)x.enabled=!x.enabled;save();render()});
- document.querySelectorAll("[data-browser-tab]").forEach(b=>b.onclick=()=>{state.ui.browserTabId=b.dataset.browserTab;save();render()});
- document.querySelectorAll("[data-close-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();let t=getTabs().filter(x=>x.id!==b.dataset.closeTab);if(!t.length)t=[{id:uid("b"),title:"New Tab",url:"",history:[],future:[]}];if(!t.some(x=>x.id===state.ui.browserTabId))state.ui.browserTabId=t[0].id;saveTabs(t);save();render()});
  document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>act(b.dataset.act));
  const input=document.getElementById("composer");if(input)input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();const v=input.value;if(state.ui.mode==="browser")browseQuery(v);else sendChat(v)}})
  const address=document.getElementById("address");if(address)address.addEventListener("keydown",e=>{if(e.key==="Enter")browserNavigate(address.value)})
- const ss=document.getElementById("settingsSearch");if(ss)ss.addEventListener("input",()=>{state.ui.settingsQuery=ss.value;render();setTimeout(()=>{const n=document.getElementById("settingsSearch");if(n){n.focus();n.selectionStart=n.value.length}},0)})
+ const ss=document.getElementById("settingsSearch");if(ss)ss.addEventListener("input",()=>{state.ui.settingsQuery=ss.value;render();setTimeout(()=>{const n=document.getElementById("settingsSearch");if(n){n.focus();n.selectionStart=n.value.length}},0)});
  document.querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>{state.ui.settingsSection=b.dataset.setting;save();render()});
  document.querySelectorAll("[data-profile]").forEach(e=>e.addEventListener("input",()=>{state.data.profile[e.dataset.profile]=e.value}));
  document.querySelectorAll("[data-setting-toggle]").forEach(b=>b.onclick=()=>{const k=b.dataset.settingToggle;if(k==="theme")state.data.appearance.theme=state.data.appearance.theme==="dark"?"light":"dark";if(k==="density")state.data.appearance.density=state.data.appearance.density==="comfortable"?"compact":"comfortable";save();render()});
- document.onkeydown=keyHandler;
 }
 function keyHandler(e){if(e.key==="Escape"&&state.ui.settingsOpen){state.ui.settingsOpen=false;save();render();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();state.ui.settingsOpen=true;save();render()}}
 function closeSidebar(){document.getElementById("sidebar")?.classList.remove("open")}
@@ -310,9 +319,12 @@ function act(a){
  else if(a==="new-project")newProject();
  else if(a==="new-library")newLibrary();
  else if(a==="new-schedule")newSchedule();
- else if(a==="library")route("library",{mode:"mark"});
+ else if(a==="new-browser-session")newBrowserSession();
+ else if(a==="new-browser-tab")newBrowserTab();
+ else if(a==="library")route("library",{mode:state.ui.mode==="browser"?"browser":"mark"});
  else if(a==="skills")route("skills");
  else if(a==="browser")setMode("browser");
+ else if(a==="open-current-project")openProject(state.ui.projectId);
  else if(a==="settings"){state.ui.settingsOpen=true;save();render()}
  else if(a==="close-settings"){state.ui.settingsOpen=false;save();render()}
  else if(a==="drawer"){document.getElementById("sidebar")?.classList.toggle("open")}
@@ -321,17 +333,28 @@ function act(a){
  else if(a==="attach")toast("Attachment actions are local-only in this build.");
  else if(a==="think")toast("Think is a local UI mode; no external model is connected.");
  else if(a==="search"){state.ui.searchQuery="";state.ui.mode="imti";state.ui.section="search";save();render();setTimeout(()=>document.getElementById("globalSearch")?.focus(),50)}
- else if(a==="activity"){toast("Recent activity is represented by updated timestamps in the workspace.")}
+ else if(a==="activity")toast("Recent activity is represented by updated timestamps in the workspace.");
  else if(a==="save-profile"){document.querySelectorAll("[data-profile]").forEach(e=>state.data.profile[e.dataset.profile]=e.value);save();toast("Profile saved");render()}
- else if(a==="new-tab"){const t=getTabs();const n={id:uid("b"),title:"New Tab",url:"",history:[],future:[]};t.push(n);state.ui.browserTabId=n.id;saveTabs(t);save();render()}
- else if(a==="back"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t&&t.history?.length){t.future=[t.url,...(t.future||[])];t.url=t.history.pop()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";saveTabs(getTabs());render()}}
- else if(a==="forward"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t&&t.future?.length){if(t.url)t.history=[...(t.history||[]),t.url];t.url=t.future.shift()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";saveTabs(getTabs());render()}}
- else if(a==="reload"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t?.url)toast("Reload requested; external sites are kept isolated from the app shell.")}
+ else if(a==="back"){const ss=currentBrowserSession(),t=currentBrowserTab();if(t&&t.history?.length){t.future=[t.url,...(t.future||[])];t.url=t.history.pop()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";ss.updatedAt=now();save();render()}}
+ else if(a==="forward"){const ss=currentBrowserSession(),t=currentBrowserTab();if(t&&t.future?.length){if(t.url)t.history=[...(t.history||[]),t.url];t.url=t.future.shift()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";ss.updatedAt=now();save();render()}}
+ else if(a==="reload"){if(currentBrowserTab()?.url)toast("Reload requested; external sites stay isolated when embedding is blocked.")}
  else if(a==="go-address"){const i=document.getElementById("address");if(i)browserNavigate(i.value)}
- else if(a==="open-external"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t?.url)window.open(t.url,"_blank","noopener,noreferrer")}
+ else if(a==="open-external"){const t=currentBrowserTab();if(t?.url)window.open(t.url,"_blank","noopener,noreferrer")}
 }
-function syncHash(){let h=state.ui.mode==="browser"?"#/browser":state.ui.mode==="mark"?(state.ui.section==="project"?"#/mark/projects/"+(state.ui.projectId||""):"#/mark/"+state.ui.section):state.ui.section==="chat"?"#/imti/chat/"+(state.ui.chatId||""):"#/imti/"+state.ui.section;if(location.hash!==h)history.replaceState(null,"",h)}
-function loadHash(){const p=location.hash.replace(/^#\//,"").split("/");if(!p[0])return;if(p[0]==="browser")state.ui.mode="browser";if(p[0]==="imti"){state.ui.mode="imti";state.ui.section=p[1]||"quick";if(p[1]==="chat"&&p[2])state.ui.chatId=p[2]}if(p[0]==="mark"){state.ui.mode="mark";state.ui.section=p[1]||"quick";if(p[1]==="projects"&&p[2]){state.ui.section="project";state.ui.projectId=p[2]}}}
+function syncHash(){
+ let h;
+ if(state.ui.mode==="browser")h=state.ui.section==="browser"?"#/browser/session/"+(state.ui.browserSessionId||""):"#/browser/"+state.ui.section;
+ else if(state.ui.mode==="mark")h=state.ui.section==="chat"?"#/mark/projects/"+(state.ui.projectId||"")+"/chat/"+(state.ui.chatId||""):(state.ui.section==="project"?"#/mark/projects/"+(state.ui.projectId||""):"#/mark/"+state.ui.section);
+ else h=state.ui.section==="chat"?"#/imti/chat/"+(state.ui.chatId||""):"#/imti/"+state.ui.section;
+ if(location.hash!==h)history.replaceState(null,"",h);
+}
+function loadHash(){
+ const p=location.hash.replace(/^#\//,"").split("/");
+ if(!p[0])return;
+ if(p[0]==="browser"){state.ui.mode="browser";if(p[1]==="session"&&p[2]){state.ui.section="browser";state.ui.browserSessionId=p[2]}else state.ui.section=p[1]||"browser";}
+ if(p[0]==="imti"){state.ui.mode="imti";state.ui.section=p[1]||"quick";if(p[1]==="chat"&&p[2]){state.ui.chatId=p[2];state.ui.openChatIds=[...(state.ui.openChatIds||[]).filter(x=>x!==p[2]),p[2]]}}
+ if(p[0]==="mark"){state.ui.mode="mark";if(p[1]==="projects"&&p[2]){state.ui.projectId=p[2];state.ui.section=p[3]==="chat"?"chat":"project";if(p[4])state.ui.chatId=p[4]}else state.ui.section=p[1]||"quick";}
+}
 window.addEventListener("hashchange",()=>{loadHash();render()});
 loadHash();
 render();
