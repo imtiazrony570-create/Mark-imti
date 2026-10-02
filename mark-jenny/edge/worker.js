@@ -1,6 +1,6 @@
 const APP_VERSION = "2026.10.02.1";
 
-const HTML = String.raw\`<!doctype html>
+const HTML = String.raw`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -336,7 +336,7 @@ body.dark .danger{background:#35151a;border-color:#5f2229;color:#fda4af}
 })();
 </script>
 </body>
-</html>\`;
+</html>`;
 
 function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"Content-Type"}})}
 async function providerRequest(body){
@@ -375,7 +375,7 @@ async function providerRequest(body){
 function providerError(raw,status){
   try{const d=JSON.parse(raw);return d?.error?.message||d?.message||("Provider error ("+status+")")}catch{return (raw||"Provider request failed").slice(0,500)}
 }
-const MANIFEST=\`{
+const MANIFEST=`{
   "name":"Mark-Imti",
   "short_name":"Mark",
   "start_url":"/",
@@ -384,7 +384,7 @@ const MANIFEST=\`{
   "theme_color":"#0b1020",
   "description":"Professional personal AI workspace"
 }\`;
-const SW=\`const C="mark-imti-v1";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/","/manifest.webmanifest"]))));self.addEventListener("fetch",e=>{if(e.request.method==="GET"&&new URL(e.request.url).origin===location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const c=x.clone();caches.open(C).then(k=>k.put(e.request,c));return x}).catch(()=>caches.match("/"))))});\`;
+const SW=`const C="mark-imti-v1";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/","/manifest.webmanifest"]))));self.addEventListener("fetch",e=>{if(e.request.method==="GET"&&new URL(e.request.url).origin===location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const c=x.clone();caches.open(C).then(k=>k.put(e.request,c));return x}).catch(()=>caches.match("/"))))});\`;
 
 addEventListener("fetch",event=>event.respondWith((async()=>{
   const url=new URL(event.request.url);
