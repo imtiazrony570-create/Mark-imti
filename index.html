@@ -4,145 +4,230 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111113">
-<title>Mark-Imti</title>
+<meta name="description" content="MARK-IMTI — a focused AI and productivity workspace.">
+<title>MARK-IMTI</title>
 <style>
-:root{--bg:#0b0b0d;--panel:#141416;--panel2:#19191c;--panel3:#202023;--line:#2a2a2e;--line2:#36363b;--text:#e7e5e2;--muted:#85838a;--dim:#5f5d64;--accent:#9e9ba4;--blue:#4b83ff;--radius:9px}
-*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif}button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none}
-.app{height:100vh;display:flex;overflow:hidden;background:var(--bg)}
-.sidebar{width:205px;min-width:205px;background:#151517;border-right:1px solid var(--line2);display:flex;flex-direction:column;overflow:hidden}
-.brandbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;justify-content:space-between}
-.brand{font-weight:700;font-size:15px;letter-spacing:.1px}.headicons{display:flex;gap:9px;color:var(--muted)}
-.iconbtn{width:20px;height:20px;display:grid;place-items:center;color:var(--muted);font-family:Arial,sans-serif;font-size:13px}.iconbtn:hover{color:var(--text)}
-.modes{padding:9px 7px 5px;display:flex;gap:2px}.mode{height:27px;padding:0 8px;border-radius:7px;color:#77757b;font-size:12px;display:flex;align-items:center;gap:5px}.mode.active{background:#353539;color:#e4e2e0;box-shadow:inset 0 0 0 1px #3f3f44}.mode .mi{font-family:Arial,sans-serif;font-size:12px}
-.nav{padding:0 7px 8px;border-bottom:1px solid #26262a}.navitem{height:29px;border-radius:7px;padding:0 8px;display:flex;align-items:center;gap:7px;color:#747278;font-size:13px}.navitem.active{background:#353538;color:#e7e5e3}.navitem:hover{background:#252529;color:#cfcdd0}.navicon{width:14px;text-align:center;font-family:Arial,sans-serif;font-size:12px}
-.newchat{margin:7px 7px 4px;height:29px;border-radius:7px;background:#303033;border:1px solid #3a3a3e;text-align:left;padding:0 9px;font-size:13px}.newchat:hover{background:#39393d}
-.chatlist{overflow:auto;padding:2px 7px 14px;flex:1}.sectionlabel{font-size:10px;letter-spacing:.08em;color:#8b8990;padding:7px 8px 5px}.chatrow{padding:7px 7px;border-radius:7px;min-height:41px}.chatrow.active{background:#303034}.chatrow:hover{background:#242428}.chatname{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.count{font-family:Arial,sans-serif;font-size:9px;color:#6e6c72;margin-top:2px}
-.main{flex:1;min-width:0;display:flex;flex-direction:column}.topbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 8px;gap:6px}.top-title{font-size:12px;color:#a09ea4}.tab{height:28px;padding:0 10px;border-radius:7px;background:#2c2c30;color:#e3e1df;font-size:11px;border:1px solid #37373c}.plus{color:#8b8990;font-size:18px;line-height:1}.topright{margin-left:auto;display:flex;gap:8px;align-items:center}.searchmini{width:27px;height:27px;border-radius:7px;display:grid;place-items:center;color:#4c80ff;font-family:Arial}.workspace{flex:1;min-height:0;position:relative;overflow:hidden}
-.empty{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;padding-bottom:20px;text-align:center}.emptyicon{font-family:Arial;font-size:35px;color:#44444b;margin-bottom:9px}.empty h1{font-size:21px;margin:0 0 8px;font-weight:700}.empty p{font-size:12px;line-height:1.55;color:#6f6d74;max-width:410px;margin:0}
-.composerzone{padding:8px 10px 9px}.suggestions{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0 auto 9px;max-width:620px}.chip{border:1px solid #25252a;background:#101013;border-radius:16px;padding:6px 10px;color:#a8a6ac;font-size:11px}.chip:hover{background:#1d1d20;color:#ddd}
-.composer{height:45px;border:1px solid #2b2b30;border-radius:24px;background:#111113;display:flex;align-items:center;padding:0 6px 0 7px;max-width:720px;margin:auto}.circle{width:30px;height:30px;border:1px solid #29292e;border-radius:50%;display:grid;place-items:center;color:#a4a1a7;font-family:Arial;font-size:17px;flex:0 0 auto}.prompt{flex:1;border:0;outline:0;background:transparent;padding:0 9px;font-family:Arial,sans-serif;font-size:12px;color:#ddd}.prompt::placeholder{color:#66646b}.drop{color:#8a888e;font-family:Arial}.think{height:29px;border:1px solid #2b2b30;border-radius:15px;padding:0 10px;color:#8b8990;font-size:11px}.voice{width:30px;color:#8c8a91;font-family:Arial}.hint{text-align:center;font-size:9px;color:#646269;margin-top:6px}
-.browsergrid{height:100%;display:grid;grid-template-columns:43% 57%}.browserleft{display:flex;flex-direction:column;min-width:0}.browserright{border-left:1px solid #3b3b40;display:flex;flex-direction:column;min-width:0}.browserchrome{height:34px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 7px;gap:5px;font-family:Arial;font-size:11px}.btab{height:27px;min-width:91px;background:#242428;border:1px solid #303036;border-bottom-color:#4d79c8;border-radius:7px 7px 0 0;padding:0 8px;display:flex;align-items:center;gap:6px}.bplus{font-size:16px;color:#888}.navtools{display:flex;gap:8px;color:#777}.address{height:25px;flex:1;border:1px solid #2b2b30;border-radius:13px;background:#171719;color:#6d6b72;padding:0 10px;outline:0;font-size:10px}.browserempty{flex:1;display:grid;place-items:center;text-align:center;color:#67656c}.browserempty .globe{font-family:Arial;font-size:34px;margin-bottom:8px}.browserempty strong{display:block;font-size:13px;color:#77757b;font-weight:400}.browserempty span{font-size:10px}
-.settings{height:100%;display:flex;flex-direction:column}.settingsbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 10px;gap:12px}.settingsbar strong{font-size:13px}.seg{display:flex;background:#171719;border:1px solid #29292e;border-radius:8px;overflow:hidden}.seg button{height:28px;padding:0 12px;color:#76747b;font-size:10px}.seg button.active{background:#252529;color:#ddd}.settingssearch{margin-left:auto;width:205px;height:28px;border:1px solid #29292e;border-radius:8px;background:#111113;padding:0 10px;outline:0;font-family:Arial;font-size:11px}.settingsbody{display:flex;flex:1;min-height:0;max-width:760px;width:100%;margin:0 auto;padding:18px 18px 30px;gap:12px}.settingsnav{width:128px;border-right:1px solid #28282d;padding-right:8px;overflow:auto}.settingsnav button{width:100%;text-align:left;height:29px;border-radius:7px;color:#77757b;padding:0 9px;font-size:12px}.settingsnav button.active{background:#242427;color:#e0dedd}.settingsnav button:hover{background:#202023;color:#c9c7ca}.settingspanel{flex:1;min-width:0;overflow:auto}.settingtitle{font-size:22px;margin:0 0 16px;display:flex;align-items:center;gap:8px}.profilecard{background:#19191b;border:1px solid #252529;border-radius:11px;padding:14px;max-width:430px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;margin-bottom:5px}.field small{display:block;color:#68666d;font-size:9px;margin:-2px 0 6px}.field input,.field textarea,.field select{width:100%;border:1px solid #303035;background:#242426;border-radius:9px;padding:7px 9px;outline:0;font-family:Arial,sans-serif;font-size:11px;color:#ddd}.field textarea{min-height:62px;resize:vertical}.save{background:#e8e7e5;color:#1a1a1c;border-radius:8px;padding:6px 9px;font-family:Arial;font-size:11px}.divider{border-top:1px solid #29292d;margin:10px 0 12px}
-.contentpage{padding:24px;overflow:auto;height:100%}.contentpage h2{font-size:20px;margin:0 0 7px}.contentpage p{color:#737178;font-size:12px;line-height:1.5;max-width:580px}.listcard{border:1px solid #27272c;background:#161618;border-radius:9px;padding:10px;margin-top:12px;max-width:650px}.listrow{padding:10px 4px;border-bottom:1px solid #25252a;display:flex;justify-content:space-between;color:#aaa8ae;font-size:12px}.listrow:last-child{border-bottom:0}
-.messages{height:100%;overflow:auto;padding:24px 18px 130px;max-width:760px;margin:auto}.msg{margin-bottom:14px}.msg.user{text-align:right}.bubble{display:inline-block;max-width:75%;padding:9px 12px;border-radius:12px;background:#202024;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;text-align:left}.msg.assistant .bubble{background:transparent;padding-left:0;color:#c8c6ca}
-@media(max-width:700px){.sidebar{width:188px;min-width:188px}.settingsbody{padding:14px 10px}.settingssearch{width:130px}.browsergrid{grid-template-columns:1fr}.browserright{display:none}.empty h1{font-size:19px}.suggestions{padding:0 8px}.chip{font-size:10px}.composerzone{padding-left:6px;padding-right:6px}}
-@media(max-width:480px){.sidebar{width:178px;min-width:178px}.brandbar{padding:0 10px}.mode{padding:0 6px;font-size:11px}.navitem{font-size:12px}.settingsnav{width:105px}.settingsbar .seg{display:none}.settingssearch{width:115px}.settingtitle{font-size:19px}.profilecard{padding:11px}}
-::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#35353a;border-radius:5px}::-webkit-scrollbar-track{background:transparent}
+:root{--bg:#0b0b0d;--panel:#151517;--panel2:#1b1b1e;--panel3:#232326;--line:#29292e;--line2:#38383e;--text:#e9e7e4;--muted:#8c8a91;--dim:#646269;--accent:#6d8fff;--accent2:#3d69e8;--danger:#df7373;--ok:#75bd91;--radius:10px;--sidebar:228px;--top:48px}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif}body{overflow:hidden}button,input,textarea,select{font:inherit;color:inherit}button{border:0;background:none;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}
+.app{height:100dvh;display:flex;overflow:hidden;background:var(--bg)}
+.sidebar{width:var(--sidebar);min-width:var(--sidebar);background:#151517;border-right:1px solid var(--line2);display:flex;flex-direction:column;overflow:hidden;z-index:20}
+.brandbar{height:48px;min-height:48px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;justify-content:space-between}.brand{font-size:15px;font-weight:700;letter-spacing:.1px}.headicons{display:flex;gap:4px}.iconbtn{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--muted);font-family:Arial,sans-serif;font-size:15px}.iconbtn:hover{background:#232326;color:var(--text)}.iconbtn:focus-visible,.navitem:focus-visible,.mode:focus-visible,.chatrow:focus-visible,.settingnav button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.modes{padding:10px 8px 6px;display:flex;gap:2px}.mode{height:29px;padding:0 9px;border-radius:8px;color:#77757c;font:12px Arial,sans-serif;display:flex;align-items:center;gap:5px}.mode:hover{background:#232326;color:#cfcdd0}.mode.active{background:#37373b;color:#eee;box-shadow:inset 0 0 0 1px #424249}.mi{font-size:12px}
+.nav{padding:0 8px 9px;border-bottom:1px solid #26262a}.navitem{width:100%;height:31px;border-radius:8px;padding:0 9px;display:flex;align-items:center;gap:8px;color:#77757c;font-size:13px;text-align:left}.navitem:hover{background:#242428;color:#d0ced0}.navitem.active{background:#353539;color:#efedeb}.navicon{width:15px;text-align:center;font:13px Arial,sans-serif}
+.sectionlabel{font:10px Arial,sans-serif;letter-spacing:.09em;color:#78767c;padding:11px 10px 6px}.newbtn{margin:8px 8px 4px;height:31px;border-radius:8px;background:#303034;border:1px solid #3a3a3f;text-align:left;padding:0 10px;font-size:13px}.newbtn:hover{background:#3a3a3f}.scroll{overflow:auto;flex:1;padding:1px 8px 14px}.chatrow,.projectrow{min-height:42px;padding:7px 9px;border-radius:8px;color:#b0aeb3;display:flex;align-items:center;gap:7px}.chatrow:hover,.projectrow:hover{background:#242428;color:#e2e0df}.chatrow.active,.projectrow.active{background:#303034;color:#eee}.rowmain{min-width:0;flex:1}.rowtitle{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rowsub{font:9px Arial,sans-serif;color:#68666d;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rowaction{opacity:0}.chatrow:hover .rowaction,.projectrow:hover .rowaction{opacity:1}.sidebarfoot{border-top:1px solid var(--line);padding:8px}.sidebar-note{font:9px Arial,sans-serif;color:#5f5d64;padding:5px 8px;line-height:1.45}
+.main{min-width:0;flex:1;display:flex;flex-direction:column;background:var(--bg)}.topbar{height:var(--top);min-height:var(--top);border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 9px;gap:6px}.top-title{font-size:12px;color:#aaa8ad}.top-spacer{flex:1}.topmini{height:28px;border:1px solid var(--line);background:#151517;border-radius:8px;padding:0 9px;color:#a5a2a8;font:11px Arial,sans-serif}.topmini:hover{background:#222225;color:#e7e5e3}.workspace{min-height:0;flex:1;position:relative;overflow:hidden}
+.empty{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:30px}.emptyicon{font:34px Arial,sans-serif;color:#44444b;margin-bottom:10px}.empty h1{font-size:22px;margin:0 0 8px}.empty p{font-size:12px;line-height:1.55;color:#716f76;max-width:500px;margin:0}.messages{height:100%;overflow:auto;padding:28px 20px 120px;max-width:820px;margin:auto}.msg{margin:0 0 16px}.msg.user{text-align:right}.bubble{display:inline-block;max-width:min(76%,620px);padding:10px 13px;border-radius:12px;background:#202024;font:12px/1.55 Arial,sans-serif;text-align:left;white-space:pre-wrap}.msg.assistant .bubble{background:transparent;padding-left:0;color:#c7c5c9}.composerzone{padding:9px 10px 11px;background:linear-gradient(transparent,#0b0b0d 22%)}.suggestions{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0 auto 9px;max-width:720px}.chip{border:1px solid #28282d;background:#111113;border-radius:17px;padding:6px 10px;color:#a6a4aa;font:11px Arial,sans-serif}.chip:hover{background:#1e1e21;color:#e6e4e2}.composer{height:48px;border:1px solid #2c2c31;border-radius:25px;background:#111113;display:flex;align-items:center;padding:0 7px;max-width:760px;margin:auto;box-shadow:0 8px 30px #0003}.circle{width:31px;height:31px;border:1px solid #29292e;border-radius:50%;display:grid;place-items:center;color:#a5a3a9;font:17px Arial,sans-serif;flex:0 0 auto}.circle:hover{background:#242428}.prompt{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:0 10px;font:12px Arial,sans-serif;color:#ddd}.prompt::placeholder{color:#67656c}.think{height:30px;border:1px solid #2c2c31;border-radius:16px;padding:0 10px;color:#929097;font:11px Arial,sans-serif}.think:hover{background:#222226;color:#e5e3e1}.send{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:#2c2c31;color:#aaa;font:14px Arial,sans-serif}.send:hover{background:#3b3b40;color:#fff}.hint{text-align:center;font:9px Arial,sans-serif;color:#646269;margin-top:6px}
+.page{height:100%;overflow:auto;padding:24px 26px}.pagehead{display:flex;align-items:flex-start;gap:12px;max-width:940px;margin:0 auto 18px}.pagehead h1{font-size:21px;margin:0 0 6px}.pagehead p{font-size:11px;line-height:1.5;color:#747279;margin:0}.pagehead .spacer{flex:1}.primary{background:#e8e7e5;color:#19191b;border-radius:8px;padding:8px 11px;font:11px Arial,sans-serif}.primary:hover{background:#fff}.danger{color:var(--danger)!important}.grid{max-width:940px;margin:auto;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:#151517;border:1px solid #29292e;border-radius:11px;padding:13px}.card:hover{border-color:#36363c}.card h3{font-size:14px;margin:0 0 6px}.card p{font:11px/1.5 Arial,sans-serif;color:#77757c;margin:0 0 10px}.meta{font:9px Arial,sans-serif;color:#626067}.card-actions{display:flex;gap:5px;margin-top:11px}.ghost{border:1px solid #2c2c31;background:#18181a;border-radius:7px;padding:6px 8px;font:10px Arial,sans-serif;color:#aaa8ad}.ghost:hover{background:#252528;color:#eee}.searchbar{height:34px;border:1px solid #2c2c31;border-radius:9px;background:#111113;display:flex;align-items:center;padding:0 10px;max-width:310px}.searchbar input{flex:1;min-width:0;background:none;border:0;outline:0;font:11px Arial,sans-serif}.emptycard{max-width:940px;margin:auto;border:1px dashed #303036;border-radius:11px;padding:35px;text-align:center;color:#6c6a71;font-size:12px}
+.browser{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,42%);min-height:0}.browser-main{display:flex;flex-direction:column;min-width:0}.browser-side{border-left:1px solid #3a3a40;display:flex;flex-direction:column;min-width:0}.browser-tabs{height:34px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;padding:0 7px;gap:3px;overflow:auto}.btab{height:29px;min-width:108px;max-width:170px;padding:0 9px;border:1px solid #2e2e33;border-bottom-color:#5773c6;border-radius:8px 8px 0 0;background:#202023;display:flex;align-items:center;gap:6px;font:10px Arial,sans-serif;color:#ddd}.btab span{min-width:0;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.bclose{font-size:13px;color:#777}.bnew{height:29px;padding:0 7px;color:#888;font:17px Arial,sans-serif}.browser-tools{height:37px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 8px;gap:6px;font:12px Arial,sans-serif;color:#777}.browser-tools button{width:23px;color:#777}.address{height:27px;flex:1;min-width:0;border:1px solid #2b2b30;border-radius:14px;background:#171719;outline:0;padding:0 10px;font:10px Arial,sans-serif;color:#ddd}.address:focus{border-color:#4b4b53}.browser-content{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;background:#09090b;position:relative}.browserempty .globe{font:36px Arial,sans-serif;color:#45454b;margin-bottom:9px}.browserempty strong{display:block;font-size:13px;font-weight:400;color:#77757c}.browserempty span{display:block;font-size:10px;color:#5f5d64;margin-top:5px}.framewrap{position:absolute;inset:0;background:#fff}.framewrap iframe{width:100%;height:100%;border:0;background:#fff}.fallback{max-width:380px;padding:20px}.fallback h3{font-size:16px;margin:0 0 8px}.fallback p{font:11px/1.5 Arial,sans-serif;color:#777}.fallback .primary{display:inline-block;margin-top:8px;text-decoration:none}.browser .composerzone{border-top:1px solid var(--line)}
+.quickgrid{max-width:940px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.quickcard{background:#151517;border:1px solid #29292e;border-radius:10px;padding:14px;text-align:left}.quickcard:hover{background:#19191c;border-color:#393940}.quickcard .qicon{font:18px Arial,sans-serif;color:#7f9cff;margin-bottom:9px}.quickcard strong{display:block;font-size:13px;margin-bottom:4px}.quickcard span{font:10px/1.4 Arial,sans-serif;color:#6e6c73}
+.modalback{position:fixed;inset:0;background:#0009;backdrop-filter:blur(2px);z-index:100;display:flex;justify-content:flex-end}.settings{width:min(760px,94vw);height:100%;background:#171719;border-left:1px solid #34343a;display:flex;flex-direction:column;box-shadow:-20px 0 50px #0008}.settingshead{height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 15px;gap:10px}.settingshead strong{font-size:15px}.settingssearch{margin-left:auto;width:200px;height:30px;border:1px solid #303035;border-radius:9px;background:#111113;outline:0;padding:0 10px;font:11px Arial,sans-serif}.settingsbody{display:flex;flex:1;min-height:0}.settingnav{width:155px;border-right:1px solid var(--line);padding:12px 8px;overflow:auto}.settingnav button{width:100%;height:31px;border-radius:8px;text-align:left;padding:0 10px;color:#85838a;font-size:12px}.settingnav button:hover{background:#242428;color:#ddd}.settingnav button.active{background:#2b2b2f;color:#eee}.settingcontent{flex:1;min-width:0;overflow:auto;padding:20px}.settingcontent h1{font-size:21px;margin:0 0 16px}.profilecard{background:#19191b;border:1px solid #29292e;border-radius:12px;padding:15px;max-width:470px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;margin-bottom:5px}.field small{display:block;font:9px/1.35 Arial,sans-serif;color:#69676e;margin:-1px 0 6px}.field input,.field textarea,.field select{width:100%;border:1px solid #303035;background:#242426;border-radius:9px;padding:8px 9px;outline:0;font:11px Arial,sans-serif;color:#ddd}.field textarea{min-height:68px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:#555560;box-shadow:0 0 0 2px #506bc022}.save{background:#e8e7e5;color:#1a1a1c;border-radius:8px;padding:7px 10px;font:11px Arial,sans-serif}.save:hover{background:#fff}.divider{border-top:1px solid #29292d;margin:14px 0}.settingrow{border:1px solid #29292e;background:#151517;border-radius:9px;padding:12px;margin-bottom:8px}.settingrow strong{display:block;font-size:12px;margin-bottom:4px}.settingrow span{font:10px/1.45 Arial,sans-serif;color:#77757c}.switch{float:right;width:36px;height:20px;border-radius:12px;background:#343438;position:relative}.switch:after{content:"";position:absolute;width:16px;height:16px;left:2px;top:2px;border-radius:50%;background:#aaa}.switch.on{background:#4d6fe3}.switch.on:after{left:18px;background:#fff}
+.toast{position:fixed;right:18px;bottom:18px;z-index:200;background:#242428;border:1px solid #3b3b41;border-radius:9px;padding:9px 12px;font:11px Arial,sans-serif;color:#ddd;box-shadow:0 10px 30px #0008}
+.drawerbtn{display:none}
+@media(max-width:860px){:root{--sidebar:205px}.grid{grid-template-columns:1fr}.quickgrid{grid-template-columns:repeat(2,1fr)}.browser{grid-template-columns:1fr}.browser-side{display:none}}
+@media(max-width:640px){.drawerbtn{display:grid}.sidebar{position:fixed;inset:0 auto 0 0;transform:translateX(-100%);transition:transform .18s ease;box-shadow:15px 0 40px #0008}.sidebar.open{transform:none}.main{width:100%}.topbar{padding-left:5px}.page{padding:18px 13px}.quickgrid{grid-template-columns:1fr}.settings{width:100%}.settingnav{width:130px}.settingssearch{width:145px}.suggestions{display:none}.bubble{max-width:88%}}
+@media(max-width:430px){.mode{padding:0 7px}.mode .mi{display:none}.settingnav{width:112px}.settingshead{padding:0 9px}.settingshead strong{font-size:14px}.settingssearch{width:125px}.settingcontent{padding:15px}.topmini{padding:0 7px}}
 </style>
 </head>
 <body>
-<div class="app" id="app"></div>
+<div id="app" class="app"></div>
 <script>
-const state={
- mode:localStorage.getItem('mi_mode')||'imti',
- page:localStorage.getItem('mi_page')||'quick',
- activeChat:localStorage.getItem('mi_chat')||'New chat',
- chats:JSON.parse(localStorage.getItem('mi_chats')||'[]'),
- settingsTab:localStorage.getItem('mi_setting_tab')||'Profile',
- messages:JSON.parse(localStorage.getItem('mi_messages')||'[]'),
- settings:JSON.parse(localStorage.getItem('mi_settings')||'{}'),
- browserUrl:localStorage.getItem('mi_browser_url')||'',
- browserTabs:JSON.parse(localStorage.getItem('mi_browser_tabs')||'["New Tab"]'),
- theme:localStorage.getItem('mi_theme')||'dark'
+(()=>{"use strict";
+const KEY="mark-imti-v3";
+const now=()=>new Date().toISOString();
+const uid=p=>p+"_"+Math.random().toString(36).slice(2,9)+Date.now().toString(36);
+const seed={
+ chats:[
+  {id:"c1",title:"Welcome to Mark-Imti",pinned:true,createdAt:now(),updatedAt:now(),messages:[{id:"m1",role:"assistant",text:"Welcome to Mark-Imti. This local workspace is ready for chats, projects, browsing, skills, schedules, and settings."}]},
+  {id:"c2",title:"Product planning",pinned:false,createdAt:now(),updatedAt:now(),messages:[{id:"m2",role:"user",text:"Plan a small product launch."},{id:"m3",role:"assistant",text:"I can help break the launch into milestones, tasks, owners, and dates."}]}
+ ],
+ projects:[{id:"p1",title:"Mark-Imti Website",description:"Build and refine the Mark-Imti workspace.",pinned:true,createdAt:now(),updatedAt:now()}],
+ library:[{id:"l1",title:"Mark-Imti UI Reference",description:"Dark workspace visual reference and interaction notes.",type:"Reference",pinned:true,createdAt:now()}],
+ schedules:[{id:"s1",title:"Review project tasks",dateTime:new Date(Date.now()+86400000).toISOString().slice(0,16),repeat:"Once",enabled:true}],
+ skills:[{id:"sk1",name:"Writing",description:"Draft and refine structured text.",enabled:true},{id:"sk2",name:"Research",description:"Organize research tasks and findings.",enabled:true},{id:"sk3",name:"Web Browse",description:"Prepare browser research workflows.",enabled:false}],
+ profile:{email:"local@mark-imti.app",fullName:"Local User",role:"user",instructions:"",nickname:"",occupation:"",about:""},
+ appearance:{theme:"dark",density:"comfortable"}
 };
-const navImti=[['quick','✣','Quick Action'],['library','◫','Library'],['scheduled','◴','Scheduled'],['skills','✧','Skills'],['projects','▱','Projects']];
-const settingTabs=['Profile','Appearance','Scheduled','Execution','Browser','Computer','Security','Core Laws','Advanced','Data','Skills','Connectors','Knowledge','Memory','Agents','AI Studio','About'];
-const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-function persist(){localStorage.setItem('mi_mode',state.mode);localStorage.setItem('mi_page',state.page);localStorage.setItem('mi_chat',state.activeChat);localStorage.setItem('mi_chats',JSON.stringify(state.chats));localStorage.setItem('mi_setting_tab',state.settingsTab);localStorage.setItem('mi_messages',JSON.stringify(state.messages));localStorage.setItem('mi_settings',JSON.stringify(state.settings));localStorage.setItem('mi_browser_url',state.browserUrl);localStorage.setItem('mi_browser_tabs',JSON.stringify(state.browserTabs));localStorage.setItem('mi_theme',state.theme)}
-function icon(i){return '<span class="navicon">'+i+'</span>'}
+let state=load();
+function load(){try{const raw=localStorage.getItem(KEY);if(raw)return normalize(JSON.parse(raw))}catch(e){}return normalize({data:seed,ui:{mode:"imti",section:"quick",chatId:"c1",projectId:"p1",browserTabId:"b1",settingsOpen:false,settingsSection:"Profile",settingsQuery:""}})}
+function normalize(x){const d=x.data||seed,u=x.ui||{};return{data:{chats:Array.isArray(d.chats)?d.chats:[],projects:Array.isArray(d.projects)?d.projects:[],library:Array.isArray(d.library)?d.library:[],schedules:Array.isArray(d.schedules)?d.schedules:[],skills:Array.isArray(d.skills)?d.skills:[],profile:{...seed.profile,...(d.profile||{})},appearance:{...seed.appearance,...(d.appearance||{})}},ui:{mode:u.mode||"imti",section:u.section||"quick",chatId:u.chatId||null,projectId:u.projectId||null,browserTabId:u.browserTabId||"b1",settingsOpen:false,settingsSection:u.settingsSection||"Profile",settingsQuery:""}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({data:state.data,ui:{...state.ui,settingsOpen:false}}))}catch(e){}}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",""":"&quot;","'":"&#39;"}[c]))}
+function fmt(s){try{return new Date(s).toLocaleString([],{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}catch(e){return s}}
+const icons={quick:"✣",schedule:"◷",skills:"✧",library:"▤",projects:"▱",chat:"◉",pin:"⚑",settings:"⚙",browser:"◎",search:"⌕",plus:"＋",close:"×",send:"↑",back:"‹",forward:"›",reload:"↻",external:"↗",trash:"⌫",edit:"✎"};
+function toast(msg){const el=document.createElement("div");el.className="toast";el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1800)}
+function route(section,extra={}){state.ui.section=section;Object.assign(state.ui,extra);save();render()}
+function setMode(mode){state.ui.mode=mode;if(mode==="imti"&&!["quick","chat","schedule","skills","pinned-chats"].includes(state.ui.section))state.ui.section="quick";if(mode==="mark"&&!["quick","library","skills","projects","pinned-projects"].includes(state.ui.section))state.ui.section="quick";if(mode==="browser")state.ui.section="browser";save();render()}
+function currentChat(){return state.data.chats.find(c=>c.id===state.ui.chatId)||state.data.chats[0]||null}
+function currentProject(){return state.data.projects.find(p=>p.id===state.ui.projectId)||state.data.projects[0]||null}
+function modeLabel(){return state.ui.mode==="imti"?"IMTI":state.ui.mode==="mark"?"MARK":"BROWSER"}
 function sidebar(){
- const modes=[['imti','▣','Imti'],['mark','</>','Mark'],['browser','◎','Browser']];
- const isWorkspaceMode=state.mode==='browser'||state.mode==='mark';
- const quickActive=state.page==='quick'||(state.mode==='mark'&&state.page==='settings');
- const nav=navImti.map(n=>'<button class="navitem '+(n[0]==='quick'&&quickActive?'active':(state.page===n[0]&&!isWorkspaceMode?'active':''))+'" data-page="'+n[0]+'">'+icon(n[1])+n[2]+'</button>').join('');
- let lower='';
- if(state.mode==='browser'){
-   lower='<div style="padding:16px 15px;color:#77757b"><div style="font-size:13px;margin-bottom:5px">Browser</div><div style="font-size:10px;line-height:1.45;color:#5f5d64">Ask Mark to browse in Browser mode — live sessions appear here.</div></div>';
- } else if(state.mode==='mark'&&state.page==='settings'){
-   lower='<div style="padding:16px 15px;color:#77757b"><div style="font-size:10px;line-height:1.45;color:#5f5d64">Open the chat to see chats, projects and sessions.</div></div>';
- } else {
-   lower='<button class="newchat" data-action="newchat">＋ New chat</button><div class="chatlist"><div class="sectionlabel">⚑ PINNED</div>'+pinnedChats()+'<div class="sectionlabel">TODAY</div>'+chatRows()+'</div>';
+ const imti=state.ui.mode==="imti", mark=state.ui.mode==="mark", browser=state.ui.mode==="browser";
+ const nav=browser?[
+  ["browser",icons.browser,"Browser"]
+ ]:mark?[
+  ["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-projects",icons.pin,"Pinned Projects"],["projects",icons.projects,"Projects"]
+ ]:[
+  ["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["skills",icons.skills,"Skills"],["pinned-chats",icons.pin,"Pinned Chats"]
+ ];
+ let list="";
+ if(imti){
+  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">RECENT CHATS</div>';
+  const chats=state.data.chats.length?state.data.chats:[];
+  list+=chats.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages · '+fmt(c.updatedAt)+'</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!chats.length)list+='<div class="sidebar-note">No chats yet. Start a new conversation.</div>';
+  list+="</div>";
+ }else if(mark){
+  list+='<div class="scroll"><div class="sectionlabel">PROJECTS</div>';
+  list+=state.data.projects.map(p=>'<div class="projectrow '+(p.id===state.ui.projectId?'active':'')+'" tabindex="0" data-project="'+p.id+'"><div class="rowmain"><div class="rowtitle">'+esc(p.title)+'</div><div class="rowsub">'+(p.pinned?"Pinned · ":"")+esc(p.description.slice(0,45))+'</div></div></div>').join("");
+  if(!state.data.projects.length)list+='<div class="sidebar-note">No projects yet.</div>';
+  list+='</div><button class="newbtn" data-act="new-project">＋ New Project</button>';
+ }else{
+  list+='<div class="scroll"><div class="sidebar-note">Ask Mark to browse in Browser mode — live sessions stay inside this workspace.</div></div>';
  }
- return '<aside class="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-action="search">⌕</button><button class="iconbtn" data-action="collapse">◫</button></div></div>'+
- '<div class="modes">'+modes.map(m=>'<button class="mode '+(state.mode===m[0]?'active':'')+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join('')+'</div>'+
- '<div class="nav">'+nav+'</div>'+lower+'</aside>'
+ return '<aside class="sidebar" id="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div></div><div class="modes">'+[["imti","▣","Imti"],["mark","</>","Mark"],["browser","◎","Browser"]].map(m=>'<button class="mode '+(state.ui.mode===m[0]?"active":"")+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join("")+'</div><nav class="nav">'+nav.map(n=>'<button class="navitem '+(state.ui.section===n[0]?"active":"")+'" data-section="'+n[0]+'">'+icons[n[0]]+'<span>'+n[2]+'</span></button>').join("")+'</nav>'+list+'<div class="sidebarfoot"><button class="navitem" data-act="settings">'+icons.settings+'<span>Settings</span></button><div class="sidebar-note">Local workspace · changes persist in this browser.</div></div></aside>'
 }
-function pinnedChats(){const rows=['New chat','New chat','New chat','New chat'];return rows.map((x,i)=>'<div class="chatrow '+(state.activeChat===x&&i===0?'active':'')+'" data-chat="'+x+'"><div class="chatname">'+x+'</div><div class="count">0 msgs</div></div>').join('')}
-function chatRows(){const arr=state.chats.length?state.chats:['New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat'];return arr.map(x=>'<div class="chatrow '+(state.activeChat===x?'active':'')+'" data-chat="'+esc(x)+'"><div class="chatname">'+esc(x)+'</div><div class="count">0 msgs</div></div>').join('')}
-function topbar(title){
- return '<div class="topbar">'+(title?'<span class="top-title">'+esc(title)+'</span>':'')+(state.mode!=='mark'||state.page==='chat'?'<button class="tab" data-action="newchat">'+esc(state.activeChat)+'</button><button class="plus" data-action="newchat">＋</button>':'')+
- '<div class="topright"><button class="searchmini" data-action="search">⌕</button><button class="iconbtn" data-action="settings">⚙</button><button class="iconbtn" data-action="collapse">◫</button></div></div>'
+function topbar(){
+ const c=currentChat();
+ return '<div class="topbar"><button class="iconbtn drawerbtn" data-act="drawer" aria-label="Open sidebar">☰</button><span class="top-title">'+(state.ui.mode==="browser"?"Browser workspace":state.ui.mode==="mark"?"Mark workspace":c?esc(c.title):"IMTI workspace")+'</span><div class="top-spacer"></div><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div>'
 }
-function emptyChat(){
- const suggestions=['Create a to-do app','Research a topic','Write a report','Analyze data','Design a landing page','Plan a project'];
- return '<div class="workspace">'+(state.messages.length?messageView(): '<div class="empty"><div class="emptyicon">✣</div><h1>What can I help you build?</h1><p>Describe what you want in plain words — Mark reads it, decides what’s needed, and does it while you watch. No technical knowledge required.</p></div>')+'</div>'+
- '<div class="composerzone"><div class="suggestions">'+suggestions.map(x=>'<button class="chip" data-suggest="'+x+'">'+esc(x)+'</button>').join('')+'</div>'+composer('Ask anything, / for commands, @ for context...','Wave icon = voice conversation. Talk naturally to Mark or Imti.')+'</div>'
+function composer(placeholder,sendAct="send-chat"){
+ return '<div class="composer"><button class="circle" data-act="attach" aria-label="Add">＋</button><input id="composer" class="prompt" autocomplete="off" placeholder="'+esc(placeholder)+'"><button class="think" data-act="think">✣ Think</button><button class="send" data-act="'+sendAct+'" aria-label="Send">↑</button></div><div class="hint">'+(state.ui.mode==="browser"?"Browse mode — Mark opens the browser, searches, reads pages, and brings back answers.":"Enter sends · Shift+Enter is available for future multiline input · Demo responses are local.")+'</div>'
 }
-function messageView(){return '<div class="messages">'+state.messages.map(m=>'<div class="msg '+m.role+'"><div class="bubble">'+esc(m.text)+'</div></div>').join('')+'</div>'}
-function composer(ph,hint){return '<div class="composer"><button class="circle" data-action="plus">＋</button><input id="composerInput" class="prompt" placeholder="'+ph+'"><button class="drop">⌄</button><button class="think">✣ Think</button><button class="voice">◒</button></div><div class="hint">'+hint+'</div>'}
+function chatView(){
+ const c=currentChat();
+ if(!c)return '<div class="workspace"><div class="empty"><div class="emptyicon">✣</div><h1>Start a new chat</h1><p>Create a chat from the sidebar to begin.</p></div></div>';
+ const msgs=c.messages||[];
+ const body=msgs.length?'<div class="messages">'+msgs.map(m=>'<div class="msg '+m.role+'"><div class="bubble">'+esc(m.text)+'</div></div>').join("")+'</div>':'<div class="empty"><div class="emptyicon">✣</div><h1>What can I help you build?</h1><p>Describe what you want in plain words — Mark-Imti keeps the workspace local until you connect a real service.</p></div>';
+ return '<div class="workspace">'+body+'</div><div class="composerzone"><div class="suggestions">'+["Create a plan","Research a topic","Write a report","Design a landing page","Organize my tasks"].map(x=>'<button class="chip" data-suggest="'+esc(x)+'">'+esc(x)+'</button>').join("")+'</div>'+composer("Ask anything, / for commands, @ for context...")+'</div>'
+}
+function quickView(){
+ const actions=[["chat","New Chat","Start a focused conversation.","new-chat"],["search","Search","Search your local chats, projects, and library.","search"],["browser","Browse Web","Open the integrated browser workspace.","browser"],["projects","Create Project","Create a real project and open it.","new-project"],["library","Open Library","Browse saved resources.","library"],["schedule","Schedule Task","Create a scheduled task.","new-schedule"],["skills","Open Skills","Manage enabled workspace skills.","skills"],["settings","Settings","Open the integrated settings drawer.","settings"],["pin","Recent Activity","Review recent workspace activity.","activity"]];
+ return '<div class="page"><div class="pagehead"><div><h1>Quick Action</h1><p>Useful actions that stay inside the Mark-Imti shell.</p></div></div><div class="quickgrid">'+actions.map(a=>'<button class="quickcard" data-act="'+a[3]+'"><div class="qicon">'+icons[a[0]]+'</div><strong>'+a[1]+'</strong><span>'+a[2]+'</span></button>').join("")+'</div></div>'
+}
+function listView(type){
+ const cfg={library:["Library","Saved resources and working material."],skills:["Skills","Reusable capabilities available to the workspace."],schedule:["Schedule","Create and manage scheduled tasks."],"projects":["Projects","Open, edit, pin, and manage projects."],"pinned-chats":["Pinned Chats","Conversations you chose to keep close."],"pinned-projects":["Pinned Projects","Projects you chose to keep close."]}[type];
+ let items=[];
+ if(type==="library")items=state.data.library;
+ if(type==="skills")items=state.data.skills;
+ if(type==="schedule")items=state.data.schedules;
+ if(type==="projects")items=state.data.projects;
+ if(type==="pinned-chats")items=state.data.chats.filter(x=>x.pinned);
+ if(type==="pinned-projects")items=state.data.projects.filter(x=>x.pinned);
+ return '<div class="page"><div class="pagehead"><div><h1>'+cfg[0]+'</h1><p>'+cfg[1]+'</p></div><div class="spacer"></div><button class="primary" data-act="'+(type==="library"?"new-library":type==="schedule"?"new-schedule":type==="projects"?"new-project":"noop")+'">'+(type==="skills"?"":type==="library"?"+ Add":type==="schedule"?"+ Task":type==="projects"?"+ Project":"")+'</button></div>'+(items.length?'<div class="grid">'+items.map(x=>card(type,x)).join("")+'</div>':'<div class="emptycard">Nothing here yet. Use the action above to create your first item.</div>')+'</div>'
+}
+function card(type,x){
+ if(type==="skills")return '<div class="card"><button class="switch '+(x.enabled?"on":"")+'" data-skill="'+x.id+'" aria-label="Toggle '+esc(x.name)+'"></button><h3>'+esc(x.name)+'</h3><p>'+esc(x.description)+'</p><div class="meta">'+(x.enabled?"Enabled":"Disabled")+'</div></div>';
+ if(type==="schedule")return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(fmt(x.dateTime))+' · '+esc(x.repeat)+'</p><div class="meta">'+(x.enabled?"Enabled":"Disabled")+'</div><div class="card-actions"><button class="ghost" data-toggle-schedule="'+x.id+'">'+(x.enabled?"Disable":"Enable")+'</button><button class="ghost danger" data-delete-schedule="'+x.id+'">Delete</button></div></div>';
+ if(type==="library")return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(x.description)+'</p><div class="meta">'+esc(x.type)+' · '+fmt(x.createdAt)+(x.pinned?" · Pinned":"")+'</div><div class="card-actions"><button class="ghost" data-toggle-library="'+x.id+'">'+(x.pinned?"Unpin":"Pin")+'</button><button class="ghost danger" data-delete-library="'+x.id+'">Delete</button></div></div>';
+ if(type==="projects"||type==="pinned-projects")return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(x.description)+'</p><div class="meta">'+fmt(x.updatedAt)+(x.pinned?" · Pinned":"")+'</div><div class="card-actions"><button class="ghost" data-open-project="'+x.id+'">Open</button><button class="ghost" data-edit-project="'+x.id+'">Edit</button><button class="ghost" data-toggle-project="'+x.id+'">'+(x.pinned?"Unpin":"Pin")+'</button><button class="ghost danger" data-delete-project="'+x.id+'">Delete</button></div></div>';
+ return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(x.messages?.slice(-1)[0]?.text||"No messages yet.")+'</p><div class="meta">'+x.messages.length+' messages · '+(x.pinned?"Pinned":"Not pinned")+'</div><div class="card-actions"><button class="ghost" data-open-chat="'+x.id+'">Open</button><button class="ghost" data-pin-chat2="'+x.id+'">'+(x.pinned?"Unpin":"Pin")+'</button><button class="ghost danger" data-delete-chat="'+x.id+'">Delete</button></div></div>'
+}
+function projectView(){
+ const p=currentProject();if(!p)return '<div class="page"><div class="emptycard">No project selected.</div></div>';
+ return '<div class="page"><div class="pagehead"><div><h1>'+esc(p.title)+'</h1><p>'+esc(p.description)+'</p></div><div class="spacer"></div><button class="ghost" data-edit-project="'+p.id+'">Edit</button><button class="ghost" data-toggle-project="'+p.id+'">'+(p.pinned?"Unpin":"Pin")+'</button></div><div class="grid"><div class="card"><h3>Project workspace</h3><p>This project is local application data. Use the actions above to manage it without leaving the shell.</p><div class="meta">Created '+fmt(p.createdAt)+' · Updated '+fmt(p.updatedAt)+'</div></div><div class="card"><h3>Next step</h3><p>Create a chat from IMTI or add a library resource for this project.</p><div class="card-actions"><button class="ghost" data-act="new-chat">New Chat</button><button class="ghost" data-act="library">Library</button></div></div></div></div>'
+}
 function browserView(){
- return '<div class="workspace"><div class="browsergrid">'+
- '<div class="browserleft"><div class="browserchrome"><span>⌁</span><span>‹</span><span>›</span><span>↻</span><input class="address" id="browserInput" placeholder="Search or enter URL" value="'+esc(state.browserUrl)+'"></div>'+
- '<div class="browserempty"><div><div class="globe">◎</div><strong>What should I browse?</strong><span>Tell me a website to open or a topic to research</span></div></div>'+
- '<div class="composerzone">'+composer('Ask Mark to browse the web...','Browse mode — Mark opens the browser, searches, reads pages, and brings back answers.')+'</div></div>'+
- '<div class="browserright"><div class="browserchrome"><div class="btab">◎ New Tab</div><span class="bplus">＋</span></div><div class="browserchrome"><span class="navtools">‹　›　↻</span><input class="address" placeholder="Search or enter URL"></div><div class="browserempty"><div><div class="globe">◎</div><strong>New Tab</strong><span>Search or enter a URL to start</span></div></div></div>'+
- '</div></div>'
+ let tabs=getTabs();const active=tabs.find(t=>t.id===state.ui.browserTabId)||tabs[0];if(active&&!state.ui.browserTabId)state.ui.browserTabId=active.id;
+ const isUrl=active?.url;
+ return '<div class="browser"><section class="browser-main"><div class="browser-tabs">'+tabs.map(t=>'<button class="btab" data-browser-tab="'+t.id+'"><span>◎ '+esc(t.title||"New Tab")+'</span><b class="bclose" data-close-tab="'+t.id+'">×</b></button>').join("")+'<button class="bnew" data-act="new-tab" aria-label="New tab">＋</button></div><div class="browser-tools"><button data-act="back">'+icons.back+'</button><button data-act="forward">'+icons.forward+'</button><button data-act="reload">'+icons.reload+'</button><input id="address" class="address" value="'+esc(active?.url||"")+'" placeholder="Search or enter URL"><button data-act="go-address">↵</button></div><div class="browser-content" id="browserContent">'+(isUrl?'<div class="browserempty"><div class="fallback"><div class="globe">◎</div><h3>Browser content is isolated</h3><p>Some sites block embedding. Mark-Imti keeps the application shell intact and can open the address in a separate browser tab when needed.</p><button class="primary" data-act="open-external">Open externally '+icons.external+'</button></div></div>':'<div class="browserempty"><div><div class="globe">◎</div><strong>What should I browse?</strong><span>Tell me a website to open or a topic to research</span></div></div>')+'</div><div class="composerzone">'+composer("Ask Mark to browse the web...","browse-query")+'</div></section><aside class="browser-side"><div class="browser-tabs"><button class="btab" style="min-width:115px"><span>◎ New Tab</span></button><button class="bnew">＋</button></div><div class="browser-tools"><span>‹　›　↻</span><input class="address" placeholder="Search or enter URL"></div><div class="browser-content"><div class="browserempty"><div><div class="globe">◎</div><strong>New Tab</strong><span>Search or enter a URL to start</span></div></div></div></aside></div>'
 }
-function settingsView(){
- return '<div class="settings">'+
- '<div class="settingsbar"><strong>Settings</strong><div class="seg"><button class="active">Chat</button><button>Work</button><button>Browse</button></div><input class="settingssearch" id="settingsSearch" placeholder="⌕  Search..."><button class="iconbtn" data-action="theme">☾</button></div>'+
- '<div class="settingsbody"><nav class="settingsnav">'+settingTabs.map(x=>'<button class="'+(state.settingsTab===x?'active':'')+'" data-setting="'+x+'">'+esc(x)+'</button>').join('')+'</nav><section class="settingspanel">'+settingPanel()+'</section></div></div>'
+function getTabs(){try{return JSON.parse(localStorage.getItem(KEY+"_tabs")||'[{"id":"b1","title":"New Tab","url":"","history":[],"future":[]}]')}catch(e){return[{id:"b1",title:"New Tab",url:"",history:[],future:[]}]}}
+function saveTabs(t){try{localStorage.setItem(KEY+"_tabs",JSON.stringify(t))}catch(e){}}
+function normalizedUrl(v){v=v.trim();if(!v)return"";if(/^https?:\/\//i.test(v))return v;if(/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(v))return"https://"+v;return"https://www.google.com/search?q="+encodeURIComponent(v)}
+function browserNavigate(v){const url=normalizedUrl(v);if(!url)return;const tabs=getTabs();const t=tabs.find(x=>x.id===state.ui.browserTabId)||tabs[0];if(t.url)t.history=[...(t.history||[]),t.url].slice(-20);t.future=[];t.url=url;t.title=v.startsWith("http")?new URL(url).hostname:v.slice(0,24);saveTabs(tabs);save();render()}
+function settingsModal(){
+ const cats=["Profile","Appearance","Scheduled","Execution","Browser","Computer","Security","Core Laws","Advanced","Data","Skills","Connectors","Knowledge","Memory","Agents","AI Studio","About"];
+ const q=state.ui.settingsQuery.toLowerCase();const filtered=cats.filter(x=>x.toLowerCase().includes(q));
+ return '<div class="modalback" id="settingsModal" role="dialog" aria-modal="true" aria-label="Settings"><section class="settings"><header class="settingshead"><strong>⚙ Settings</strong><input id="settingsSearch" class="settingssearch" value="'+esc(state.ui.settingsQuery)+'" placeholder="⌕  Search..."><button class="iconbtn" data-act="close-settings" aria-label="Close settings">×</button></header><div class="settingsbody"><nav class="settingnav">'+filtered.map(x=>'<button class="'+(state.ui.settingsSection===x?"active":"")+'" data-setting="'+x+'">'+esc(x)+'</button>').join("")+'</nav><section class="settingcontent">'+settingsPanel()+'</section></div></section></div>'
 }
-function settingPanel(){
- if(state.settingsTab==='Profile')return '<h1 class="settingtitle">⚙ Settings</h1><div class="profilecard"><h3 style="margin:0 0 13px;font-size:14px">Your Profile</h3>'+field('Email','email','local@mark-imti.app')+field('Full Name','fullName','Local User')+'<div class="field"><label>Role</label><div style="font-family:Arial;font-size:11px;color:#999">user</div></div><button class="save" data-action="save">Save Changes</button><div class="divider"></div>'+field('Custom instructions','instructions','e.g. Always answer in plain words, then show the technical details...','textarea')+'<h3 style="font-size:13px;margin:15px 0 12px">About you</h3>'+field('Nickname','nickname','Your nickname')+field('Occupation','occupation','Select...','select')+field('More about you','about','e.g. I care about clean design, privacy, and shipping fast...','textarea')+'</div>';
- return '<h1 class="settingtitle">⚙ '+esc(state.settingsTab)+'</h1><div class="listcard"><p>This Mark-Imti setting is ready for local configuration. Changes are kept in your browser.</p>'+['Preferences','Permissions','Defaults'].map(x=>'<div class="listrow"><span>'+x+'</span><span>›</span></div>').join('')+'</div>'
+function settingsPanel(){
+ const s=state.ui.settingsSection;
+ if(s==="Profile")return '<h1>Your Profile</h1><div class="profilecard">'+field("Email","email","Email",true)+field("Full Name","fullName","Full Name")+ '<div class="field"><label>Role</label><div style="font:11px Arial;color:#8b8990;padding:8px 0">'+esc(state.data.profile.role)+'</div></div><button class="save" data-act="save-profile">Save Changes</button><div class="divider"></div>'+field("Custom Instructions","instructions","Additional behavior, style, and tone preferences.","textarea")+'<h3 style="font-size:13px;margin:17px 0 12px">About you</h3>'+field("Nickname","nickname","What should Mark-Imti call you?")+field("Occupation","occupation","Occupation")+field("More about you","about","Interests, values, or preferences to keep in mind.","textarea")+'</div>';
+ if(s==="Appearance")return '<h1>Appearance</h1>'+settingRow("Dark mode","The default Mark-Imti visual treatment.",state.data.appearance.theme==="dark","theme")+settingRow("Comfortable density","Use the reference spacing and panel density.",state.data.appearance.density==="comfortable","density");
+ if(s==="Skills")return '<h1>Skills</h1><p style="font:11px Arial;color:#777">Enable or disable skills without leaving settings.</p>'+state.data.skills.map(x=>'<div class="settingrow"><button class="switch '+(x.enabled?"on":"")+'" data-skill="'+x.id+'"></button><strong>'+esc(x.name)+'</strong><span>'+esc(x.description)+'</span></div>').join("");
+ return '<h1>'+esc(s)+'</h1><div class="settingrow"><strong>'+esc(s)+' settings</strong><span>These controls are kept inside the Mark-Imti settings workspace. Local changes persist in this browser where applicable.</span></div><div class="settingrow"><strong>Workspace state</strong><span>Mode: '+modeLabel()+' · Section: '+esc(state.ui.section)+'</span></div>'
 }
-function field(label,key,placeholder,type='input'){const v=state.settings[key]||'';if(type==='textarea')return '<div class="field"><label>'+label+'</label><small>Additional behavior, style, and tone preferences.</small><textarea data-field="'+key+'" placeholder="'+placeholder+'">'+esc(v)+'</textarea></div>';if(type==='select')return '<div class="field"><label>'+label+'</label><small>What should Mark-Imti call you?</small><select data-field="'+key+'"><option>'+esc(v||placeholder)+'</option><option>Developer</option><option>Property professional</option><option>Designer</option><option>Other</option></select></div>';return '<div class="field"><label>'+label+'</label><input data-field="'+key+'" placeholder="'+placeholder+'" value="'+esc(v)+'"></div>'}
-function contentPage(){
- const map={library:['Library','Your files, resources, and saved work appear here.'],scheduled:['Scheduled','Manage scheduled work and recurring tasks.'],skills:['Skills','Reusable skills and instructions available to Mark and Imti.'],projects:['Projects','Organize your active projects and pinned work.'],quick:['Quick Action','Start from a common action or describe your own task.']};
- const [title,desc]=map[state.page]||map.quick;
- return '<div class="contentpage"><h2>'+title+'</h2><p>'+desc+'</p><div class="listcard">'+['Create a new task','Open recent work','Review saved resources'].map(x=>'<div class="listrow"><span>'+x+'</span><span>›</span></div>').join('')+'</div></div>'
-}
+function field(label,key,ph,disabled=false,type="input"){const v=state.data.profile[key]||"";if(type==="textarea")return'<div class="field"><label>'+label+'</label><small>'+ph+'</small><textarea data-profile="'+key+'">'+esc(v)+'</textarea></div>';return'<div class="field"><label>'+label+'</label><input data-profile="'+key+'" value="'+esc(v)+'" placeholder="'+esc(ph)+'" '+(disabled?"disabled":"")+'></div>'}
+function settingRow(title,desc,on,key){return'<div class="settingrow"><button class="switch '+(on?"on":"")+'" data-setting-toggle="'+key+'"></button><strong>'+title+'</strong><span>'+desc+'</span></div>'}
 function render(){
- document.getElementById('app').innerHTML=sidebar()+'<main class="main">'+
- (state.mode==='browser'?topbar('')+browserView():
- state.mode==='mark'&&state.page==='settings'?settingsView():
- topbar(state.mode==='mark'?'Mark':'')+(state.page==='quick'||state.page==='chat'?emptyChat():contentPage()))+'</main>';
- bind();
+ const section=state.ui.section;
+ let main="";
+ if(state.ui.mode==="browser")main=browserView();
+ else if(section==="chat")main=chatView();
+ else if(section==="quick")main=quickView();
+ else if(section==="projects"||section==="pinned-projects"||section==="library"||section==="skills"||section==="schedule"||section==="pinned-chats")main=listView(section);
+ else if(section==="project")main=projectView();
+ else main=quickView();
+ document.getElementById("app").innerHTML=sidebar()+'<main class="main">'+topbar()+main+'</main>'+(state.ui.settingsOpen?settingsModal():"");
+ applyTheme();bind();
 }
-function newChat(){
- const name='New chat';
- state.activeChat=name;
- state.page='chat';
- state.messages=[];
- state.chats.unshift(name);
- state.chats=state.chats.slice(0,30);
- persist();render();
-}
-function send(text){
- if(!text.trim())return;
- state.page='chat';state.messages.push({role:'user',text:text.trim()});
- state.messages.push({role:'assistant',text:'I’m ready. Tell me what you want to build, research, organize, or change.'});
- persist();render();
-}
+function applyTheme(){document.documentElement.dataset.density=state.data.appearance.density;document.body.classList.toggle("light",state.data.appearance.theme==="light")}
+function newChat(){const c={id:uid("c"),title:"New chat",pinned:false,createdAt:now(),updatedAt:now(),messages:[]};state.data.chats.unshift(c);state.ui.chatId=c.id;state.ui.mode="imti";state.ui.section="chat";save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50)}
+function sendChat(text){text=text.trim();if(!text)return;let c=currentChat();if(!c){newChat();c=currentChat()}c.messages.push({id:uid("m"),role:"user",text});c.updatedAt=now();const response="Demo/local response: I received your request. This Mark-Imti build keeps responses local and does not claim to use an external AI service. A real provider can be connected behind the service boundary later.";setTimeout(()=>{c.messages.push({id:uid("m"),role:"assistant",text:response});c.updatedAt=now();save();render()},140);save();render()}
+function newProject(){const title=prompt("Project name","New Project");if(!title?.trim())return;const p={id:uid("p"),title:title.trim(),description:"A new Mark-Imti project.",pinned:false,createdAt:now(),updatedAt:now()};state.data.projects.unshift(p);state.ui.mode="mark";state.ui.projectId=p.id;state.ui.section="project";save();render()}
+function editProject(id){const p=state.data.projects.find(x=>x.id===id);if(!p)return;const title=prompt("Project title",p.title);if(title===null)return;const desc=prompt("Project description",p.description);if(desc===null)return;p.title=title.trim()||p.title;p.description=desc.trim()||p.description;p.updatedAt=now();save();render()}
+function deleteProject(id){if(!confirm("Delete this project?"))return;state.data.projects=state.data.projects.filter(x=>x.id!==id);if(state.ui.projectId===id){state.ui.projectId=state.data.projects[0]?.id||null;state.ui.section="projects"}save();render()}
+function newLibrary(){const title=prompt("Library item title","New Resource");if(!title?.trim())return;const desc=prompt("Description","Saved Mark-Imti resource");if(desc===null)return;state.data.library.unshift({id:uid("l"),title:title.trim(),description:desc.trim(),type:"Note",pinned:false,createdAt:now()});save();render()}
+function newSchedule(){const title=prompt("Task title","New scheduled task");if(!title?.trim())return;const dt=prompt("Date/time (YYYY-MM-DDTHH:MM)",new Date(Date.now()+86400000).toISOString().slice(0,16));if(!dt)return;state.data.schedules.unshift({id:uid("s"),title:title.trim(),dateTime:dt,repeat:"Once",enabled:true});save();render()}
+function deleteChat(id){if(!confirm("Delete this chat?"))return;state.data.chats=state.data.chats.filter(x=>x.id!==id);if(state.ui.chatId===id){state.ui.chatId=state.data.chats[0]?.id||null;state.ui.section=state.ui.chatId?"chat":"quick"}save();render()}
 function bind(){
- document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;state.page=state.mode==='mark'?'settings':state.mode==='browser'?'chat':'quick';persist();render()});
- document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{state.page=b.dataset.page;persist();render()});
- document.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>{state.activeChat=b.dataset.chat;state.page='chat';persist();render()});
- document.querySelectorAll('[data-setting]').forEach(b=>b.onclick=()=>{state.settingsTab=b.dataset.setting;persist();render()});
- document.querySelectorAll('[data-suggest]').forEach(b=>b.onclick=()=>send(b.dataset.suggest));
- document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{
-  const a=b.dataset.action;
-  if(a==='newchat')newChat();
-  if(a==='settings'){state.mode='mark';state.page='settings';persist();render()}
-  if(a==='theme'){state.theme=state.theme==='dark'?'light':'dark';document.body.style.filter=state.theme==='light'?'invert(.88) hue-rotate(180deg)':'none';persist()}
-  if(a==='save'){document.querySelectorAll('[data-field]').forEach(e=>state.settings[e.dataset.field]=e.value);persist();b.textContent='Saved';setTimeout(()=>{if(document.body.contains(b)){b.textContent='Save Changes'}},900)}
- });
- const input=document.getElementById('composerInput');if(input){input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(input.value)}})}
- const bi=document.getElementById('browserInput');if(bi){bi.addEventListener('keydown',e=>{if(e.key==='Enter'){state.browserUrl=bi.value;persist();render()}})}
- document.querySelectorAll('[data-field]').forEach(e=>e.addEventListener('input',()=>{state.settings[e.dataset.field]=e.value;localStorage.setItem('mi_settings',JSON.stringify(state.settings))}));
+ document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
+ document.querySelectorAll("[data-section]").forEach(b=>b.onclick=()=>{state.ui.section=b.dataset.section;save();render();closeSidebar()});
+ document.querySelectorAll("[data-chat]").forEach(b=>b.onclick=()=>{state.ui.chatId=b.dataset.chat;state.ui.mode="imti";state.ui.section="chat";save();render();closeSidebar()});
+ document.querySelectorAll("[data-project]").forEach(b=>b.onclick=()=>{state.ui.projectId=b.dataset.project;state.ui.mode="mark";state.ui.section="project";save();render();closeSidebar()});
+ document.querySelectorAll("[data-suggest]").forEach(b=>b.onclick=()=>sendChat(b.dataset.suggest));
+ document.querySelectorAll("[data-open-chat]").forEach(b=>b.onclick=()=>{state.ui.chatId=b.dataset.openChat;state.ui.mode="imti";state.ui.section="chat";save();render()});
+ document.querySelectorAll("[data-pin-chat],[data-pin-chat2]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.pinChat||b.dataset.pinChat2;const c=state.data.chats.find(x=>x.id===id);if(c)c.pinned=!c.pinned;save();render()});
+ document.querySelectorAll("[data-delete-chat]").forEach(b=>b.onclick=()=>deleteChat(b.dataset.deleteChat));
+ document.querySelectorAll("[data-open-project]").forEach(b=>b.onclick=()=>{state.ui.projectId=b.dataset.openProject;state.ui.mode="mark";state.ui.section="project";save();render()});
+ document.querySelectorAll("[data-edit-project]").forEach(b=>b.onclick=()=>editProject(b.dataset.editProject));
+ document.querySelectorAll("[data-delete-project]").forEach(b=>b.onclick=()=>deleteProject(b.dataset.deleteProject));
+ document.querySelectorAll("[data-toggle-project]").forEach(b=>b.onclick=()=>{const p=state.data.projects.find(x=>x.id===b.dataset.toggleProject);if(p)p.pinned=!p.pinned;save();render()});
+ document.querySelectorAll("[data-toggle-library]").forEach(b=>b.onclick=()=>{const x=state.data.library.find(x=>x.id===b.dataset.toggleLibrary);if(x)x.pinned=!x.pinned;save();render()});
+ document.querySelectorAll("[data-delete-library]").forEach(b=>b.onclick=()=>{state.data.library=state.data.library.filter(x=>x.id!==b.dataset.deleteLibrary);save();render()});
+ document.querySelectorAll("[data-toggle-schedule]").forEach(b=>b.onclick=()=>{const x=state.data.schedules.find(x=>x.id===b.dataset.toggleSchedule);if(x)x.enabled=!x.enabled;save();render()});
+ document.querySelectorAll("[data-delete-schedule]").forEach(b=>b.onclick=()=>{state.data.schedules=state.data.schedules.filter(x=>x.id!==b.dataset.deleteSchedule);save();render()});
+ document.querySelectorAll("[data-skill]").forEach(b=>b.onclick=()=>{const x=state.data.skills.find(x=>x.id===b.dataset.skill);if(x)x.enabled=!x.enabled;save();render()});
+ document.querySelectorAll("[data-browser-tab]").forEach(b=>b.onclick=()=>{state.ui.browserTabId=b.dataset.browserTab;save();render()});
+ document.querySelectorAll("[data-close-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();let t=getTabs().filter(x=>x.id!==b.dataset.closeTab);if(!t.length)t=[{id:uid("b"),title:"New Tab",url:"",history:[],future:[]}];if(!t.some(x=>x.id===state.ui.browserTabId))state.ui.browserTabId=t[0].id;saveTabs(t);save();render()});
+ document.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>act(b.dataset.act));
+ const input=document.getElementById("composer");if(input)input.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();const v=input.value;if(state.ui.mode==="browser")browseQuery(v);else sendChat(v)}})
+ const address=document.getElementById("address");if(address)address.addEventListener("keydown",e=>{if(e.key==="Enter")browserNavigate(address.value)})
+ const ss=document.getElementById("settingsSearch");if(ss)ss.addEventListener("input",()=>{state.ui.settingsQuery=ss.value;render();setTimeout(()=>{const n=document.getElementById("settingsSearch");if(n){n.focus();n.selectionStart=n.value.length}},0)})
+ document.querySelectorAll("[data-setting]").forEach(b=>b.onclick=()=>{state.ui.settingsSection=b.dataset.setting;save();render()});
+ document.querySelectorAll("[data-profile]").forEach(e=>e.addEventListener("input",()=>{state.data.profile[e.dataset.profile]=e.value}));
+ document.querySelectorAll("[data-setting-toggle]").forEach(b=>b.onclick=()=>{const k=b.dataset.settingToggle;if(k==="theme")state.data.appearance.theme=state.data.appearance.theme==="dark"?"light":"dark";if(k==="density")state.data.appearance.density=state.data.appearance.density==="comfortable"?"compact":"comfortable";save();render()});
+ document.addEventListener("keydown",keyHandler,{once:true});
+}
+function keyHandler(e){if(e.key==="Escape"&&state.ui.settingsOpen){state.ui.settingsOpen=false;save();render();return}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){e.preventDefault();state.ui.settingsOpen=true;save();render()}}
+function closeSidebar(){document.getElementById("sidebar")?.classList.remove("open")}
+function browseQuery(v){v=v.trim();if(!v)return;browserNavigate(v)}
+function act(a){
+ if(a==="new-chat")newChat();
+ else if(a==="new-project")newProject();
+ else if(a==="new-library")newLibrary();
+ else if(a==="new-schedule")newSchedule();
+ else if(a==="library")route("library",{mode:"mark"});
+ else if(a==="skills")route("skills");
+ else if(a==="browser")setMode("browser");
+ else if(a==="settings"){state.ui.settingsOpen=true;save();render()}
+ else if(a==="close-settings"){state.ui.settingsOpen=false;save();render()}
+ else if(a==="drawer"){document.getElementById("sidebar")?.classList.toggle("open")}
+ else if(a==="send-chat"){const i=document.getElementById("composer");if(i)sendChat(i.value)}
+ else if(a==="browse-query"){const i=document.getElementById("composer");if(i)browseQuery(i.value)}
+ else if(a==="attach")toast("Attachment actions are local-only in this build.");
+ else if(a==="think")toast("Think is a local UI mode; no external model is connected.");
+ else if(a==="search"){toast("Use the visible sections and browser address/search controls to search this workspace.")}
+ else if(a==="activity"){toast("Recent activity is represented by updated timestamps in the workspace.")}
+ else if(a==="save-profile"){document.querySelectorAll("[data-profile]").forEach(e=>state.data.profile[e.dataset.profile]=e.value);save();toast("Profile saved");render()}
+ else if(a==="new-tab"){const t=getTabs();const n={id:uid("b"),title:"New Tab",url:"",history:[],future:[]};t.push(n);state.ui.browserTabId=n.id;saveTabs(t);save();render()}
+ else if(a==="back"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t&&t.history?.length){t.future=[t.url,...(t.future||[])];t.url=t.history.pop()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";saveTabs(getTabs());render()}}
+ else if(a==="forward"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t&&t.future?.length){if(t.url)t.history=[...(t.history||[]),t.url];t.url=t.future.shift()||"";t.title=t.url?new URL(t.url).hostname:"New Tab";saveTabs(getTabs());render()}}
+ else if(a==="reload"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t?.url)toast("Reload requested; external sites are kept isolated from the app shell.")}
+ else if(a==="go-address"){const i=document.getElementById("address");if(i)browserNavigate(i.value)}
+ else if(a==="open-external"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t?.url)window.open(t.url,"_blank","noopener,noreferrer")}
 }
 render();
-</script>
+})();</script>
 </body>
 </html>
