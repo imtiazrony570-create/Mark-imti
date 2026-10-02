@@ -3,333 +3,134 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
-<meta name="description" content="Mark-Imti — professional personal AI workspace">
-<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#111113">
 <title>Mark-Imti</title>
 <style>
-:root{--bg:#f6f8fb;--panel:#fff;--panel2:#f9fafb;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--accent2:#1d4ed8;--accent-soft:#eff6ff;--success:#16a34a;--danger:#dc2626;--shadow:0 18px 50px rgba(15,23,42,.08);--sidebar:272px;--radius:18px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
-body{overflow:hidden}
-body.dark{--bg:#0a0f18;--panel:#101827;--panel2:#0d1522;--text:#f3f4f6;--muted:#9ca3af;--line:#1f2937;--accent:#60a5fa;--accent2:#3b82f6;--accent-soft:#10213b;--shadow:0 18px 50px rgba(0,0,0,.28)}
-button,input,textarea,select{font:inherit}
-button{cursor:pointer}
-a{color:inherit}
-.app{display:grid;grid-template-columns:var(--sidebar) 1fr;height:100dvh}
-.sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px;min-width:0}
-.brand{display:flex;align-items:center;gap:11px;padding:4px 7px 10px}
-.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;box-shadow:0 10px 22px rgba(37,99,235,.25)}
-.logo svg{width:21px;height:21px;color:#fff}
-.brand-title{font-weight:800;letter-spacing:-.02em}
-.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.nav{display:grid;gap:5px}
-.nav button{width:100%;border:0;background:transparent;color:var(--muted);padding:10px 11px;border-radius:12px;display:flex;align-items:center;gap:10px;text-align:left;font-weight:650}
-.nav button:hover{background:var(--panel2);color:var(--text)}
-.nav button.active{background:var(--accent-soft);color:var(--accent)}
-.nav svg{width:18px;height:18px;flex:none}
-.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:4px 11px}
-.chat-list{overflow:auto;display:grid;gap:4px;padding-right:2px}
-.chat-item{border:0;background:transparent;color:var(--text);text-align:left;border-radius:11px;padding:9px 11px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.chat-item:hover{background:var(--panel2)}
-.chat-item.active{background:var(--accent-soft);color:var(--accent)}
-.sidebar-spacer{flex:1}
-.user-card{border:1px solid var(--line);background:var(--panel2);padding:10px;border-radius:14px;display:flex;gap:10px;align-items:center}
-.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#7c3aed);display:grid;place-items:center;color:#fff;font-weight:800}
-.user-meta{min-width:0}.user-name{font-size:13px;font-weight:700}.user-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
-.main{display:flex;flex-direction:column;min-width:0}
-.topbar{height:68px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 92%,transparent);backdrop-filter:blur(18px);display:flex;align-items:center;gap:10px;padding:0 22px;position:sticky;top:0;z-index:10}
-.topbar-title{font-size:17px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
-.topbar-sub{font-size:12px;color:var(--muted)}
-.search{margin-left:auto;position:relative;max-width:330px;flex:1}.search input{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:9px 12px 9px 36px;outline:none}.search input:focus{border-color:var(--accent)}
-.search svg{position:absolute;left:11px;top:11px;width:17px;color:var(--muted)}
-.icon-btn{width:40px;height:40px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;display:grid;place-items:center}.icon-btn:hover{background:var(--panel2)}
-.primary{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:10px 14px;font-weight:750;box-shadow:0 8px 20px rgba(37,99,235,.2)}.primary:hover{background:var(--accent2)}
-.secondary{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:10px 14px;font-weight:700}.secondary:hover{background:var(--panel2)}
-.danger{border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;border-radius:12px;padding:10px 14px;font-weight:700}
-body.dark .danger{background:#35151a;border-color:#5f2229;color:#fda4af}
-.content{overflow:auto;padding:26px;min-height:0;flex:1}
-.container{max-width:1180px;margin:0 auto}
-.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}.hero h1{font-size:31px;letter-spacing:-.04em;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}
-.grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-.stat{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.stat .label{font-size:12px;color:var(--muted);font-weight:700}.stat .value{font-size:28px;font-weight:850;margin-top:7px;letter-spacing:-.04em}.stat .pill{padding:7px 9px;background:var(--accent-soft);color:var(--accent);border-radius:10px;font-size:11px;font-weight:800}
-.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.panel-title{font-size:15px;font-weight:800}.panel-sub{font-size:12px;color:var(--muted)}
-.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}.between{justify-content:space-between}
-.list{display:grid;gap:8px}.list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:var(--panel2);border-radius:13px;padding:11px 12px}.list-item:hover{border-color:#cbd5e1}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.badge-success{background:#ecfdf3;color:#15803d}.badge-blue{background:var(--accent-soft);color:var(--accent)}.badge-muted{background:var(--panel2);color:var(--muted)}.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-.chat-shell{height:calc(100dvh - 68px);display:grid;grid-template-columns:280px minmax(0,1fr);min-height:0}
-.chat-sidebar{border-right:1px solid var(--line);background:var(--panel2);padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0;position:relative;overflow:hidden}.chat-profile-btn{width:100%;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--text);padding:10px;border-radius:14px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;box-shadow:0 8px 20px rgba(15,23,42,.05)}.chat-profile-btn:hover{background:var(--panel2);border-color:#cbd5e1}.chat-profile-btn .avatar{width:34px;height:34px;flex:none}.chat-profile-btn .profile-copy{min-width:0;flex:1}.chat-profile-btn .user-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.chat-profile-btn .user-email{white-space:nowrap}.chat-profile-chevron{margin-left:auto;color:var(--muted);font-size:16px}
-.chat-side-head{display:flex;gap:8px}.chat-side-head .primary{flex:1}.chat-side-list{overflow:auto;display:grid;gap:4px;min-height:0;flex:1}.chat-row{border:1px solid transparent;background:transparent;padding:10px;border-radius:12px;text-align:left;display:grid;gap:4px;color:var(--text)}.chat-row:hover{background:var(--panel)}.chat-row.active{background:var(--accent-soft);border-color:#bfdbfe}.chat-row-title{font-size:13px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-row-date{font-size:10px;color:var(--muted)}
-.chat-pane{display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}.messages{overflow:auto;flex:1;padding:28px}.message-wrap{max-width:900px;margin:0 auto 18px;display:flex;gap:10px}.message-wrap.user{justify-content:flex-end}.bubble{max-width:78%;border-radius:18px;padding:13px 15px;line-height:1.6;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.assistant .bubble{background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 25px rgba(15,23,42,.05)}.user .bubble{background:var(--accent);color:#fff}.message-meta{font-size:10px;color:var(--muted);margin-top:5px}.welcome{max-width:900px;margin:50px auto;padding:20px}.welcome-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--panel2));padding:26px;box-shadow:var(--shadow)}.welcome h2{margin:0 0 8px;font-size:27px;letter-spacing:-.04em}.welcome p{margin:0 0 18px;color:var(--muted);line-height:1.6}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.quick{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:12px;text-align:left;font-weight:650;color:var(--text)}.quick:hover{border-color:#93c5fd;background:var(--accent-soft)}
-.composer{border-top:1px solid var(--line);background:var(--panel);padding:12px 0 0;flex:none}.composer-inner{max-width:100%;margin:0;border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:10px;box-shadow:0 12px 30px rgba(15,23,42,.06)}.composer textarea{width:100%;border:0;background:transparent;color:var(--text);resize:none;min-height:54px;max-height:180px;outline:0;padding:5px;font-size:14px}.composer-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}.hint{font-size:11px;color:var(--muted)}
-.empty{padding:28px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:5px}
-.provider-card{display:grid;gap:13px}.provider-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.provider-name{font-size:16px;font-weight:850}.provider-desc{font-size:12px;color:var(--muted);line-height:1.5}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:800;color:var(--muted)}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:11px;padding:10px 11px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal.show{display:flex}.modal-card{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.28)}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.modal-title{font-size:18px;font-weight:850}
-.toast{position:fixed;right:18px;bottom:18px;display:grid;gap:10px;z-index:120}.toast-item{background:#111827;color:#fff;padding:11px 14px;border-radius:12px;box-shadow:0 16px 30px rgba(0,0,0,.2);font-size:13px;max-width:360px}.toast-item.success{background:#166534}.toast-item.error{background:#991b1b}
-.spin{display:inline-block;width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-.mobile-only{display:none}
-@media (max-width:1080px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.chat-shell{grid-template-columns:230px minmax(0,1fr)}}
-@media (max-width:760px){body{overflow:hidden}.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:80;left:0;top:0;bottom:0;width:290px;transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.mobile-only{display:grid}.topbar{padding:0 12px}.topbar-sub{display:none}.search{display:none}.content{padding:16px}.hero{align-items:flex-start;flex-direction:column}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.chat-shell{grid-template-columns:1fr}.chat-sidebar{display:none}.messages{padding:18px 14px}.bubble{max-width:88%}.composer{padding:10px 12px}.quick-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}}
+:root{--bg:#0b0b0d;--panel:#141416;--panel2:#19191c;--panel3:#202023;--line:#2a2a2e;--line2:#36363b;--text:#e7e5e2;--muted:#85838a;--dim:#5f5d64;--accent:#9e9ba4;--blue:#4b83ff;--radius:9px}
+*{box-sizing:border-box}html,body{margin:0;height:100%;background:var(--bg);color:var(--text);font-family:Georgia,"Times New Roman",serif}button,input,textarea,select{font:inherit;color:inherit}button{cursor:pointer;border:0;background:none}
+.app{height:100vh;display:flex;overflow:hidden;background:var(--bg)}
+.sidebar{width:205px;min-width:205px;background:#151517;border-right:1px solid var(--line2);display:flex;flex-direction:column;overflow:hidden}
+.brandbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 14px;justify-content:space-between}
+.brand{font-weight:700;font-size:15px;letter-spacing:.1px}.headicons{display:flex;gap:9px;color:var(--muted)}
+.iconbtn{width:20px;height:20px;display:grid;place-items:center;color:var(--muted);font-family:Arial,sans-serif;font-size:13px}.iconbtn:hover{color:var(--text)}
+.modes{padding:9px 7px 5px;display:flex;gap:2px}.mode{height:27px;padding:0 8px;border-radius:7px;color:#77757b;font-size:12px;display:flex;align-items:center;gap:5px}.mode.active{background:#353539;color:#e4e2e0;box-shadow:inset 0 0 0 1px #3f3f44}.mode .mi{font-family:Arial,sans-serif;font-size:12px}
+.nav{padding:0 7px 8px;border-bottom:1px solid #26262a}.navitem{height:29px;border-radius:7px;padding:0 8px;display:flex;align-items:center;gap:7px;color:#747278;font-size:13px}.navitem.active{background:#353538;color:#e7e5e3}.navitem:hover{background:#252529;color:#cfcdd0}.navicon{width:14px;text-align:center;font-family:Arial,sans-serif;font-size:12px}
+.newchat{margin:7px 7px 4px;height:29px;border-radius:7px;background:#303033;border:1px solid #3a3a3e;text-align:left;padding:0 9px;font-size:13px}.newchat:hover{background:#39393d}
+.chatlist{overflow:auto;padding:2px 7px 14px;flex:1}.sectionlabel{font-size:10px;letter-spacing:.08em;color:#8b8990;padding:7px 8px 5px}.chatrow{padding:7px 7px;border-radius:7px;min-height:41px}.chatrow.active{background:#303034}.chatrow:hover{background:#242428}.chatname{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.count{font-family:Arial,sans-serif;font-size:9px;color:#6e6c72;margin-top:2px}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}.topbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 8px;gap:6px}.top-title{font-size:12px;color:#a09ea4}.tab{height:28px;padding:0 10px;border-radius:7px;background:#2c2c30;color:#e3e1df;font-size:11px;border:1px solid #37373c}.plus{color:#8b8990;font-size:18px;line-height:1}.topright{margin-left:auto;display:flex;gap:8px;align-items:center}.searchmini{width:27px;height:27px;border-radius:7px;display:grid;place-items:center;color:#4c80ff;font-family:Arial}.workspace{flex:1;min-height:0;position:relative;overflow:hidden}
+.empty{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;padding-bottom:20px;text-align:center}.emptyicon{font-family:Arial;font-size:35px;color:#44444b;margin-bottom:9px}.empty h1{font-size:21px;margin:0 0 8px;font-weight:700}.empty p{font-size:12px;line-height:1.55;color:#6f6d74;max-width:410px;margin:0}
+.composerzone{padding:8px 10px 9px}.suggestions{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:0 auto 9px;max-width:620px}.chip{border:1px solid #25252a;background:#101013;border-radius:16px;padding:6px 10px;color:#a8a6ac;font-size:11px}.chip:hover{background:#1d1d20;color:#ddd}
+.composer{height:45px;border:1px solid #2b2b30;border-radius:24px;background:#111113;display:flex;align-items:center;padding:0 6px 0 7px;max-width:720px;margin:auto}.circle{width:30px;height:30px;border:1px solid #29292e;border-radius:50%;display:grid;place-items:center;color:#a4a1a7;font-family:Arial;font-size:17px;flex:0 0 auto}.prompt{flex:1;border:0;outline:0;background:transparent;padding:0 9px;font-family:Arial,sans-serif;font-size:12px;color:#ddd}.prompt::placeholder{color:#66646b}.drop{color:#8a888e;font-family:Arial}.think{height:29px;border:1px solid #2b2b30;border-radius:15px;padding:0 10px;color:#8b8990;font-size:11px}.voice{width:30px;color:#8c8a91;font-family:Arial}.hint{text-align:center;font-size:9px;color:#646269;margin-top:6px}
+.browsergrid{height:100%;display:grid;grid-template-columns:1fr 1fr}.browserleft{display:flex;flex-direction:column;min-width:0}.browserright{border-left:1px solid #3b3b40;display:flex;flex-direction:column;min-width:0}.browserchrome{height:34px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 7px;gap:5px;font-family:Arial;font-size:11px}.btab{height:27px;min-width:91px;background:#242428;border:1px solid #303036;border-bottom-color:#4d79c8;border-radius:7px 7px 0 0;padding:0 8px;display:flex;align-items:center;gap:6px}.bplus{font-size:16px;color:#888}.navtools{display:flex;gap:8px;color:#777}.address{height:25px;flex:1;border:1px solid #2b2b30;border-radius:13px;background:#171719;color:#6d6b72;padding:0 10px;outline:0;font-size:10px}.browserempty{flex:1;display:grid;place-items:center;text-align:center;color:#67656c}.browserempty .globe{font-family:Arial;font-size:34px;margin-bottom:8px}.browserempty strong{display:block;font-size:13px;color:#77757b;font-weight:400}.browserempty span{font-size:10px}
+.settings{height:100%;display:flex;flex-direction:column}.settingsbar{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 10px;gap:12px}.settingsbar strong{font-size:13px}.seg{display:flex;background:#171719;border:1px solid #29292e;border-radius:8px;overflow:hidden}.seg button{height:28px;padding:0 12px;color:#76747b;font-size:10px}.seg button.active{background:#252529;color:#ddd}.settingssearch{margin-left:auto;width:205px;height:28px;border:1px solid #29292e;border-radius:8px;background:#111113;padding:0 10px;outline:0;font-family:Arial;font-size:11px}.settingsbody{display:flex;flex:1;min-height:0;max-width:760px;width:100%;margin:0 auto;padding:18px 18px 30px;gap:12px}.settingsnav{width:128px;border-right:1px solid #28282d;padding-right:8px;overflow:auto}.settingsnav button{width:100%;text-align:left;height:29px;border-radius:7px;color:#77757b;padding:0 9px;font-size:12px}.settingsnav button.active{background:#242427;color:#e0dedd}.settingsnav button:hover{background:#202023;color:#c9c7ca}.settingspanel{flex:1;min-width:0;overflow:auto}.settingtitle{font-size:22px;margin:0 0 16px;display:flex;align-items:center;gap:8px}.profilecard{background:#19191b;border:1px solid #252529;border-radius:11px;padding:14px;max-width:430px}.field{margin-bottom:13px}.field label{display:block;font-size:12px;margin-bottom:5px}.field small{display:block;color:#68666d;font-size:9px;margin:-2px 0 6px}.field input,.field textarea,.field select{width:100%;border:1px solid #303035;background:#242426;border-radius:9px;padding:7px 9px;outline:0;font-family:Arial,sans-serif;font-size:11px;color:#ddd}.field textarea{min-height:62px;resize:vertical}.save{background:#e8e7e5;color:#1a1a1c;border-radius:8px;padding:6px 9px;font-family:Arial;font-size:11px}.divider{border-top:1px solid #29292d;margin:10px 0 12px}
+.contentpage{padding:24px;overflow:auto;height:100%}.contentpage h2{font-size:20px;margin:0 0 7px}.contentpage p{color:#737178;font-size:12px;line-height:1.5;max-width:580px}.listcard{border:1px solid #27272c;background:#161618;border-radius:9px;padding:10px;margin-top:12px;max-width:650px}.listrow{padding:10px 4px;border-bottom:1px solid #25252a;display:flex;justify-content:space-between;color:#aaa8ae;font-size:12px}.listrow:last-child{border-bottom:0}
+.messages{height:100%;overflow:auto;padding:24px 18px 130px;max-width:760px;margin:auto}.msg{margin-bottom:14px}.msg.user{text-align:right}.bubble{display:inline-block;max-width:75%;padding:9px 12px;border-radius:12px;background:#202024;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;text-align:left}.msg.assistant .bubble{background:transparent;padding-left:0;color:#c8c6ca}
+@media(max-width:700px){.sidebar{width:188px;min-width:188px}.settingsbody{padding:14px 10px}.settingssearch{width:130px}.browsergrid{grid-template-columns:1fr}.browserright{display:none}.empty h1{font-size:19px}.suggestions{padding:0 8px}.chip{font-size:10px}.composerzone{padding-left:6px;padding-right:6px}}
+@media(max-width:480px){.sidebar{width:178px;min-width:178px}.brandbar{padding:0 10px}.mode{padding:0 6px;font-size:11px}.navitem{font-size:12px}.settingsnav{width:105px}.settingsbar .seg{display:none}.settingssearch{width:115px}.settingtitle{font-size:19px}.profilecard{padding:11px}}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#35353a;border-radius:5px}::-webkit-scrollbar-track{background:transparent}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<div id="toast" class="toast"></div>
-<div id="modal" class="modal"></div>
+<div class="app" id="app"></div>
 <script>
-(function(){
-  "use strict";
-  const KEY="mark-imti.webapp.v1";
-  const defaultState={
-    user:{name:"Mark User",email:"local@mark-imti.app"},
-    chats:[],
-    projects:[],
-    providers:[],
-    skills:[],
-    exports:[],
-    settings:{theme:"system",autoSave:true}
-  };
-  const providerCatalog=[
-    {id:"OPENAI",name:"OpenAI",desc:"OpenAI API with GPT models.",base:"https://api.openai.com/v1",model:"gpt-4o-mini"},
-    {id:"OPENROUTER",name:"OpenRouter",desc:"One API key for many providers and models.",base:"https://openrouter.ai/api/v1",model:"openai/gpt-4o-mini"},
-    {id:"ANTHROPIC",name:"Anthropic",desc:"Claude models through the Anthropic Messages API.",base:"https://api.anthropic.com",model:"claude-3-5-haiku-latest"},
-    {id:"DEEPSEEK",name:"DeepSeek",desc:"OpenAI-compatible DeepSeek chat API.",base:"https://api.deepseek.com/v1",model:"deepseek-chat"},
-    {id:"MISTRAL",name:"Mistral",desc:"Mistral's OpenAI-compatible API.",base:"https://api.mistral.ai/v1",model:"mistral-small-latest"},
-    {id:"XAI",name:"xAI",desc:"Grok through xAI's OpenAI-compatible API.",base:"https://api.x.ai/v1",model:"grok-3-mini"},
-    {id:"CUSTOM",name:"Custom OpenAI-compatible",desc:"Connect a compatible endpoint of your choice.",base:"",model:""}
-  ];
-  let state=load();
-  const pathRoutes={"/home":"/home","/chat":"/chat","/projects":"/projects","/models":"/models","/skills":"/skills","/library":"/library","/settings":"/settings"};
-  let route=location.hash.slice(1)||pathRoutes[location.pathname]||"/home";
-  let currentChatId=state.chats[0]?.id||null;
-  let searchQuery="";
-  let mobileOpen=false;
-
-  function load(){
-    try{
-      const raw=localStorage.getItem(KEY);
-      if(!raw) return structuredClone(defaultState);
-      const data=JSON.parse(raw);
-      return {...structuredClone(defaultState),...data,settings:{...defaultState.settings,...(data.settings||{})}};
-    }catch{return structuredClone(defaultState)}
-  }
-  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-  function id(){return crypto.randomUUID?.()||String(Date.now()+Math.random())}
-  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
-  function time(iso){try{return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(iso))}catch{return ""}}
-  function fmtCount(n){return Number(n||0).toLocaleString()}
-  function toast(msg,type=""){const el=document.getElementById("toast");const x=document.createElement("div");x.className="toast-item "+type;x.textContent=msg;el.appendChild(x);setTimeout(()=>x.remove(),3400)}
-  function modal(html){const m=document.getElementById("modal");m.innerHTML='<div class="modal-card">'+html+"</div>";m.classList.add("show")}
-  function closeModal(){const m=document.getElementById("modal");m.classList.remove("show");m.innerHTML=""}
-  document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
-  function theme(){
-    const pref=state.settings.theme;
-    const dark=pref==="dark"||(pref==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);
-    document.body.classList.toggle("dark",dark);
-  }
-  theme();
-  addEventListener("hashchange",()=>{route=location.hash.slice(1)||"/home";mobileOpen=false;render()});
-  addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="k"){e.preventDefault();document.querySelector("#global-search")?.focus()}});
-  addEventListener("storage",()=>{state=load();theme();render()});
-
-  function navIcon(name){
-    const icons={
-      home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></svg>',
-      chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 3 1.1-4.8A7.5 7.5 0 1 1 20 11.5Z"/></svg>',
-      project:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5Z"/></svg>',
-      model:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>',
-      skill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.6 5.3L20 9l-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5L4 9l5.4-.7Z"/></svg>',
-      library:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5Z"/><path d="M4 6h16M8 10h8M8 14h6"/></svg>',
-      settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="m19.4 15 .1.1a2 2 0 0 1-2.8 2.8l-.1-.1a2 2 0 0 0-3.4 1.4v.2a2 2 0 0 1-4 0v-.2A2 2 0 0 0 6 17.8l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A2 2 0 0 0 1.8 12v-.2a2 2 0 0 1 4 0v.2A2 2 0 0 0 9.2 14l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1A2 2 0 0 0 19.4 15Z" transform="translate(1.1 -1.1) scale(.91)"/></svg>',
-      moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 14.6A8.5 8.5 0 1 1 9.4 3.2 7 7 0 0 0 20.8 14.6Z"/></svg>',
-      sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
-      search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
-      menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
-      plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
-      send:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m3.4 4.1 18 7.1c.8.3.8 1.4 0 1.7l-18 7.1c-.7.3-1.5-.4-1.2-1.2L4.4 13H13v-2H4.4L2.2 5.3c-.3-.8.5-1.5 1.2-1.2Z"/></svg>',
-      download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg>',
-      upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0 4 4m-4-4L8 8M4 20h16"/></svg>',
-      trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6m4-6v6M9 7l1-3h4l1 3m-9 0 1 14h12l1-14"/></svg>'
-    };
-    return icons[name]||"";
-  }
-  function shell(title,sub,content,actions=""){
-    const nav=[["/home","Home","home"],["/chat","Chat","chat"],["/projects","Projects","project"],["/models","AI Models","model"],["/skills","Skills","skill"],["/library","Library","library"],["/settings","Settings","settings"]];
-    const chatList=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,8);
-    return `<div class="app">
-      <aside class="sidebar ${mobileOpen?"open":""}">
-        <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="8"/></svg></div><div><div class="brand-title">Mark-Imti</div><div class="brand-sub">Personal AI workspace</div></div></div>
-        <nav class="nav">${nav.map(([href,label,ico])=>`<button class="${route===href?"active":""}" onclick="location.hash='${href}'">${navIcon(ico)}<span>${label}</span></button>`).join("")}</nav>
-        <div class="section-label">Recent chats</div>
-        <div class="chat-list">${chatList.length?chatList.map(c=>`<button class="chat-item" onclick="openChat('${c.id}')">${esc(c.title||"Untitled chat")}</button>`).join(""):'<div class="empty" style="padding:8px 11px;font-size:11px">Your chats will appear here.</div>'}</div>
-        <div class="sidebar-spacer"></div></aside>
-      <main class="main">
-        <header class="topbar"><button class="icon-btn mobile-only" onclick="mobileOpen=!mobileOpen;render()">${navIcon("menu")}</button><div><div class="topbar-title">${esc(title)}</div><div class="topbar-sub">${esc(sub||"")}</div></div><div class="search"><span>${navIcon("search")}</span><input id="global-search" placeholder="Search chats and projects" value="${esc(searchQuery)}" oninput="searchQuery=this.value;renderSearchHint()"></div><button class="icon-btn" title="Toggle theme" onclick="toggleTheme()">${navIcon(document.body.classList.contains("dark")?"sun":"moon")}</button>${actions}</header>
-        <div class="content" id="content">${content}</div>
-      </main>
-    </div>`;
-  }
-
-  window.renderSearchHint=function(){
-    const q=searchQuery.trim().toLowerCase();
-    if(!q)return;
-    const matches=[...state.chats.filter(c=>(c.title||"").toLowerCase().includes(q)),...state.projects.filter(p=>(p.name||"").toLowerCase().includes(q))].slice(0,6);
-    const root=document.getElementById("content");if(!root)return;
-    const banner=document.getElementById("search-hint");
-    if(banner)banner.remove();
-    if(matches.length){
-      const x=document.createElement("div");x.id="search-hint";x.className="card";x.style.cssText="position:fixed;top:62px;right:88px;width:360px;z-index:60";x.innerHTML=`<div class="panel-head"><div class="panel-title">Search results</div><button class="secondary" onclick="document.getElementById('search-hint')?.remove()">Close</button></div><div class="list">${matches.map(m=>`<button class="list-item" style="border:0;text-align:left" onclick="${m.messages?'openChat(\'${m.id}\')':'openProject(\'${m.id}\')'}"><span>${esc(m.title||m.name)}</span><span class="badge badge-muted">${m.messages?"Chat":"Project"}</span></button>`).join("")}</div>`;
-      document.body.appendChild(x);
-    }
-  };
-
-  function home(){
-    const providerReady=state.providers.filter(p=>p.apiKey).length;
-    const recent=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,5);
-    return shell("Home","Your workspace at a glance",`
-      <div class="container">
-        <div class="hero"><div><h1>Good to see you, ${esc((state.user.name||"there").split(" ")[0])}.</h1><p>Build, chat, organize, and keep your AI setup in one place.</p></div><button class="primary" onclick="newChat()">${navIcon("plus")} New chat</button></div>
-        <div class="grid grid-4">
-          <div class="card stat"><div><div class="label">Chats</div><div class="value">${fmtCount(state.chats.length)}</div></div><span class="pill">Local</span></div>
-          <div class="card stat"><div><div class="label">Projects</div><div class="value">${fmtCount(state.projects.length)}</div></div><span class="pill">Workspace</span></div>
-          <div class="card stat"><div><div class="label">AI providers</div><div class="value">${fmtCount(providerReady)}</div></div><span class="pill">${providerReady?"Ready":"Setup"}</span></div>
-          <div class="card stat"><div><div class="label">Skills</div><div class="value">${fmtCount(state.skills.length)}</div></div><span class="pill">Personal</span></div>
-        </div>
-        <div class="grid grid-2" style="margin-top:16px">
-          <section class="card"><div class="panel-head"><div><div class="panel-title">Recent conversations</div><div class="panel-sub">Your latest local chat history.</div></div><button class="secondary" onclick="location.hash='/chat'">Open chat</button></div>
-            <div class="list">${recent.length?recent.map(c=>`<button class="list-item" style="text-align:left" onclick="openChat('${c.id}')"><div><div style="font-weight:750">${esc(c.title||"Untitled chat")}</div><div class="panel-sub">${time(c.updatedAt)} · ${fmtCount(c.messages.length)} messages</div></div><span class="badge badge-blue">Chat</span></button>`).join(""):'<div class="empty"><strong>No chats yet</strong>Start a conversation to populate your workspace.</div>'}</div>
-          </section>
-          <section class="card"><div class="panel-head"><div><div class="panel-title">Get started</div><div class="panel-sub">The core setup for real AI conversations.</div></div></div>
-            <div class="list">
-              <button class="list-item" style="text-align:left" onclick="location.hash='/models'"><div><div style="font-weight:750">Connect an AI provider</div><div class="panel-sub">OpenAI, OpenRouter, Anthropic, DeepSeek, Mistral, xAI, or custom.</div></div><span class="badge ${providerReady?'badge-success':'badge-blue'}">${providerReady?'Ready':'Setup'}</span></button>
-              <button class="list-item" style="text-align:left" onclick="location.hash='/projects'"><div><div style="font-weight:750">Create your first project</div><div class="panel-sub">Keep chats and context organized by project.</div></div><span class="badge badge-muted">Projects</span></button>
-              <button class="list-item" style="text-align:left" onclick="location.hash='/skills'"><div><div style="font-weight:750">Add a personal skill</div><div class="panel-sub">Reusable instructions that can be attached to chats.</div></div><span class="badge badge-muted">Skills</span></button>
-            </div>
-          </section>
-        </div>
-      </div>`);
-  }
-
-  function chat(){
-    const chat=getChat();
-    const messages=chat?.messages||[];
-    const sidebar=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
-    const body=messages.length?messages.map(m=>`<div class="message-wrap ${m.role==='user'?'user':'assistant'}"><div><div class="bubble">${esc(m.content)}</div><div class="message-meta">${m.role==='user'?'You':'Mark'} · ${time(m.createdAt)}</div></div></div>`).join(""):`<div class="welcome"><div class="welcome-card"><div class="badge badge-blue" style="margin-bottom:12px">AI workspace</div><h2>What should Mark help you with?</h2><p>Connect a provider in <b>AI Models</b>, then ask questions, draft content, analyze ideas, or work through a project.</p><div class="quick-grid"><button class="quick" onclick="usePrompt('Plan a practical next step for my current project.')">Plan a practical next step</button><button class="quick" onclick="usePrompt('Summarize the most important risks and decisions I should consider.')">Identify risks and decisions</button><button class="quick" onclick="usePrompt('Draft a concise professional message based on this situation: ')">Draft a professional message</button><button class="quick" onclick="usePrompt('Help me turn this idea into a clear execution plan: ')">Turn an idea into a plan</button></div></div></div>`;
-    const content=`<div class="chat-shell"><aside class="chat-sidebar"><div class="chat-side-head"><button class="primary" onclick="newChat()">${navIcon("plus")} New chat</button></div><div class="chat-side-list">${sidebar.length?sidebar.map(c=>`<button class="chat-row ${c.id===currentChatId?'active':''}" onclick="openChat('${c.id}')"><div class="chat-row-title">${esc(c.title||"Untitled chat")}</div><div class="chat-row-date">${time(c.updatedAt)}</div></button>`).join(""):'<div class="empty"><strong>No chats</strong>Create one with New chat.</div>'}</div><button class="chat-profile-btn" type="button" onclick="location.hash=&quot;/settings&quot;" aria-label="Open profile settings"><div class="avatar">${esc((state.user.name||"M").trim().charAt(0).toUpperCase())}</div><div class="profile-copy"><div class="user-name">${esc(state.user.name)}</div><div class="user-email">${esc(state.user.email)}</div></div><span class="chat-profile-chevron">›</span></button><div class="composer" aria-label="Chat composer"><div class="composer-inner"><textarea id="composer" placeholder="${chat?'Message Mark…':'Create a new chat to begin…'}" ${chat?'':'disabled'} onkeydown="composerKey(event)"></textarea><div class="composer-foot"><div class="hint">${chat?getProviderHint():'Create a chat first'} · Ctrl/Cmd+Enter</div><button class="primary" onclick="sendMessage()" ${chat?'':'disabled'} id="send-btn">${navIcon("send")} Send</button></div></div></div></aside><section class="chat-pane"><div class="messages" id="messages">${body}</div></section></div>`;    return shell(chat?.title||"Chat","Real provider requests; conversations persist locally.",content);
-  }
-
-  function getProvider(){
-    const enabled=state.providers.filter(p=>p.apiKey);
-    if(!enabled.length)return null;
-    return enabled.find(p=>p.isDefault)||enabled[0];
-  }
-  function getProviderHint(){const p=getProvider();return p?("Using "+p.provider+" · "+(p.model||"default model")):"No provider configured"}
-  function getChat(){return state.chats.find(c=>c.id===currentChatId)||null}
-  window.openChat=function(cid){currentChatId=cid;location.hash="/chat"}
-  window.newChat=function(){const c={id:id(),title:"New chat",messages:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};state.chats.unshift(c);currentChatId=c.id;save();location.hash="/chat";render()}
-  window.usePrompt=function(s){const el=document.getElementById("composer");if(el){el.value=s;el.focus()}}
-  function composerKey(e){if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();sendMessage()}}
-  window.composerKey=composerKey;
-
-  async function sendMessage(){
-    const chat=getChat();const box=document.getElementById("composer");const btn=document.getElementById("send-btn");if(!chat||!box||btn?.disabled)return;
-    const content=box.value.trim();if(!content)return;
-    const p=getProvider();if(!p){toast("Add an API key in AI Models before chatting.","error");location.hash="/models";return}
-    box.value="";btn.disabled=true;btn.innerHTML='<span class="spin"></span> Sending';
-    chat.messages.push({role:"user",content,createdAt:new Date().toISOString()});
-    if(chat.title==="New chat")chat.title=content.slice(0,54)+(content.length>54?"…":"");
-    chat.updatedAt=new Date().toISOString();save();render();
-    setTimeout(()=>{document.getElementById("messages")?.scrollTo({top:999999,behavior:"smooth"})},30);
-    try{
-      const payload={provider:p.provider,apiKey:p.apiKey,model:p.model,baseUrl:p.baseUrl||"",messages:chat.messages.slice(-24).map(m=>({role:m.role,content:m.content})),skillId:chat.skillId||null};
-      const res=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
-      const data=await res.json().catch(()=>({}));
-      if(!res.ok)throw new Error(data.error||"AI request failed");
-      chat.messages.push({role:"assistant",content:data.content||"(No text returned)",createdAt:new Date().toISOString()});
-      chat.updatedAt=new Date().toISOString();chat.modelUsed=data.model||p.model;save();render();
-    }catch(err){
-      chat.messages.push({role:"assistant",content:"I couldn't complete that request. "+(err?.message||"Unknown error"),createdAt:new Date().toISOString(),error:true});
-      chat.updatedAt=new Date().toISOString();save();render();
-      toast(err?.message||"AI request failed","error");
-    }
-  }
-  window.sendMessage=sendMessage;
-
-  function projects(){
-    return shell("Projects","Keep work organized and connected to your conversations.",`<div class="container"><div class="hero"><div><h1>Projects</h1><p>Create project spaces with local metadata and chat context.</p></div><button class="primary" onclick="createProject()">${navIcon("plus")} New project</button></div><div class="grid grid-3">${state.projects.length?state.projects.map(p=>`<div class="card"><div class="row between"><div class="avatar" style="background:linear-gradient(135deg,#0f766e,#2563eb)">${esc((p.name||"P").charAt(0).toUpperCase())}</div><span class="badge badge-success"><span class="dot"></span>Active</span></div><div style="margin-top:14px;font-size:17px;font-weight:850">${esc(p.name)}</div><div class="panel-sub" style="margin-top:4px;line-height:1.5">${esc(p.description||"No description yet.")}</div><div class="row wrap" style="margin-top:16px"><span class="badge badge-muted">${fmtCount(p.chatCount||0)} chats</span><span class="badge badge-muted">Created ${time(p.createdAt)}</span></div><div class="row" style="margin-top:16px"><button class="secondary" onclick="openProject('${p.id}')">Open</button><button class="icon-btn" title="Delete" onclick="deleteProject('${p.id}')">${navIcon("trash")}</button></div></div>`).join(""):'<div class="card empty" style="grid-column:1/-1"><strong>No projects yet</strong>Use New project to create your first project space.</div>'}</div></div>`);
-  }
-  function createProject(){
-    modal(`<div class="modal-head"><div class="modal-title">Create project</div><button class="icon-btn" onclick="closeModal()">×</button></div><div class="grid"><div class="field"><label>Name</label><input id="project-name" placeholder="e.g. Product launch"></div><div class="field"><label>Description</label><textarea id="project-desc" rows="4" placeholder="What is this project about?"></textarea></div><div class="row" style="justify-content:flex-end"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveProject()">Create project</button></div></div>`);
-  }
-  window.createProject=createProject;
-  window.saveProject=function(){const name=document.getElementById("project-name")?.value.trim();if(!name){toast("Project name is required","error");return}state.projects.unshift({id:id(),name,description:document.getElementById("project-desc")?.value.trim()||"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),chatCount:0});save();closeModal();toast("Project created","success");render()}
-  window.openProject=function(pid){const p=state.projects.find(x=>x.id===pid);if(!p)return;location.hash="/chat";setTimeout(()=>{newChat();const c=getChat();c.title=p.name+" · New chat";c.projectId=pid;save();render()},0)}
-  window.deleteProject=function(pid){state.projects=state.projects.filter(p=>p.id!==pid);state.chats.forEach(c=>{if(c.projectId===pid)delete c.projectId});save();toast("Project deleted","success");render()}
-
-  function models(){
-    const cards=providerCatalog.map(def=>{
-      const p=state.providers.find(x=>x.provider===def.id)||{provider:def.id,apiKey:"",model:def.model,baseUrl:def.base,isDefault:false};
-      return `<div class="card provider-card"><div class="provider-top"><div><div class="provider-name">${esc(def.name)}</div><div class="provider-desc">${esc(def.desc)}</div></div><span class="badge ${p.apiKey?'badge-success':'badge-muted'}"><span class="dot"></span>${p.apiKey?'Configured':'Not configured'}</span></div><div class="field-row"><div class="field"><label>Model</label><input data-provider="${def.id}" data-field="model" value="${esc(p.model||def.model)}" placeholder="${esc(def.model)}"></div><div class="field"><label>Base URL</label><input data-provider="${def.id}" data-field="baseUrl" value="${esc(p.baseUrl||def.base)}" placeholder="${esc(def.base)}"></div></div><div class="field"><label>API key</label><input data-provider="${def.id}" data-field="apiKey" type="password" value="${esc(p.apiKey||"")}" placeholder="Enter key locally"></div><div class="row between wrap"><label class="row" style="font-size:12px;color:var(--muted);font-weight:750"><input type="checkbox" data-provider="${def.id}" data-field="isDefault" ${p.isDefault?"checked":""}> Use as default</label><div class="row"><button class="secondary" onclick="testProvider('${def.id}')">Test</button><button class="primary" onclick="saveProvider('${def.id}')">Save</button></div></div></div>`
-    }).join("");
-    return shell("AI Models","Connect your own provider keys; credentials stay in this browser.",`<div class="container"><div class="hero"><div><h1>AI Models</h1><p>Mark routes requests through your selected provider. Nothing is stored on the server.</p></div><span class="badge badge-blue">${state.providers.filter(p=>p.apiKey).length} configured</span></div><div class="grid grid-2">${cards}</div><div class="card" style="margin-top:16px"><div class="panel-head"><div><div class="panel-title">Security note</div><div class="panel-sub">API keys are stored in browser localStorage for this self-contained WebApp. Use a dedicated key with appropriate provider-side limits.</div></div></div><div class="panel-sub">The Vercel serverless function only forwards the key to your selected provider for the request and does not persist it.</div></div></div>`);
-  }
-  window.saveProvider=function(pid){
-    const inputs=[...document.querySelectorAll('[data-provider="'+pid+'"]')];
-    const get=f=>inputs.find(x=>x.dataset.field===f);
-    const def=providerCatalog.find(d=>d.id===pid);
-    let p=state.providers.find(x=>x.provider===pid);
-    if(!p){p={provider:pid,createdAt:new Date().toISOString()};state.providers.push(p)}
-    p.model=get("model")?.value.trim()||def.model;p.baseUrl=get("baseUrl")?.value.trim()||def.base;p.apiKey=get("apiKey")?.value.trim()||"";p.isDefault=!!get("isDefault")?.checked;
-    if(p.isDefault)state.providers.forEach(x=>{if(x!==p)x.isDefault=false});
-    state.providers=state.providers.filter(x=>x.apiKey||x.provider===pid);
-    save();toast(p.apiKey?"Provider saved":"Provider configuration saved","success");render()
-  }
-  window.testProvider=async function(pid){
-    saveProvider(pid);
-    const p=state.providers.find(x=>x.provider===pid);if(!p?.apiKey){toast("Add an API key first","error");return}
-    toast("Testing "+pid+"…");
-    try{
-      const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider:p.provider,apiKey:p.apiKey,model:p.model,baseUrl:p.baseUrl,messages:[{role:"user",content:"Reply with exactly: OK"}],test:true})});
-      const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Provider test failed");toast("Provider responded: "+(d.content||"OK"),"success")
-    }catch(e){toast(e?.message||"Provider test failed","error")}
-  }
-
-  function skills(){
-    return shell("Skills","Reusable instructions you control and attach to chats.",`<div class="container"><div class="hero"><div><h1>Skills</h1><p>Save repeatable instructions so Mark can behave consistently.</p></div><button class="primary" onclick="createSkill()">${navIcon("plus")} New skill</button></div><div class="grid grid-2">${state.skills.length?state.skills.map(s=>`<div class="card"><div class="row between"><div style="font-size:16px;font-weight:850">${esc(s.name)}</div><button class="icon-btn" onclick="deleteSkill('${s.id}')">${navIcon("trash")}</button></div><div class="panel-sub" style="margin-top:8px;white-space:pre-wrap;line-height:1.6">${esc(s.prompt)}</div><div class="row" style="margin-top:15px"><span class="badge badge-muted">Saved ${time(s.createdAt)}</span><button class="secondary" onclick="applySkill('${s.id}')">Use in new chat</button></div></div>`).join(""):'<div class="card empty" style="grid-column:1/-1"><strong>No skills yet</strong>Create reusable instructions for research, writing, coding, planning, or your own workflows.</div>'}</div></div>`);
-  }
-  window.createSkill=function(){modal(`<div class="modal-head"><div class="modal-title">New skill</div><button class="icon-btn" onclick="closeModal()">×</button></div><div class="grid"><div class="field"><label>Name</label><input id="skill-name" placeholder="e.g. Executive brief"></div><div class="field"><label>Instruction</label><textarea id="skill-prompt" rows="7" placeholder="Tell Mark how to behave whenever this skill is used."></textarea></div><div class="row" style="justify-content:flex-end"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveSkill()">Save skill</button></div></div>`)}
-  window.saveSkill=function(){const name=document.getElementById("skill-name")?.value.trim(),prompt=document.getElementById("skill-prompt")?.value.trim();if(!name||!prompt){toast("Name and instruction are required","error");return}state.skills.unshift({id:id(),name,prompt,createdAt:new Date().toISOString()});save();closeModal();toast("Skill saved","success");render()}
-  window.deleteSkill=function(sid){state.skills=state.skills.filter(s=>s.id!==sid);save();toast("Skill deleted","success");render()}
-  window.applySkill=function(sid){const s=state.skills.find(x=>x.id===sid);if(!s)return;newChat();const c=getChat();c.skillId=s.id;c.title=s.name+" · New chat";c.messages.push({role:"user",content:"Use this skill for the conversation.\n\n"+s.prompt,createdAt:new Date().toISOString()});save();render();toast("Skill added to chat","success")}
-
-  function library(){
-    return shell("Library","Local exports and portable workspace snapshots.",`<div class="container"><div class="hero"><div><h1>Library</h1><p>Export and restore your local Mark-Imti data without a server account.</p></div><div class="row"><button class="secondary" onclick="exportData()">${navIcon("download")} Export data</button><button class="primary" onclick="document.getElementById('import-input').click()">${navIcon("upload")} Import</button><input id="import-input" type="file" accept="application/json" hidden onchange="importData(event)"></div></div><div class="grid grid-2"><div class="card"><div class="panel-head"><div><div class="panel-title">Saved exports</div><div class="panel-sub">Each export is generated in your browser.</div></div></div><div class="list">${state.exports.length?state.exports.slice().reverse().map(e=>`<div class="list-item"><div><div style="font-weight:750">${esc(e.name)}</div><div class="panel-sub">${time(e.createdAt)}</div></div><span class="badge badge-success">Available</span></div>`).join(""):'<div class="empty"><strong>No exports yet</strong>Export your workspace when you want a backup.</div>'}</div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Workspace snapshot</div><div class="panel-sub">Current local data at a glance.</div></div></div><div class="grid grid-2"><div><div class="panel-sub">Chats</div><div style="font-size:24px;font-weight:850;margin-top:4px">${fmtCount(state.chats.length)}</div></div><div><div class="panel-sub">Projects</div><div style="font-size:24px;font-weight:850;margin-top:4px">${fmtCount(state.projects.length)}</div></div><div><div class="panel-sub">Providers</div><div style="font-size:24px;font-weight:850;margin-top:4px">${fmtCount(state.providers.filter(p=>p.apiKey).length)}</div></div><div><div class="panel-sub">Skills</div><div style="font-size:24px;font-weight:850;margin-top:4px">${fmtCount(state.skills.length)}</div></div></div></div></div></div>`);
-  }
-  window.exportData=function(){const snap={...state,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(snap,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mark-imti-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);state.exports.push({id:id(),name:a.download,createdAt:new Date().toISOString()});save();render();toast("Workspace exported","success")}
-  window.importData=function(e){const f=e.target.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const incoming=JSON.parse(rd.result);state={...structuredClone(defaultState),...incoming};save();theme();toast("Workspace restored","success");render()}catch{toast("Invalid backup file","error")}};rd.readAsText(f)}
-
-  function settings(){
-    return shell("Settings","Control your local workspace and appearance.",`<div class="container"><div class="hero"><div><h1>Settings</h1><p>Everything here is local to this browser.</p></div></div><div class="grid grid-2"><div class="card"><div class="panel-head"><div><div class="panel-title">Profile</div><div class="panel-sub">Used only in your local workspace UI.</div></div></div><div class="grid"><div class="field"><label>Display name</label><input id="display-name" value="${esc(state.user.name)}"></div><div class="field"><label>Email</label><input id="display-email" value="${esc(state.user.email)}"></div><div class="row" style="justify-content:flex-end"><button class="primary" onclick="saveProfile()">Save profile</button></div></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Appearance</div><div class="panel-sub">Choose light, dark, or follow your system.</div></div></div><div class="field"><label>Theme</label><select id="theme-select" onchange="setTheme(this.value)"><option value="system" ${state.settings.theme==="system"?"selected":""}>System</option><option value="light" ${state.settings.theme==="light"?"selected":""}>Light</option><option value="dark" ${state.settings.theme==="dark"?"selected":""}>Dark</option></select></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Data & privacy</div><div class="panel-sub">Export before clearing. Provider keys live in localStorage.</div></div></div><div class="row wrap"><button class="secondary" onclick="exportData()">${navIcon("download")} Export backup</button><button class="danger" onclick="resetWorkspace()">Clear local workspace</button></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Connection</div><div class="panel-sub">Live deployment version</div></div><span class="badge badge-success"><span class="dot"></span>Online UI</span></div><div class="panel-sub">Version ${APP_VERSION}. The WebApp uses Vercel for the static UI and the /api/chat serverless function.</div></div></div></div>`);
-  }
-  window.saveProfile=function(){state.user.name=document.getElementById("display-name").value.trim()||"Mark User";state.user.email=document.getElementById("display-email").value.trim()||"local@mark-imti.app";save();toast("Profile saved","success");render()}
-  window.setTheme=function(v){state.settings.theme=v;save();theme();render()}
-  window.toggleTheme=function(){state.settings.theme=document.body.classList.contains("dark")?"light":"dark";save();theme();render()}
-  window.resetWorkspace=function(){if(!confirm("Clear all local chats, projects, providers, skills, and settings?"))return;state=structuredClone(defaultState);currentChatId=null;save();theme();toast("Local workspace cleared","success");location.hash="/home"}
-
-  function page(){
-    if(route==="/home")return home();
-    if(route==="/chat")return chat();
-    if(route==="/projects")return projects();
-    if(route==="/models")return models();
-    if(route==="/skills")return skills();
-    if(route==="/library")return library();
-    if(route==="/settings")return settings();
-    return home();
-  }
-  function render(){theme();document.getElementById("root").innerHTML=page()}
-  render();
-})();
+const state={
+ mode:localStorage.getItem('mi_mode')||'imti',
+ page:localStorage.getItem('mi_page')||'quick',
+ activeChat:localStorage.getItem('mi_chat')||'New chat',
+ chats:JSON.parse(localStorage.getItem('mi_chats')||'[]'),
+ settingsTab:localStorage.getItem('mi_setting_tab')||'Profile',
+ messages:JSON.parse(localStorage.getItem('mi_messages')||'[]'),
+ settings:JSON.parse(localStorage.getItem('mi_settings')||'{}'),
+ browserUrl:localStorage.getItem('mi_browser_url')||'',
+ browserTabs:JSON.parse(localStorage.getItem('mi_browser_tabs')||'["New Tab"]'),
+ theme:localStorage.getItem('mi_theme')||'dark'
+};
+const navImti=[['quick','✣','Quick Action'],['library','◫','Library'],['scheduled','◴','Scheduled'],['skills','✧','Skills'],['projects','▱','Projects']];
+const settingTabs=['Profile','Appearance','Scheduled','Execution','Browser','Computer','Security','Core Laws','Advanced','Data','Skills','Connectors','Knowledge','Memory','Agents','AI Studio','About'];
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+function persist(){localStorage.setItem('mi_mode',state.mode);localStorage.setItem('mi_page',state.page);localStorage.setItem('mi_chat',state.activeChat);localStorage.setItem('mi_chats',JSON.stringify(state.chats));localStorage.setItem('mi_setting_tab',state.settingsTab);localStorage.setItem('mi_messages',JSON.stringify(state.messages));localStorage.setItem('mi_settings',JSON.stringify(state.settings));localStorage.setItem('mi_browser_url',state.browserUrl);localStorage.setItem('mi_browser_tabs',JSON.stringify(state.browserTabs));localStorage.setItem('mi_theme',state.theme)}
+function icon(i){return '<span class="navicon">'+i+'</span>'}
+function sidebar(){
+ const modes=[['imti','▣','Imti'],['mark','</>','Mark'],['browser','◎','Browser']];
+ return '<aside class="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-action="search">⌕</button><button class="iconbtn" data-action="collapse">◫</button></div></div>'+
+ '<div class="modes">'+modes.map(m=>'<button class="mode '+(state.mode===m[0]?'active':'')+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join('')+'</div>'+
+ '<div class="nav">'+navImti.map(n=>'<button class="navitem '+(state.page===n[0]&&state.mode!=='browser'?'active':'')+'" data-page="'+n[0]+'">'+icon(n[1])+n[2]+'</button>').join('')+'</div>'+
+ '<button class="newchat" data-action="newchat">＋ New chat</button>'+
+ '<div class="chatlist"><div class="sectionlabel">⚑ PINNED</div>'+pinnedChats()+'<div class="sectionlabel">TODAY</div>'+chatRows()+'</div></aside>'
+}
+function pinnedChats(){const rows=['New chat','New chat','New chat','New chat'];return rows.map((x,i)=>'<div class="chatrow '+(state.activeChat===x&&i===0?'active':'')+'" data-chat="'+x+'"><div class="chatname">'+x+'</div><div class="count">0 msgs</div></div>').join('')}
+function chatRows(){const arr=state.chats.length?state.chats:['New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat','New chat'];return arr.map(x=>'<div class="chatrow '+(state.activeChat===x?'active':'')+'" data-chat="'+esc(x)+'"><div class="chatname">'+esc(x)+'</div><div class="count">0 msgs</div></div>').join('')}
+function topbar(title){
+ return '<div class="topbar">'+(title?'<span class="top-title">'+esc(title)+'</span>':'')+(state.mode!=='mark'||state.page==='chat'?'<button class="tab" data-action="newchat">'+esc(state.activeChat)+'</button><button class="plus" data-action="newchat">＋</button>':'')+
+ '<div class="topright"><button class="searchmini" data-action="search">⌕</button><button class="iconbtn" data-action="settings">⚙</button><button class="iconbtn" data-action="collapse">◫</button></div></div>'
+}
+function emptyChat(){
+ const suggestions=['Create a to-do app','Research a topic','Write a report','Analyze data','Design a landing page','Plan a project'];
+ return '<div class="workspace">'+(state.messages.length?messageView(): '<div class="empty"><div class="emptyicon">✣</div><h1>What can I help you build?</h1><p>Describe what you want in plain words — Mark reads it, decides what’s needed, and does it while you watch. No technical knowledge required.</p></div>')+'</div>'+
+ '<div class="composerzone"><div class="suggestions">'+suggestions.map(x=>'<button class="chip" data-suggest="'+x+'">'+esc(x)+'</button>').join('')+'</div>'+composer('Ask anything, / for commands, @ for context...','Wave icon = voice conversation. Talk naturally to Mark or Imti.')+'</div>'
+}
+function messageView(){return '<div class="messages">'+state.messages.map(m=>'<div class="msg '+m.role+'"><div class="bubble">'+esc(m.text)+'</div></div>').join('')+'</div>'}
+function composer(ph,hint){return '<div class="composer"><button class="circle" data-action="plus">＋</button><input id="composerInput" class="prompt" placeholder="'+ph+'"><button class="drop">⌄</button><button class="think">✣ Think</button><button class="voice">◒</button></div><div class="hint">'+hint+'</div>'}
+function browserView(){
+ return '<div class="workspace"><div class="browsergrid"><div class="browserleft"><div class="browserchrome"><span>⌁</span><span>‹</span><span>›</span><span>↻</span><input class="address" id="browserInput" placeholder="Search or enter URL" value="'+esc(state.browserUrl)+'"></div><div class="browserempty"><div><div class="globe">◎</div><strong>What should I browse?</strong><span>Tell me a website to open or a topic to research</span></div></div></div>'+
+ '<div class="browserright"><div class="browserchrome"><div class="btab">◎ New Tab</div><span class="bplus">＋</span></div><div class="browserchrome"><span class="navtools">‹　›　↻</span><input class="address" placeholder="Search or enter URL"></div><div class="browserempty"><div><div class="globe">◎</div><strong>New Tab</strong><span>Search or enter a URL to start</span></div></div></div></div></div>'+
+ '<div class="composerzone">'+composer('Ask Mark to browse the web...','Browse mode — Mark opens the browser, searches, reads pages, and brings back answers.')+'</div>'
+}
+function settingsView(){
+ return '<div class="settings">'+
+ '<div class="settingsbar"><strong>Settings</strong><div class="seg"><button class="active">Chat</button><button>Work</button><button>Browse</button></div><input class="settingssearch" id="settingsSearch" placeholder="⌕  Search..."><button class="iconbtn" data-action="theme">☾</button></div>'+
+ '<div class="settingsbody"><nav class="settingsnav">'+settingTabs.map(x=>'<button class="'+(state.settingsTab===x?'active':'')+'" data-setting="'+x+'">'+esc(x)+'</button>').join('')+'</nav><section class="settingspanel">'+settingPanel()+'</section></div></div>'
+}
+function settingPanel(){
+ if(state.settingsTab==='Profile')return '<h1 class="settingtitle">⚙ Settings</h1><div class="profilecard"><h3 style="margin:0 0 13px;font-size:14px">Your Profile</h3>'+field('Email','email','local@mark-imti.app')+field('Full Name','fullName','Local User')+'<div class="field"><label>Role</label><div style="font-family:Arial;font-size:11px;color:#999">user</div></div><button class="save" data-action="save">Save Changes</button><div class="divider"></div>'+field('Custom instructions','instructions','e.g. Always answer in plain words, then show the technical details...','textarea')+'<h3 style="font-size:13px;margin:15px 0 12px">About you</h3>'+field('Nickname','nickname','Your nickname')+field('Occupation','occupation','Select...','select')+field('More about you','about','e.g. I care about clean design, privacy, and shipping fast...','textarea')+'</div>';
+ return '<h1 class="settingtitle">⚙ '+esc(state.settingsTab)+'</h1><div class="listcard"><p>This Mark-Imti setting is ready for local configuration. Changes are kept in your browser.</p>'+['Preferences','Permissions','Defaults'].map(x=>'<div class="listrow"><span>'+x+'</span><span>›</span></div>').join('')+'</div>'
+}
+function field(label,key,placeholder,type='input'){const v=state.settings[key]||'';if(type==='textarea')return '<div class="field"><label>'+label+'</label><small>Additional behavior, style, and tone preferences.</small><textarea data-field="'+key+'" placeholder="'+placeholder+'">'+esc(v)+'</textarea></div>';if(type==='select')return '<div class="field"><label>'+label+'</label><small>What should Mark-Imti call you?</small><select data-field="'+key+'"><option>'+esc(v||placeholder)+'</option><option>Developer</option><option>Property professional</option><option>Designer</option><option>Other</option></select></div>';return '<div class="field"><label>'+label+'</label><input data-field="'+key+'" placeholder="'+placeholder+'" value="'+esc(v)+'"></div>'}
+function contentPage(){
+ const map={library:['Library','Your files, resources, and saved work appear here.'],scheduled:['Scheduled','Manage scheduled work and recurring tasks.'],skills:['Skills','Reusable skills and instructions available to Mark and Imti.'],projects:['Projects','Organize your active projects and pinned work.'],quick:['Quick Action','Start from a common action or describe your own task.']};
+ const [title,desc]=map[state.page]||map.quick;
+ return '<div class="contentpage"><h2>'+title+'</h2><p>'+desc+'</p><div class="listcard">'+['Create a new task','Open recent work','Review saved resources'].map(x=>'<div class="listrow"><span>'+x+'</span><span>›</span></div>').join('')+'</div></div>'
+}
+function render(){
+ document.getElementById('app').innerHTML=sidebar()+'<main class="main">'+
+ (state.mode==='browser'?topbar('')+browserView():
+ state.mode==='mark'&&state.page==='settings'?settingsView():
+ topbar(state.mode==='mark'?'Mark':'')+(state.page==='quick'||state.page==='chat'?emptyChat():contentPage()))+'</main>';
+ bind();
+}
+function newChat(){
+ const name='New chat';
+ state.activeChat=name;
+ state.page='chat';
+ state.messages=[];
+ state.chats.unshift(name);
+ state.chats=state.chats.slice(0,30);
+ persist();render();
+}
+function send(text){
+ if(!text.trim())return;
+ state.page='chat';state.messages.push({role:'user',text:text.trim()});
+ state.messages.push({role:'assistant',text:'I’m ready. Tell me what you want to build, research, organize, or change.'});
+ persist();render();
+}
+function bind(){
+ document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{state.mode=b.dataset.mode;state.page=state.mode==='mark'?'settings':state.mode==='browser'?'chat':'quick';persist();render()});
+ document.querySelectorAll('[data-page]').forEach(b=>b.onclick=()=>{state.page=b.dataset.page;persist();render()});
+ document.querySelectorAll('[data-chat]').forEach(b=>b.onclick=()=>{state.activeChat=b.dataset.chat;state.page='chat';persist();render()});
+ document.querySelectorAll('[data-setting]').forEach(b=>b.onclick=()=>{state.settingsTab=b.dataset.setting;persist();render()});
+ document.querySelectorAll('[data-suggest]').forEach(b=>b.onclick=()=>send(b.dataset.suggest));
+ document.querySelectorAll('[data-action]').forEach(b=>b.onclick=()=>{
+  const a=b.dataset.action;
+  if(a==='newchat')newChat();
+  if(a==='settings'){state.mode='mark';state.page='settings';persist();render()}
+  if(a==='theme'){state.theme=state.theme==='dark'?'light':'dark';document.body.style.filter=state.theme==='light'?'invert(.88) hue-rotate(180deg)':'none';persist()}
+  if(a==='save'){document.querySelectorAll('[data-field]').forEach(e=>state.settings[e.dataset.field]=e.value);persist();b.textContent='Saved';setTimeout(()=>{if(document.body.contains(b)){b.textContent='Save Changes'}},900)}
+ });
+ const input=document.getElementById('composerInput');if(input){input.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send(input.value)}})}
+ const bi=document.getElementById('browserInput');if(bi){bi.addEventListener('keydown',e=>{if(e.key==='Enter'){state.browserUrl=bi.value;persist();render()}})}
+ document.querySelectorAll('[data-field]').forEach(e=>e.addEventListener('input',()=>{state.settings[e.dataset.field]=e.value;localStorage.setItem('mi_settings',JSON.stringify(state.settings))}));
+}
+render();
 </script>
 </body>
 </html>
