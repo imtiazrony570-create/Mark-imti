@@ -172,7 +172,7 @@ export default function ProjectDetailPage() {
                   </Button>
                 </div>
               ) : (
-                {id ? <ProjectWorkspace projectId={id} /> : null}
+                id ? <ProjectWorkspace projectId={id} /> : null
               )}
             </div>
           </main>
