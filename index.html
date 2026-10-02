@@ -159,7 +159,7 @@ function render(){
  else if(section==="project")main=projectView();
  else main=quickView();
  document.getElementById("app").innerHTML=sidebar()+'<main class="main">'+topbar()+main+'</main>'+(state.ui.settingsOpen?settingsModal():"");
- applyTheme();bind();
+ applyTheme();bind();syncHash();
 }
 function applyTheme(){document.documentElement.dataset.density=state.data.appearance.density;document.body.classList.toggle("light",state.data.appearance.theme==="light")}
 function newChat(){const c={id:uid("c"),title:"New chat",pinned:false,createdAt:now(),updatedAt:now(),messages:[]};state.data.chats.unshift(c);state.ui.chatId=c.id;state.ui.mode="imti";state.ui.section="chat";save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50)}
@@ -227,6 +227,10 @@ function act(a){
  else if(a==="go-address"){const i=document.getElementById("address");if(i)browserNavigate(i.value)}
  else if(a==="open-external"){const t=getTabs().find(x=>x.id===state.ui.browserTabId);if(t?.url)window.open(t.url,"_blank","noopener,noreferrer")}
 }
+function syncHash(){let h=state.ui.mode==="browser"?"#/browser":state.ui.mode==="mark"?(state.ui.section==="project"?"#/mark/projects/"+(state.ui.projectId||""):"#/mark/"+state.ui.section):state.ui.section==="chat"?"#/imti/chat/"+(state.ui.chatId||""):"#/imti/"+state.ui.section;if(location.hash!==h)history.replaceState(null,"",h)}
+function loadHash(){const p=location.hash.replace(/^#\//,"").split("/");if(!p[0])return;if(p[0]==="browser")state.ui.mode="browser";if(p[0]==="imti"){state.ui.mode="imti";state.ui.section=p[1]||"quick";if(p[1]==="chat"&&p[2])state.ui.chatId=p[2]}if(p[0]==="mark"){state.ui.mode="mark";state.ui.section=p[1]||"quick";if(p[1]==="projects"&&p[2]){state.ui.section="project";state.ui.projectId=p[2]}}}
+window.addEventListener("hashchange",()=>{loadHash();render()});
+loadHash();
 render();
 })();</script>
 </body>
