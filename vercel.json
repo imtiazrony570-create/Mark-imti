@@ -1,7 +1,11 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "nextjs",
-  "installCommand": "npm --prefix mark-jenny/frontend ci",
-  "buildCommand": "npm --prefix mark-jenny/frontend run build",
-  "outputDirectory": "mark-jenny/frontend/.next"
+  "$schema":"https://openapi.vercel.sh/vercel.json",
+  "rewrites":[
+    {"source":"/chat","destination":"/index.html"},
+    {"source":"/projects","destination":"/index.html"},
+    {"source":"/models","destination":"/index.html"},
+    {"source":"/skills","destination":"/index.html"},
+    {"source":"/library","destination":"/index.html"},
+    {"source":"/settings","destination":"/index.html"}
+  ]
 }
