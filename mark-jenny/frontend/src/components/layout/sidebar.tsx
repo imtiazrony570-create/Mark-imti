@@ -2,6 +2,7 @@
 
 import {
   Settings,
+  FolderKanban,
   LayoutDashboard,
   Bot,
   Code2,
@@ -26,7 +27,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, type ReactElement, useRef, useEffect } from "react";
+import { useState, type ReactElement, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
