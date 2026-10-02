@@ -40,6 +40,7 @@ jobs:
         env:
           NEXT_PUBLIC_BASE_PATH: /Mark-imti
           NEXT_PUBLIC_API_URL: https://mark-imti-api.imtiazrony570.workers.dev/api/v1
+          NEXT_PUBLIC_STATIC_MODE: true
         run: npm run build -- --webpack
 
       - name: Configure Pages
