@@ -274,6 +274,14 @@ export default function ChatPage() {
 
   useEffect(() => { fetchChats(); fetchProjects(); }, [fetchChats, fetchProjects]);
   useEffect(() => { if (activeChatId) fetchMsgs(activeChatId); }, [activeChatId, fetchMsgs]);
+
+  // Automatically open Mark's live execution console when a build/task appears.
+  // The user can still close it manually from the ChatTopBar.
+  useEffect(() => {
+    if (mode !== "browse" && taskId) setWorkOpen(true);
+    if (mode !== "browse" && taskUpdate?.task?.status === "RUNNING") setWorkOpen(true);
+  }, [mode, taskId, taskUpdate?.task?.status]);
+
   useEffect(() => { if (taskUpdate && activeChatId) fetchMsgs(activeChatId); }, [taskUpdate, activeChatId, fetchMsgs]);
 
   const handleNewProject = async () => {
