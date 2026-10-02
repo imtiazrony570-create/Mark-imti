@@ -15,7 +15,7 @@ enabled = true
 # `wrangler secret put BACKEND_URL`) so the real host is never in the repo or
 # in the uploaded bundle. Do not also declare it under [vars] - Cloudflare
 # rejects a name that exists in both places.
-CORS_ORIGINS = "https://mark-imti.pages.dev,http://localhost:3000"
+CORS_ORIGINS = "https://mark-imti-web.kevin-clientmanager.workers.dev,https://mark-imti.pages.dev,https://imtiazrony570-create.github.io,http://localhost:3000"
 
 [env.production]
 name = "mark-imti-api"
