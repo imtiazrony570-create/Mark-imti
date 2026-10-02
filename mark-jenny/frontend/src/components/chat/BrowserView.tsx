@@ -20,8 +20,10 @@ interface BrowserViewProps {
   onSend: (text: string) => void;
   sending: boolean;
   activeChatId: number | null;
+  activeBrowserSessionId: string | null;
   onFile: (file: File) => void;
   onVoiceAsk?: (text: string) => Promise<string | null>;
+  onSessionUrlChange?: (sessionId: string, url: string) => void;
 }
 
 interface BrowserTab {
@@ -41,7 +43,7 @@ function extractBrowserUrl(messages: Message[]): string | null {
   return null;
 }
 
-export function BrowserView({ messages, sessions, onSend, sending, activeChatId, onFile, onVoiceAsk }: BrowserViewProps) {
+export function BrowserView({ messages, sessions, onSend, sending, activeChatId, activeBrowserSessionId, onFile, onVoiceAsk, onSessionUrlChange }: BrowserViewProps) {
   const [chatWidth, setChatWidth] = useState(45);
   const draggingRef = useRef(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -73,21 +75,22 @@ export function BrowserView({ messages, sessions, onSend, sending, activeChatId,
   const currentUrl = browserTabs.find((t) => t.id === activeBrowserTab)?.url || browserUrl || "";
 
   useEffect(() => {
-    let cancelled = false;
-    browserApi.createSession(false)
-      .then(({ session_id }) => {
-        if (!cancelled) {
-          setBrowserSessionId(session_id);
-          setBrowserStatus("Browser automation ready");
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setBrowserStatus("Embedded preview mode");
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    setBrowserSessionId(activeBrowserSessionId || null);
+    const session = sessions.find((item) => item.id === activeBrowserSessionId);
+    const url = session?.url || "";
+    const title = session?.name || (url ? url.replace(/https?:\/\//, "").split("/")[0] : "New Tab");
+    if (activeBrowserSessionId) {
+      setBrowserTabs([{ id: activeBrowserSessionId, title, url }]);
+      setActiveBrowserTab(activeBrowserSessionId);
+      setUrlInput(url);
+      setBrowserStatus(session?.status === "ready" ? "Browser automation ready" : "Browser session active");
+    } else {
+      setBrowserTabs([{ id: "empty", title: "New Tab", url: "" }]);
+      setActiveBrowserTab("empty");
+      setUrlInput("");
+      setBrowserStatus("No active browser session — use + to start one");
+    }
+  }, [activeBrowserSessionId, sessions]);
 
   const navigateTo = useCallback((url: string) => {
     let finalUrl = url;
@@ -97,6 +100,7 @@ export function BrowserView({ messages, sessions, onSend, sending, activeChatId,
     setBrowserTabs((prev) => prev.map((t) => t.id === activeBrowserTab ? { ...t, url: finalUrl, title: finalUrl.replace(/https?:\/\//, "").split("/")[0] } : t));
     setUrlInput(finalUrl);
     if (browserSessionId) {
+      onSessionUrlChange?.(browserSessionId, finalUrl);
       browserApi.navigate({ url: finalUrl, session_id: browserSessionId })
         .then((result) => setBrowserStatus(result.success ? "Page loaded in automation session" : "Page opened in embedded preview"))
         .catch(() => setBrowserStatus("Page opened in embedded preview"));
@@ -296,8 +300,8 @@ export function BrowserView({ messages, sessions, onSend, sending, activeChatId,
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <Globe className="h-12 w-12 text-zinc-200 dark:text-zinc-800 mb-3" />
-              <p className="text-sm font-medium text-zinc-400">New Tab</p>
-              <p className="text-xs text-zinc-300 mt-1">Search or enter a URL to start browsing</p>
+              <p className="text-sm font-medium text-zinc-400">{activeBrowserSessionId ? "New Tab" : "No browser session"}</p>
+              <p className="text-xs text-zinc-300 mt-1">{activeBrowserSessionId ? "Search or enter a URL to start browsing" : "Choose a browsing session or press + to start one"}</p>
             </div>
           )}
 
