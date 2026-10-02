@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
-import { SearchIcon, Settings, PanelRightClose, PanelRight, X, Plus, Pin, PinOff, MoreHorizontal, Pencil, Trash2, Globe, MonitorUp, ArrowLeft, ArrowRight, VolumeX, Volume2 } from "lucide-react";
+import { SearchIcon, Settings, PanelRightClose, PanelRight, X, Plus, Pin, PinOff, MoreHorizontal, Pencil, Trash2, Globe, MonitorUp, ArrowLeft, ArrowRight, VolumeX, Volume2, FolderKanban } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { setSearchOpen } from "@/lib/nav/search-store";
 import { setSettingsOpen } from "@/lib/nav/settings-store";
@@ -35,9 +35,14 @@ export function ChatTopBar({
   onDeleteTab,
   onToggleMute,
   onMoveTab,
+  projects,
+  onAddToProject,
   mode,
   browserSessions,
+  activeBrowserSessionId,
   onSelectBrowserSession,
+  onCloseBrowserSession,
+  onToggleBrowserPin,
   voiceActive,
   onScreenShare,
 }: {
@@ -54,9 +59,14 @@ export function ChatTopBar({
   onDeleteTab?: (id: number) => void;
   onToggleMute?: (id: number) => void;
   onMoveTab?: (id: number, direction: "left" | "right") => void;
+  projects?: { id: number; name: string }[];
+  onAddToProject?: (chatId: number, projectId: number) => void;
   mode?: "chat" | "work" | "browse";
-  browserSessions?: { id: string; url?: string; status?: string; name?: string }[];
+  browserSessions?: { id: string; url?: string; status?: string; name?: string; pinned?: boolean }[];
+  activeBrowserSessionId?: string | null;
   onSelectBrowserSession?: (id: string) => void;
+  onCloseBrowserSession?: (id: string) => void;
+  onToggleBrowserPin?: (id: string) => void;
   voiceActive?: boolean;
   onScreenShare?: () => void;
 }) {
@@ -225,6 +235,22 @@ export function ChatTopBar({
               {tab.pinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
               {tab.pinned ? "Unpin" : "Pin"}
             </button>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger><FolderKanban className="h-3 w-3" /> Add to Project</DropdownMenuSubTrigger>
+              <DropdownMenuSubContent className="w-56">
+                {!projects?.length ? (
+                  <button disabled className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-zinc-400">No projects yet</button>
+                ) : projects.map((project) => (
+                  <button
+                    key={project.id}
+                    onClick={(e) => { e.stopPropagation(); onAddToProject?.(tab.id, project.id); setMenuTab(null); }}
+                    className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700"
+                  >
+                    {project.name || `Project #${project.id}`}
+                  </button>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuSub>
             <button
               onClick={(e) => { e.stopPropagation(); onToggleMute?.(tab.id); setMenuTab(null); }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700"
@@ -232,18 +258,13 @@ export function ChatTopBar({
               {tab.muted ? <Volume2 className="h-3 w-3" /> : <VolumeX className="h-3 w-3" />}
               {tab.muted ? "Unmute" : "Mute"}
             </button>
-            {/* Close — hidden for pinned tabs (unpin first) */}
-            {!tab.pinned && (
-            <>
             <div className="border-t border-zinc-200 dark:border-zinc-700 my-0.5" />
             <button
               onClick={(e) => { e.stopPropagation(); onDeleteTab?.(tab.id); setMenuTab(null); }}
               className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
             >
-              <Trash2 className="h-3 w-3" /> Close
+              <Trash2 className="h-3 w-3" /> Delete
             </button>
-            </>
-            )}
           </div>
         )}
       </div>
@@ -257,11 +278,12 @@ export function ChatTopBar({
         {isBrowseMode ? (
           /* Browser sessions as tabs */
           <>
-            {browserSessions?.map((session, idx) => {
+            {[...(browserSessions || [])].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned)).map((session, idx) => {
               const isMenuOpen = menuTab === -1 - idx;
               const isHovered = hoveredTab === -1 - idx;
               const sid = String(session?.id ?? "");
               if (!sid) return null;
+              const active = activeBrowserSessionId === sid;
               return (
                 <div
                   key={sid}
@@ -269,8 +291,10 @@ export function ChatTopBar({
                   onMouseLeave={() => { if (menuTab !== -1 - idx) setHoveredTab(null); }}
                   onClick={() => onSelectBrowserSession?.(sid)}
                   className={cn(
-                    "group relative flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium cursor-pointer transition-colors shrink-0 max-w-[180px]",
-                    "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
+                    "group relative flex items-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium cursor-pointer transition-colors shrink-0 max-w-[200px]",
+                    active
+                      ? "bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100"
+                      : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800/50"
                   )}
                   title={session.url || session.name || sid}
                   style={{ overflow: "visible" }}
@@ -286,22 +310,22 @@ export function ChatTopBar({
                       >
                         <MoreHorizontal className="h-3 w-3" />
                       </button>
+                      <button
+                        onClick={() => onCloseBrowserSession?.(sid)}
+                        className="rounded p-0.5 text-zinc-400 hover:bg-zinc-300 dark:hover:bg-zinc-600 hover:text-zinc-700"
+                        title="Close session"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </div>
                   )}
                   {isMenuOpen && (
-                    <div className="absolute top-full left-0 mt-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl py-1 z-[100] min-w-[130px]">
-                      <button onClick={(e) => { e.stopPropagation(); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700">
-                        <Pencil className="h-3 w-3" /> Rename
+                    <div className="absolute top-full left-0 mt-1 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-lg shadow-xl py-1 z-[100] min-w-[150px]">
+                      <button onClick={(e) => { e.stopPropagation(); onToggleBrowserPin?.(sid); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700">
+                        {session.pinned ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />} {session.pinned ? "Unpin" : "Pin"}
                       </button>
-                      <button onClick={(e) => { e.stopPropagation(); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700">
-                        <Pin className="h-3 w-3" /> Pin
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs hover:bg-zinc-100 dark:hover:bg-zinc-700">
-                        <VolumeX className="h-3 w-3" /> Mute
-                      </button>
-                      <div className="border-t border-zinc-200 dark:border-zinc-700 my-0.5" />
-                      <button onClick={(e) => { e.stopPropagation(); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
-                        <Trash2 className="h-3 w-3" /> Close
+                      <button onClick={(e) => { e.stopPropagation(); onCloseBrowserSession?.(sid); setMenuTab(null); }} className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20">
+                        <Trash2 className="h-3 w-3" /> Close session
                       </button>
                     </div>
                   )}
