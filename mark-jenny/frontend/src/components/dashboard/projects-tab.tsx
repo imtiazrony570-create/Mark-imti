@@ -180,7 +180,7 @@ export function ProjectsTab() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/projects/${project.id}`)}><FolderOpen className="mr-2 h-4 w-4" />Open</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/projects/view?projectId=${project.id}`)}><FolderOpen className="mr-2 h-4 w-4" />Open</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDuplicate(project.id)}><Copy className="mr-2 h-4 w-4" />Duplicate</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteTarget(project)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
@@ -210,7 +210,7 @@ export function ProjectsTab() {
                 <CardFooter className="p-4 border-t flex items-center justify-between">
                   <span className="text-xs text-zinc-500">{formatDate(project.last_modified)}</span>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" onClick={() => router.push(`/projects/${project.id}`)} title="Open"><ExternalLink className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => router.push(`/projects/view?projectId=${project.id}`)} title="Open"><ExternalLink className="h-4 w-4" /></Button>
                   </div>
                 </CardFooter>
               </Card>
@@ -245,7 +245,7 @@ export function ProjectsTab() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => router.push(`/projects/${project.id}`)}><FolderOpen className="mr-2 h-4 w-4" />Open</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push(`/projects/view?projectId=${project.id}`)}><FolderOpen className="mr-2 h-4 w-4" />Open</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleDuplicate(project.id)}><Copy className="mr-2 h-4 w-4" />Duplicate</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-red-600" onClick={() => setDeleteTarget(project)}><Trash2 className="mr-2 h-4 w-4" />Delete</DropdownMenuItem>
