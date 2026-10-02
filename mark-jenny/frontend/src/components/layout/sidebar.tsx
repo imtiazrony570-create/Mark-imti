@@ -23,12 +23,10 @@ import {
   Check,
   X,
   CalendarClock,
-  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, type ReactElement, useRef, useEffect } from "react";
-import { quickActionsApi } from "@/lib/api/quickActions";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -44,7 +42,7 @@ import { CommandSearch } from "@/components/layout/command-search";
 import { SettingsDialog } from "@/components/layout/SettingsDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { Chat } from "@/lib/api/chat";
+import { chatApi, type Chat } from "@/lib/api/chat";
 import type { Project } from "@/lib/api/projects";
 import { projectsApi } from "@/lib/api/projects";
 import { toast } from "@/components/ui/toast";
@@ -57,12 +55,21 @@ const AGENTS = [
   { id: "browse", label: "Browser", icon: Globe },
 ] as const;
 
-const WORKSPACE_NAV = [
-  // Library holds Mark's finished builds; Schedule belongs to Imti (chat)
-  { href: "/library", label: "Library", icon: LibraryIcon, modes: ["chat", "work", "browse"] },
-  { href: "/scheduled", label: "Scheduled", icon: CalendarClock, modes: ["chat", "browse"] },
-  { href: "/skills", label: "Skills", icon: Sparkles, modes: ["chat", "work", "browse"] },
-] as const;
+const WORKSPACE_NAV = {
+  chat: [
+    { href: "/scheduled", label: "Schedule", icon: CalendarClock },
+    { href: "/skills", label: "Skills", icon: Sparkles },
+  ],
+  work: [
+    { href: "/library", label: "Library", icon: LibraryIcon },
+    { href: "/skills", label: "Skills", icon: Sparkles },
+  ],
+  browse: [
+    { href: "/scheduled", label: "Schedule", icon: CalendarClock },
+    { href: "/library", label: "Library", icon: LibraryIcon },
+    { href: "/skills", label: "Skills", icon: Sparkles },
+  ],
+} as const;
 
 const PIN_KEY = "mark.pinnedChats";
 const PROJ_PIN_KEY = "mark.pinnedProjects";
@@ -134,7 +141,12 @@ export interface SidebarChatData {
   projectId?: number;
   onSelectProject: (id: number | undefined) => void;
   onNewProject: () => void;
-  browseSessions: { id: string; url?: string; status?: string; name?: string }[];
+  browseSessions: { id: string; url?: string; status?: string; name?: string; pinned?: boolean }[];
+  onSelectBrowserSession?: (id: string) => void;
+  onNewBrowserSession?: () => void;
+  pinnedBrowserSessions?: string[];
+  onToggleBrowserPin?: (id: string) => void;
+  onCloseBrowserSession?: (id: string) => void;
   onRenameProject?: (id: number, name: string) => void;
   onDeleteProject?: (id: number) => void;
 }
@@ -152,28 +164,7 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
     }
   });
   const [pinnedProjects, setPinnedProjects] = useState<number[]>(() => loadPinned(PROJ_PIN_KEY));
-  const [pinnedActionIds, setPinnedActionIds] = useState<string[]>([]);
-  const [pinnedActions, setPinnedActions] = useState<import("@/lib/api/quickActions").QuickAction[]>([]);
-
-  // Pinned quick actions — refresh whenever we land on a page (pins change on /quick-actions)
-  useEffect(() => {
-    let ids: string[] = [];
-    try { ids = JSON.parse(localStorage.getItem("mark.pinnedQuickActions") || "[]"); } catch {}
-    setPinnedActionIds(ids);
-    if (ids.length > 0) {
-      quickActionsApi.list().then((all) => {
-        const byId = new Map(all.map((a) => [a.id, a]));
-        setPinnedActions(ids.filter((id) => byId.has(id)).map((id) => byId.get(id)!));
-      }).catch(() => {});
-    } else {
-      setPinnedActions([]);
-    }
-  }, [pathname]);
-
-  const launchPinnedAction = (id: string) => {
-    try { localStorage.setItem("mark.quickActionLaunch", id); } catch {}
-    router.push("/quick-actions");
-  };
+  const [pinnedBrowserSessions, setPinnedBrowserSessions] = useState<string[]>(() => loadPinned("mark.pinnedBrowserSessions").map(String));
   const [renamingId, setRenamingId] = useState<number | null>(null);
   const [renameText, setRenameText] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -232,6 +223,81 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
     setDeleteConfirmId(null);
   };
 
+  const handleRenameChat = async (c: Chat) => {
+    const next = window.prompt("Rename chat", c.title || "Untitled");
+    if (!next?.trim() || next.trim() === c.title) return;
+    try {
+      await chatApi.update(c.id, { title: next.trim() });
+      toast.add({ title: "Chat renamed", type: "success" });
+      window.dispatchEvent(new Event("mark:chat-updated"));
+    } catch {
+      toast.add({ title: "Rename failed", type: "error" });
+    }
+  };
+
+  const handleAddChatToProject = async (c: Chat, projectId: number) => {
+    try {
+      await chatApi.update(c.id, { project_id: projectId });
+      toast.add({ title: "Chat added to project", type: "success" });
+      window.dispatchEvent(new Event("mark:chat-updated"));
+    } catch {
+      toast.add({ title: "Couldn't add chat to project", type: "error" });
+    }
+  };
+
+  const toggleBrowserPin = (id: string) => {
+    setPinnedBrowserSessions((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      try { localStorage.setItem("mark.pinnedBrowserSessions", JSON.stringify(next)); } catch {}
+      chatData?.onToggleBrowserPin?.(id);
+      return next;
+    });
+  };
+
+  const ChatContextMenu = ({ c }: { c: Chat }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
+            title="Chat options"
+          />
+        }
+      >
+        <MoreHorizontal className="h-3.5 w-3.5" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" side="right" sideOffset={4} className="w-48">
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleRenameChat(c); }}>
+          <Pencil className="h-3.5 w-3.5" /> Rename
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); chatData!.onTogglePin(c.id); }}>
+          {chatData!.pinned.includes(c.id) ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
+          {chatData!.pinned.includes(c.id) ? "Unpin" : "Pin"}
+        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger><FolderKanban className="h-3.5 w-3.5" /> Add to Project</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent className="w-56">
+            {chatData!.projects.length === 0 ? (
+              <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
+            ) : chatData!.projects.map((p) => (
+              <DropdownMenuItem key={p.id} onClick={(e) => { e.stopPropagation(); handleAddChatToProject(c, p.id); }}>
+                {p.name || `Project #${p.id}`}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={(e) => { e.stopPropagation(); chatData!.onDelete(c); }}
+          className="text-red-600 focus:text-red-600"
+        >
+          <Trash2 className="h-3.5 w-3.5" /> Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+
   const chatRow = (c: Chat) => (
     <div
       key={c.id}
@@ -247,21 +313,8 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
         <p className="truncate text-sm font-medium">{c.title || "Untitled"}</p>
         <p className="truncate text-xs text-zinc-500">{c.last_message || `${c.message_count} msgs`}</p>
       </div>
-      <div className="flex shrink-0 items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={(e) => { e.stopPropagation(); chatData!.onTogglePin(c.id); }}
-          title={chatData!.pinned.includes(c.id) ? "Unpin" : "Pin"}
-          className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
-        >
-          {chatData!.pinned.includes(c.id) ? <PinOff className="h-3 w-3" /> : <Pin className="h-3 w-3" />}
-        </button>
-        <button
-          onClick={(e) => { e.stopPropagation(); chatData!.onDelete(c); }}
-          title="Delete"
-          className="rounded-md p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-red-500 dark:hover:bg-zinc-700"
-        >
-          <Trash2 className="h-3 w-3" />
-        </button>
+      <div className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+        <ChatContextMenu c={c} />
       </div>
     </div>
   );
@@ -471,7 +524,7 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
       <nav className="flex-1 overflow-y-auto px-2 py-3">
         {isOpen && (
           <div className="mb-3 flex flex-col gap-0.5 border-b border-zinc-200 pb-3 dark:border-zinc-800">
-            {WORKSPACE_NAV.filter((item) => (item.modes as readonly string[]).includes(displayMode)).map((item) => {
+            {WORKSPACE_NAV[displayMode].map((item) => {
               const Icon = item.icon;
               return (
                 <button
@@ -492,104 +545,98 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
           </div>
         )}
 
-        {/* Below content — changes per agent toggle */}
+        {/* Mode-specific persistent content. The nav above stays compact; this list is the only scroll region. */}
         {chatData && isOpen && (
           chatData.mode === "chat" ? (
             <>
+              {chatData.chats.some((c) => chatData.pinned.includes(c.id)) && (
+                <section className="mb-3">
+                  <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Pinned chats</p>
+                  <div className="space-y-0.5">{chatData.chats.filter((c) => chatData.pinned.includes(c.id)).map(chatRow)}</div>
+                </section>
+              )}
               <button
                 onClick={() => chatData.onNewChat()}
                 className="mb-2 flex h-9 w-full items-center gap-2 rounded-lg bg-zinc-900/5 px-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-900/10 dark:bg-white/10 dark:text-zinc-100 dark:hover:bg-white/15"
               >
-                <Plus className="h-4 w-4" />
-                New chat
+                <Plus className="h-4 w-4" /> New chat
               </button>
+              <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">All other chats</p>
               {chatData.loadingChats ? (
                 <div className="flex justify-center p-3"><Loader2 className="h-4 w-4 animate-spin text-zinc-400" /></div>
-              ) : chatData.chats.length === 0 ? (
-                <p className="px-3 py-1 text-xs text-zinc-400">No chats yet.</p>
+              ) : chatData.chats.filter((c) => !chatData.pinned.includes(c.id)).length === 0 ? (
+                <p className="px-3 py-1 text-xs text-zinc-400">No other chats.</p>
               ) : (
-                bucketRows(
-                  chatData.chats,
-                  (c) => chatData.pinned.includes(c.id),
-                  chatRow
-                )
+                bucketRows(chatData.chats.filter((c) => !chatData.pinned.includes(c.id)), () => false, chatRow)
               )}
             </>
           ) : chatData.mode === "work" ? (
             <>
+              {chatData.projects.some((p) => pinnedProjects.includes(p.id)) && (
+                <section className="mb-3">
+                  <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Pinned projects</p>
+                  <div className="space-y-0.5">{chatData.projects.filter((p) => pinnedProjects.includes(p.id)).map(projectRow)}</div>
+                </section>
+              )}
               <button
                 onClick={() => chatData.onNewProject()}
                 className="mb-2 flex h-9 w-full items-center gap-2 rounded-lg bg-zinc-900/5 px-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-900/10 dark:bg-white/10 dark:text-zinc-100 dark:hover:bg-white/15"
               >
-                <FilePlus2 className="h-4 w-4" />
-                New project
+                <FilePlus2 className="h-4 w-4" /> New Project
               </button>
-              {chatData.projects.length === 0 ? (
-                <p className="px-3 py-1 text-xs text-zinc-400">No projects yet.</p>
+              <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">All other projects</p>
+              {chatData.projects.filter((p) => !pinnedProjects.includes(p.id)).length === 0 ? (
+                <p className="px-3 py-1 text-xs text-zinc-400">No other projects.</p>
               ) : (
-                bucketRows(
-                  chatData.projects,
-                  (p) => pinnedProjects.includes(p.id),
-                  projectRow
-                )
-              )}
-              {/* Show project-related chats when a project is selected */}
-              {chatData.projectId && (
-                <div className="mt-3 border-t border-zinc-200 dark:border-zinc-800 pt-3">
-                  <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">
-                    Project Chats
-                  </p>
-                  {chatData.chats.filter((c) => (c as any).project_id === chatData.projectId).length === 0 ? (
-                    <p className="px-3 py-1 text-xs text-zinc-400">No chats for this project yet.</p>
-                  ) : (
-                    <div className="space-y-0.5">
-                      {chatData.chats
-                        .filter((c) => (c as any).project_id === chatData.projectId)
-                        .slice(0, 10)
-                        .map(chatRow)}
-                    </div>
-                  )}
-                  <button
-                    onClick={() => chatData.onNewChat()}
-                    className="mt-2 flex w-full items-center gap-2 rounded-lg p-2 text-left text-blue-600 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                  >
-                    <Plus className="h-3.5 w-3.5" /> New chat in this project
-                  </button>
-                </div>
+                bucketRows(chatData.projects.filter((p) => !pinnedProjects.includes(p.id)), () => false, projectRow)
               )}
             </>
           ) : (
-            chatData.browseSessions.length === 0 ? (
-              <div className="px-3 py-3">
-                <p className="text-sm font-medium">Browser</p>
-                <p className="mt-1 text-xs text-zinc-500">Ask Mark to browse in Browser mode — live sessions appear here.</p>
-              </div>
-            ) : (
-              <div>
-                <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Browser Sessions</p>
-                <div className="space-y-0.5">
-                  {chatData.browseSessions.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => chatData?.onModeChange("browse")}
-                      className="group flex w-full items-center gap-2 rounded-lg p-2 text-left hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                    >
-                      <Globe className="h-3.5 w-3.5 shrink-0 text-blue-500" />
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{s.name || s.url || `Session ${s.id.slice(0, 8)}`}</p>
-                        <p className="truncate text-xs text-zinc-500">{s.status || "Active"}</p>
+            <>
+              {chatData.browseSessions.some((s) => pinnedBrowserSessions.includes(s.id)) && (
+                <section className="mb-3">
+                  <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Pinned browsing sessions</p>
+                  <div className="space-y-0.5">
+                    {chatData.browseSessions.filter((s) => pinnedBrowserSessions.includes(s.id)).map((s) => (
+                      <div key={s.id} className="group flex items-center gap-1 rounded-lg p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                        <button onClick={() => chatData.onSelectBrowserSession?.(s.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                          <Globe className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                          <span className="min-w-0 flex-1 truncate text-sm font-medium">{s.name || s.url || `Session ${s.id.slice(0, 8)}`}</span>
+                        </button>
+                        <button onClick={() => toggleBrowserPin(s.id)} className="rounded p-1 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Unpin session"><PinOff className="h-3 w-3" /></button>
+                        <button onClick={() => chatData.onCloseBrowserSession?.(s.id)} className="rounded p-1 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-red-500" title="Close session"><X className="h-3 w-3" /></button>
                       </div>
-                    </button>
+                    ))}
+                  </div>
+                </section>
+              )}
+              <button
+                onClick={() => chatData.onNewBrowserSession?.()}
+                className="mb-2 flex h-9 w-full items-center gap-2 rounded-lg bg-zinc-900/5 px-2.5 text-sm font-medium text-zinc-900 transition-colors hover:bg-zinc-900/10 dark:bg-white/10 dark:text-zinc-100 dark:hover:bg-white/15"
+              >
+                <Plus className="h-4 w-4" /> New browsing session
+              </button>
+              <p className="px-3 pb-1 pt-1 text-[11px] font-semibold uppercase tracking-wide text-zinc-400">Other browsing sessions</p>
+              {chatData.browseSessions.filter((s) => !pinnedBrowserSessions.includes(s.id)).length === 0 ? (
+                <p className="px-3 py-1 text-xs text-zinc-400">No other browsing sessions.</p>
+              ) : (
+                <div className="space-y-0.5">
+                  {chatData.browseSessions.filter((s) => !pinnedBrowserSessions.includes(s.id)).map((s) => (
+                    <div key={s.id} className="group flex items-center gap-1 rounded-lg p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                      <button onClick={() => chatData.onSelectBrowserSession?.(s.id)} className="flex min-w-0 flex-1 items-center gap-2 text-left">
+                        <Globe className="h-3.5 w-3.5 shrink-0 text-blue-500" />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{s.name || s.url || `Session ${s.id.slice(0, 8)}`}</p>
+                          <p className="truncate text-xs text-zinc-500">{s.status || "Active"}</p>
+                        </div>
+                      </button>
+                      <button onClick={() => toggleBrowserPin(s.id)} className="rounded p-1 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700" title="Pin session"><Pin className="h-3 w-3" /></button>
+                      <button onClick={() => chatData.onCloseBrowserSession?.(s.id)} className="rounded p-1 text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700 hover:text-red-500" title="Close session"><X className="h-3 w-3" /></button>
+                    </div>
                   ))}
-                  <button
-                    onClick={() => chatData?.onModeChange("browse")}
-                    className="flex w-full items-center gap-2 rounded-lg p-2 text-left text-blue-600 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                  >
-                    <Plus className="h-3.5 w-3.5" /> Open browser
-                  </button>
                 </div>
-              </div>
-            )
+              )}
+            </>
           )
         )}
 
@@ -600,8 +647,8 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
         )}
       </nav>
 
-      {/* Bottom: Profile icon only */}
-      <div className="shrink-0 border-t border-zinc-200/70 dark:border-zinc-800 px-2 py-2">
+      {/* Fixed account bar: stays visible while the sidebar list scrolls. */}
+      <div className="shrink-0 border-t-2 border-amber-400 bg-white/95 px-2 py-2 backdrop-blur-sm dark:bg-zinc-900/95">
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
