@@ -165,7 +165,7 @@ async function localResponse(endpoint:string, method:string, body:any): Promise<
     if (method==='POST') {
       const userMsg:LocalMessage={id:uid(),chat_id:c.id,role:'USER',content:String(body?.content||''),created_at:new Date().toISOString()}; c.messages.push(userMsg); c.message_count=c.messages.length; c.last_message=userMsg.content; c.updated_at=new Date().toISOString();
       const system='You are Mark-Imti, a professional autonomous AI assistant. Be helpful, accurate, and action-oriented.';
-      const history=c.messages.slice(-20).map(m=>({role:m.role==='ASSISTANT'?'assistant' as const:'user' as const,content:m.content||''}));
+      const history=c.messages.slice(-20).map((m: LocalMessage)=>({role:m.role==='ASSISTANT'?'assistant' as const:'user' as const,content:m.content||''}));
       const ai=await directAiReply([{role:'system',content:system},...history],body?.model);
       const assistant:LocalMessage={id:uid(),chat_id:c.id,role:'ASSISTANT',content:ai.text,created_at:new Date().toISOString()}; c.messages.push(assistant); c.message_count=c.messages.length; c.last_message=assistant.content; c.model_used=`${ai.provider}:${ai.model}`; c.updated_at=new Date().toISOString(); writeDB(db); return assistant;
     }
