@@ -10,7 +10,7 @@
  Detected additional lockfiles: 
    * /home/runner/work/Mark-imti/Mark-imti/mark-jenny/frontend/package-lock.json
 
-✓ Running next.config.ts took 29ms
+✓ Running next.config.ts took 25ms
 ⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
 Attention: Next.js now collects completely anonymous telemetry regarding usage.
 This information is used to shape Next.js' roadmap and prioritize features.
@@ -19,17 +19,48 @@ https://nextjs.org/telemetry
 
 
   Creating an optimized production build ...
+Failed to compile.
+
+./src/app/projects/view/page.tsx
+Error:   x An object member cannot be declared optional
+     ,-[/home/runner/work/Mark-imti/Mark-imti/mark-jenny/frontend/src/app/projects/view/page.tsx:175:1]
+ 172 |                   </Button>
+ 173 |                 </div>
+ 174 |               ) : (
+ 175 |                 {id ? <ProjectWorkspace projectId={id} /> : null}
+     :                     ^
+ 176 |               )}
+ 177 |             </div>
+ 178 |           </main>
+     `----
+  x Expression expected
+     ,-[/home/runner/work/Mark-imti/Mark-imti/mark-jenny/frontend/src/app/projects/view/page.tsx:175:1]
+ 172 |                   </Button>
+ 173 |                 </div>
+ 174 |               ) : (
+ 175 |                 {id ? <ProjectWorkspace projectId={id} /> : null}
+     :                       ^
+ 176 |               )}
+ 177 |             </div>
+ 178 |           </main>
+     `----
+  x Expected '</', got 'ident'
+     ,-[/home/runner/work/Mark-imti/Mark-imti/mark-jenny/frontend/src/app/projects/view/page.tsx:175:1]
+ 172 |                   </Button>
+ 173 |                 </div>
+ 174 |               ) : (
+ 175 |                 {id ? <ProjectWorkspace projectId={id} /> : null}
+     :                                         ^^^^^^^^^
+ 176 |               )}
+ 177 |             </div>
+ 178 |           </main>
+     `----
+
+Caused by:
+    Syntax Error
+
+Import trace for requested module:
+./src/app/projects/view/page.tsx
 
 
-Retrying 1/3...
-
-
-Retrying 1/3...
-✓ Compiled successfully in 13.5s
-  Running TypeScript ...
-  Finished TypeScript in 9.6s ...
-  Collecting page data using 3 workers ...
-
-> Build error occurred
-Error: Page "/projects/[id]" is missing "generateStaticParams()" so it cannot be used with "output: export" config. See more info here: https://nextjs.org/docs/messages/generate-static-params
-    at ignore-listed frames
+> Build failed because of webpack errors
