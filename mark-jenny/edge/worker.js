@@ -1,0 +1,398 @@
+const APP_VERSION = "2026.10.02.1";
+
+const HTML = String.raw\`<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="description" content="Mark-Imti — professional personal AI workspace">
+<link rel="manifest" href="/manifest.webmanifest">
+<title>Mark-Imti</title>
+<style>
+:root{--bg:#f6f8fb;--panel:#fff;--panel2:#f9fafb;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--accent:#2563eb;--accent2:#1d4ed8;--accent-soft:#eff6ff;--success:#16a34a;--danger:#dc2626;--shadow:0 18px 50px rgba(15,23,42,.08);--sidebar:272px;--radius:18px;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text)}
+body{overflow:hidden}
+body.dark{--bg:#0a0f18;--panel:#101827;--panel2:#0d1522;--text:#f3f4f6;--muted:#9ca3af;--line:#1f2937;--accent:#60a5fa;--accent2:#3b82f6;--accent-soft:#10213b;--shadow:0 18px 50px rgba(0,0,0,.28)}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+a{color:inherit}
+.app{display:grid;grid-template-columns:var(--sidebar) 1fr;height:100dvh}
+.sidebar{background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px;gap:16px;min-width:0}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 7px 10px}
+.logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:grid;place-items:center;box-shadow:0 10px 22px rgba(37,99,235,.25)}
+.logo svg{width:21px;height:21px;color:#fff}
+.brand-title{font-weight:800;letter-spacing:-.02em}
+.brand-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.nav{display:grid;gap:5px}
+.nav button{width:100%;border:0;background:transparent;color:var(--muted);padding:10px 11px;border-radius:12px;display:flex;align-items:center;gap:10px;text-align:left;font-weight:650}
+.nav button:hover{background:var(--panel2);color:var(--text)}
+.nav button.active{background:var(--accent-soft);color:var(--accent)}
+.nav svg{width:18px;height:18px;flex:none}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:4px 11px}
+.chat-list{overflow:auto;display:grid;gap:4px;padding-right:2px}
+.chat-item{border:0;background:transparent;color:var(--text);text-align:left;border-radius:11px;padding:9px 11px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-item:hover{background:var(--panel2)}
+.chat-item.active{background:var(--accent-soft);color:var(--accent)}
+.sidebar-spacer{flex:1}
+.user-card{border:1px solid var(--line);background:var(--panel2);padding:10px;border-radius:14px;display:flex;gap:10px;align-items:center}
+.avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#7c3aed);display:grid;place-items:center;color:#fff;font-weight:800}
+.user-meta{min-width:0}.user-name{font-size:13px;font-weight:700}.user-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis}
+.main{display:flex;flex-direction:column;min-width:0}
+.topbar{height:68px;border-bottom:1px solid var(--line);background:color-mix(in srgb,var(--panel) 92%,transparent);backdrop-filter:blur(18px);display:flex;align-items:center;gap:10px;padding:0 22px;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:17px;font-weight:800;letter-spacing:-.02em;white-space:nowrap}
+.topbar-sub{font-size:12px;color:var(--muted)}
+.search{margin-left:auto;position:relative;max-width:330px;flex:1}.search input{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:12px;padding:9px 12px 9px 36px;outline:none}.search input:focus{border-color:var(--accent)}
+.search svg{position:absolute;left:11px;top:11px;width:17px;color:var(--muted)}
+.icon-btn{width:40px;height:40px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;display:grid;place-items:center}.icon-btn:hover{background:var(--panel2)}
+.primary{border:0;background:var(--accent);color:#fff;border-radius:12px;padding:10px 14px;font-weight:750;box-shadow:0 8px 20px rgba(37,99,235,.2)}.primary:hover{background:var(--accent2)}
+.secondary{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:12px;padding:10px 14px;font-weight:700}.secondary:hover{background:var(--panel2)}
+.danger{border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;border-radius:12px;padding:10px 14px;font-weight:700}
+body.dark .danger{background:#35151a;border-color:#5f2229;color:#fda4af}
+.content{overflow:auto;padding:26px;min-height:0;flex:1}
+.container{max-width:1180px;margin:0 auto}
+.hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:22px}.hero h1{font-size:31px;letter-spacing:-.04em;margin:0 0 6px}.hero p{margin:0;color:var(--muted)}
+.grid{display:grid;gap:16px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.stat{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.stat .label{font-size:12px;color:var(--muted);font-weight:700}.stat .value{font-size:28px;font-weight:850;margin-top:7px;letter-spacing:-.04em}.stat .pill{padding:7px 9px;background:var(--accent-soft);color:var(--accent);border-radius:10px;font-size:11px;font-weight:800}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}.panel-title{font-size:15px;font-weight:800}.panel-sub{font-size:12px;color:var(--muted)}
+.row{display:flex;align-items:center;gap:10px}.wrap{flex-wrap:wrap}.between{justify-content:space-between}
+.list{display:grid;gap:8px}.list-item{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--line);background:var(--panel2);border-radius:13px;padding:11px 12px}.list-item:hover{border-color:#cbd5e1}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.badge-success{background:#ecfdf3;color:#15803d}.badge-blue{background:var(--accent-soft);color:var(--accent)}.badge-muted{background:var(--panel2);color:var(--muted)}.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.chat-shell{height:calc(100dvh - 68px);display:grid;grid-template-columns:280px minmax(0,1fr);min-height:0}
+.chat-sidebar{border-right:1px solid var(--line);background:var(--panel2);padding:14px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.chat-side-head{display:flex;gap:8px}.chat-side-head .primary{flex:1}.chat-side-list{overflow:auto;display:grid;gap:4px}.chat-row{border:1px solid transparent;background:transparent;padding:10px;border-radius:12px;text-align:left;display:grid;gap:4px;color:var(--text)}.chat-row:hover{background:var(--panel)}.chat-row.active{background:var(--accent-soft);border-color:#bfdbfe}.chat-row-title{font-size:13px;font-weight:750;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-row-date{font-size:10px;color:var(--muted)}
+.chat-pane{display:flex;flex-direction:column;min-width:0;min-height:0}.messages{overflow:auto;flex:1;padding:28px}.message-wrap{max-width:900px;margin:0 auto 18px;display:flex;gap:10px}.message-wrap.user{justify-content:flex-end}.bubble{max-width:78%;border-radius:18px;padding:13px 15px;line-height:1.6;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.assistant .bubble{background:var(--panel);border:1px solid var(--line);box-shadow:0 8px 25px rgba(15,23,42,.05)}.user .bubble{background:var(--accent);color:#fff}.message-meta{font-size:10px;color:var(--muted);margin-top:5px}.welcome{max-width:900px;margin:50px auto;padding:20px}.welcome-card{border:1px solid var(--line);border-radius:22px;background:linear-gradient(180deg,var(--panel),var(--panel2));padding:26px;box-shadow:var(--shadow)}.welcome h2{margin:0 0 8px;font-size:27px;letter-spacing:-.04em}.welcome p{margin:0 0 18px;color:var(--muted);line-height:1.6}.quick-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.quick{border:1px solid var(--line);background:var(--panel);border-radius:13px;padding:12px;text-align:left;font-weight:650;color:var(--text)}.quick:hover{border-color:#93c5fd;background:var(--accent-soft)}
+.composer{border-top:1px solid var(--line);background:var(--panel);padding:15px 24px}.composer-inner{max-width:900px;margin:0 auto;border:1px solid var(--line);background:var(--panel2);border-radius:18px;padding:10px;box-shadow:0 12px 30px rgba(15,23,42,.06)}.composer textarea{width:100%;border:0;background:transparent;color:var(--text);resize:none;min-height:54px;max-height:180px;outline:0;padding:5px;font-size:14px}.composer-foot{display:flex;align-items:center;justify-content:space-between;gap:10px}.hint{font-size:11px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.provider-card{display:grid;gap:13px}.provider-top{display:flex;align-items:center;justify-content:space-between;gap:12px}.provider-name{font-size:16px;font-weight:850}.provider-desc{font-size:12px;color:var(--muted);line-height:1.5}.field{display:grid;gap:6px}.field label{font-size:12px;font-weight:800;color:var(--muted)}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--text);border-radius:11px;padding:10px 11px;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent)}.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;padding:18px;z-index:100}.modal.show{display:flex}.modal-card{width:min(520px,100%);background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,.28)}.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}.modal-title{font-size:18px;font-weight:850}
+.toast{position:fixed;right:18px;bottom:18px;display:grid;gap:10px;z-index:120}.toast-item{background:#111827;color:#fff;padding:11px 14px;border-radius:12px;box-shadow:0 16px 30px rgba(0,0,0,.2);font-size:13px;max-width:360px}.toast-item.success{background:#166534}.toast-item.error{background:#991b1b}
+.spin{display:inline-block;width:15px;height:15px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.mobile-only{display:none}
+@media (max-width:1080px){.grid-4{grid-template-columns:repeat(2,minmax(0,1fr))}.chat-shell{grid-template-columns:230px minmax(0,1fr)}}
+@media (max-width:760px){body{overflow:hidden}.app{grid-template-columns:1fr}.sidebar{position:fixed;z-index:80;left:0;top:0;bottom:0;width:290px;transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}.mobile-only{display:grid}.topbar{padding:0 12px}.topbar-sub{display:none}.search{display:none}.content{padding:16px}.hero{align-items:flex-start;flex-direction:column}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.chat-shell{grid-template-columns:1fr}.chat-sidebar{display:none}.messages{padding:18px 14px}.bubble{max-width:88%}.composer{padding:10px 12px}.quick-grid{grid-template-columns:1fr}.field-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal"></div>
+<script>
+(function(){
+  "use strict";
+  const KEY="mark-imti.webapp.v1";
+  const defaultState={
+    user:{name:"Mark User",email:"local@mark-imti.app"},
+    chats:[],
+    projects:[],
+    providers:[],
+    skills:[],
+    exports:[],
+    settings:{theme:"system",autoSave:true}
+  };
+  const providerCatalog=[
+    {id:"OPENAI",name:"OpenAI",desc:"OpenAI API with GPT models.",base:"https://api.openai.com/v1",model:"gpt-4o-mini"},
+    {id:"OPENROUTER",name:"OpenRouter",desc:"One API key for many providers and models.",base:"https://openrouter.ai/api/v1",model:"openai/gpt-4o-mini"},
+    {id:"ANTHROPIC",name:"Anthropic",desc:"Claude models through the Anthropic Messages API.",base:"https://api.anthropic.com",model:"claude-3-5-haiku-latest"},
+    {id:"DEEPSEEK",name:"DeepSeek",desc:"OpenAI-compatible DeepSeek chat API.",base:"https://api.deepseek.com/v1",model:"deepseek-chat"},
+    {id:"MISTRAL",name:"Mistral",desc:"Mistral's OpenAI-compatible API.",base:"https://api.mistral.ai/v1",model:"mistral-small-latest"},
+    {id:"XAI",name:"xAI",desc:"Grok through xAI's OpenAI-compatible API.",base:"https://api.x.ai/v1",model:"grok-3-mini"},
+    {id:"CUSTOM",name:"Custom OpenAI-compatible",desc:"Connect a compatible endpoint of your choice.",base:"",model:""}
+  ];
+  let state=load();
+  let route=location.hash.slice(1)||"/home";
+  let currentChatId=state.chats[0]?.id||null;
+  let searchQuery="";
+  let mobileOpen=false;
+
+  function load(){
+    try{
+      const raw=localStorage.getItem(KEY);
+      if(!raw) return structuredClone(defaultState);
+      const data=JSON.parse(raw);
+      return {...structuredClone(defaultState),...data,settings:{...defaultState.settings,...(data.settings||{})}};
+    }catch{return structuredClone(defaultState)}
+  }
+  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+  function id(){return crypto.randomUUID?.()||String(Date.now()+Math.random())}
+  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#039;"}[c]))}
+  function time(iso){try{return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(iso))}catch{return ""}}
+  function fmtCount(n){return Number(n||0).toLocaleString()}
+  function toast(msg,type=""){const el=document.getElementById("toast");const x=document.createElement("div");x.className="toast-item "+type;x.textContent=msg;el.appendChild(x);setTimeout(()=>x.remove(),3400)}
+  function modal(html){const m=document.getElementById("modal");m.innerHTML='<div class="modal-card">'+html+"</div>";m.classList.add("show")}
+  function closeModal(){const m=document.getElementById("modal");m.classList.remove("show");m.innerHTML=""}
+  document.getElementById("modal").addEventListener("click",e=>{if(e.target.id==="modal")closeModal()});
+  function theme(){
+    const pref=state.settings.theme;
+    const dark=pref==="dark"||(pref==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);
+    document.body.classList.toggle("dark",dark);
+  }
+  theme();
+  addEventListener("hashchange",()=>{route=location.hash.slice(1)||"/home";mobileOpen=false;render()});
+  addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="k"){e.preventDefault();document.querySelector("#global-search")?.focus()}});
+  addEventListener("storage",()=>{state=load();theme();render()});
+
+  function navIcon(name){
+    const icons={
+      home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Z"/><path d="M9 21v-8h6v8"/></svg>',
+      chat:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5H8l-4 3 1.1-4.8A7.5 7.5 0 1 1 20 11.5Z"/></svg>',
+      project:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7.5A2.5 2.5 0 0 1 5.5 5H10l2 2h6.5A2.5 2.5 0 0 1 21 9.5v8A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5Z"/></svg>',
+      model:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/></svg>',
+      skill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 2.6 5.3L20 9l-4 3.9.9 5.5-4.9-2.6-4.9 2.6.9-5.5L4 9l5.4-.7Z"/></svg>',
+      library:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5Z"/><path d="M4 6h16M8 10h8M8 14h6"/></svg>',
+      settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="m19.4 15 .1.1a2 2 0 0 1-2.8 2.8l-.1-.1a2 2 0 0 0-3.4 1.4v.2a2 2 0 0 1-4 0v-.2A2 2 0 0 0 6 17.8l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1A2 2 0 0 0 1.8 12v-.2a2 2 0 0 1 4 0v.2A2 2 0 0 0 9.2 14l.1-.1a2 2 0 0 1 2.8 2.8l-.1.1A2 2 0 0 0 19.4 15Z" transform="translate(1.1 -1.1) scale(.91)"/></svg>',
+      moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 14.6A8.5 8.5 0 1 1 9.4 3.2 7 7 0 0 0 20.8 14.6Z"/></svg>',
+      sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+      search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>',
+      menu:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg>',
+      plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>',
+      send:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m3.4 4.1 18 7.1c.8.3.8 1.4 0 1.7l-18 7.1c-.7.3-1.5-.4-1.2-1.2L4.4 13H13v-2H4.4L2.2 5.3c-.3-.8.5-1.5 1.2-1.2Z"/></svg>',
+      download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 20h16"/></svg>',
+      upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 16V4m0 0 4 4m-4-4L8 8M4 20h16"/></svg>',
+      trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M10 11v6m4-6v6M9 7l1-3h4l1 3m-9 0 1 14h12l1-14"/></svg>'
+    };
+    return icons[name]||"";
+  }
+  function shell(title,sub,content,actions=""){
+    const nav=[["/home","Home","home"],["/chat","Chat","chat"],["/projects","Projects","project"],["/models","AI Models","model"],["/skills","Skills","skill"],["/library","Library","library"],["/settings","Settings","settings"]];
+    const chatList=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,8);
+    return \`<div class="app">
+      <aside class="sidebar \${mobileOpen?"open":""}">
+        <div class="brand"><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5v14"/><circle cx="12" cy="12" r="8"/></svg></div><div><div class="brand-title">Mark-Imti</div><div class="brand-sub">Personal AI workspace</div></div></div>
+        <nav class="nav">\${nav.map(([href,label,ico])=>\`<button class="\${route===href?"active":""}" onclick="location.hash='\${href}'">\${navIcon(ico)}<span>\${label}</span></button>\`).join("")}</nav>
+        <div class="section-label">Recent chats</div>
+        <div class="chat-list">\${chatList.length?chatList.map(c=>\`<button class="chat-item" onclick="openChat('\${c.id}')">\${esc(c.title||"Untitled chat")}</button>\`).join(""):'<div class="empty" style="padding:8px 11px;font-size:11px">Your chats will appear here.</div>'}</div>
+        <div class="sidebar-spacer"></div>
+        <div class="user-card"><div class="avatar">\${esc((state.user.name||"M").trim().charAt(0).toUpperCase())}</div><div class="user-meta"><div class="user-name">\${esc(state.user.name)}</div><div class="user-email">\${esc(state.user.email)}</div></div></div>
+      </aside>
+      <main class="main">
+        <header class="topbar"><button class="icon-btn mobile-only" onclick="mobileOpen=!mobileOpen;render()">\${navIcon("menu")}</button><div><div class="topbar-title">\${esc(title)}</div><div class="topbar-sub">\${esc(sub||"")}</div></div><div class="search"><span>\${navIcon("search")}</span><input id="global-search" placeholder="Search chats and projects" value="\${esc(searchQuery)}" oninput="searchQuery=this.value;renderSearchHint()"></div><button class="icon-btn" title="Toggle theme" onclick="toggleTheme()">\${navIcon(document.body.classList.contains("dark")?"sun":"moon")}</button>\${actions}</header>
+        <div class="content" id="content">\${content}</div>
+      </main>
+    </div>\`;
+  }
+
+  window.renderSearchHint=function(){
+    const q=searchQuery.trim().toLowerCase();
+    if(!q)return;
+    const matches=[...state.chats.filter(c=>(c.title||"").toLowerCase().includes(q)),...state.projects.filter(p=>(p.name||"").toLowerCase().includes(q))].slice(0,6);
+    const root=document.getElementById("content");if(!root)return;
+    const banner=document.getElementById("search-hint");
+    if(banner)banner.remove();
+    if(matches.length){
+      const x=document.createElement("div");x.id="search-hint";x.className="card";x.style.cssText="position:fixed;top:62px;right:88px;width:360px;z-index:60";x.innerHTML=\`<div class="panel-head"><div class="panel-title">Search results</div><button class="secondary" onclick="document.getElementById('search-hint')?.remove()">Close</button></div><div class="list">\${matches.map(m=>\`<button class="list-item" style="border:0;text-align:left" onclick="\${m.messages?'openChat(\\'\${m.id}\\')':'openProject(\\'\${m.id}\\')'}"><span>\${esc(m.title||m.name)}</span><span class="badge badge-muted">\${m.messages?"Chat":"Project"}</span></button>\`).join("")}</div>\`;
+      document.body.appendChild(x);
+    }
+  };
+
+  function home(){
+    const providerReady=state.providers.filter(p=>p.apiKey).length;
+    const recent=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt)).slice(0,5);
+    return shell("Home","Your workspace at a glance",\`
+      <div class="container">
+        <div class="hero"><div><h1>Good to see you, \${esc((state.user.name||"there").split(" ")[0])}.</h1><p>Build, chat, organize, and keep your AI setup in one place.</p></div><button class="primary" onclick="newChat()">\${navIcon("plus")} New chat</button></div>
+        <div class="grid grid-4">
+          <div class="card stat"><div><div class="label">Chats</div><div class="value">\${fmtCount(state.chats.length)}</div></div><span class="pill">Local</span></div>
+          <div class="card stat"><div><div class="label">Projects</div><div class="value">\${fmtCount(state.projects.length)}</div></div><span class="pill">Workspace</span></div>
+          <div class="card stat"><div><div class="label">AI providers</div><div class="value">\${fmtCount(providerReady)}</div></div><span class="pill">\${providerReady?"Ready":"Setup"}</span></div>
+          <div class="card stat"><div><div class="label">Skills</div><div class="value">\${fmtCount(state.skills.length)}</div></div><span class="pill">Personal</span></div>
+        </div>
+        <div class="grid grid-2" style="margin-top:16px">
+          <section class="card"><div class="panel-head"><div><div class="panel-title">Recent conversations</div><div class="panel-sub">Your latest local chat history.</div></div><button class="secondary" onclick="location.hash='/chat'">Open chat</button></div>
+            <div class="list">\${recent.length?recent.map(c=>\`<button class="list-item" style="text-align:left" onclick="openChat('\${c.id}')"><div><div style="font-weight:750">\${esc(c.title||"Untitled chat")}</div><div class="panel-sub">\${time(c.updatedAt)} · \${fmtCount(c.messages.length)} messages</div></div><span class="badge badge-blue">Chat</span></button>\`).join(""):'<div class="empty"><strong>No chats yet</strong>Start a conversation to populate your workspace.</div>'}</div>
+          </section>
+          <section class="card"><div class="panel-head"><div><div class="panel-title">Get started</div><div class="panel-sub">The core setup for real AI conversations.</div></div></div>
+            <div class="list">
+              <button class="list-item" style="text-align:left" onclick="location.hash='/models'"><div><div style="font-weight:750">Connect an AI provider</div><div class="panel-sub">OpenAI, OpenRouter, Anthropic, DeepSeek, Mistral, xAI, or custom.</div></div><span class="badge \${providerReady?'badge-success':'badge-blue'}">\${providerReady?'Ready':'Setup'}</span></button>
+              <button class="list-item" style="text-align:left" onclick="location.hash='/projects'"><div><div style="font-weight:750">Create your first project</div><div class="panel-sub">Keep chats and context organized by project.</div></div><span class="badge badge-muted">Projects</span></button>
+              <button class="list-item" style="text-align:left" onclick="location.hash='/skills'"><div><div style="font-weight:750">Add a personal skill</div><div class="panel-sub">Reusable instructions that can be attached to chats.</div></div><span class="badge badge-muted">Skills</span></button>
+            </div>
+          </section>
+        </div>
+      </div>\`);
+  }
+
+  function chat(){
+    const chat=getChat();
+    const messages=chat?.messages||[];
+    const sidebar=state.chats.slice().sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
+    const body=messages.length?messages.map(m=>\`<div class="message-wrap \${m.role==='user'?'user':'assistant'}"><div><div class="bubble">\${esc(m.content)}</div><div class="message-meta">\${m.role==='user'?'You':'Mark'} · \${time(m.createdAt)}</div></div></div>\`).join(""):\`<div class="welcome"><div class="welcome-card"><div class="badge badge-blue" style="margin-bottom:12px">AI workspace</div><h2>What should Mark help you with?</h2><p>Connect a provider in <b>AI Models</b>, then ask questions, draft content, analyze ideas, or work through a project.</p><div class="quick-grid"><button class="quick" onclick="usePrompt('Plan a practical next step for my current project.')">Plan a practical next step</button><button class="quick" onclick="usePrompt('Summarize the most important risks and decisions I should consider.')">Identify risks and decisions</button><button class="quick" onclick="usePrompt('Draft a concise professional message based on this situation: ')">Draft a professional message</button><button class="quick" onclick="usePrompt('Help me turn this idea into a clear execution plan: ')">Turn an idea into a plan</button></div></div></div>\`;
+    const content=\`<div class="chat-shell"><aside class="chat-sidebar"><div class="chat-side-head"><button class="primary" onclick="newChat()">\${navIcon("plus")} New chat</button></div><div class="chat-side-list">\${sidebar.length?sidebar.map(c=>\`<button class="chat-row \${c.id===currentChatId?'active':''}" onclick="openChat('\${c.id}')"><div class="chat-row-title">\${esc(c.title||"Untitled chat")}</div><div class="chat-row-date">\${time(c.updatedAt)}</div></button>\`).join(""):'<div class="empty"><strong>No chats</strong>Create one with New chat.</div>'}</div></aside><section class="chat-pane"><div class="messages" id="messages">\${body}</div><div class="composer"><div class="composer-inner"><textarea id="composer" placeholder="\${chat?'Message Mark…':'Create a new chat to begin…'}" \${chat?'':'disabled'} onkeydown="composerKey(event)"></textarea><div class="composer-foot"><div class="hint">\${chat?getProviderHint():'Create a chat first'} · Ctrl/Cmd+Enter to send</div><button class="primary" onclick="sendMessage()" \${chat?'':'disabled'} id="send-btn">\${navIcon("send")} Send</button></div></div></div></section></div>\`;
+    return shell(chat?.title||"Chat","Real provider requests; conversations persist locally.",content);
+  }
+
+  function getProvider(){
+    const enabled=state.providers.filter(p=>p.apiKey);
+    if(!enabled.length)return null;
+    return enabled.find(p=>p.isDefault)||enabled[0];
+  }
+  function getProviderHint(){const p=getProvider();return p?("Using "+p.provider+" · "+(p.model||"default model")):"No provider configured"}
+  function getChat(){return state.chats.find(c=>c.id===currentChatId)||null}
+  window.openChat=function(cid){currentChatId=cid;location.hash="/chat"}
+  window.newChat=function(){const c={id:id(),title:"New chat",messages:[],createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};state.chats.unshift(c);currentChatId=c.id;save();location.hash="/chat";render()}
+  window.usePrompt=function(s){const el=document.getElementById("composer");if(el){el.value=s;el.focus()}}
+  function composerKey(e){if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();sendMessage()}}
+  window.composerKey=composerKey;
+
+  async function sendMessage(){
+    const chat=getChat();const box=document.getElementById("composer");const btn=document.getElementById("send-btn");if(!chat||!box||btn?.disabled)return;
+    const content=box.value.trim();if(!content)return;
+    const p=getProvider();if(!p){toast("Add an API key in AI Models before chatting.","error");location.hash="/models";return}
+    box.value="";btn.disabled=true;btn.innerHTML='<span class="spin"></span> Sending';
+    chat.messages.push({role:"user",content,createdAt:new Date().toISOString()});
+    if(chat.title==="New chat")chat.title=content.slice(0,54)+(content.length>54?"…":"");
+    chat.updatedAt=new Date().toISOString();save();render();
+    setTimeout(()=>{document.getElementById("messages")?.scrollTo({top:999999,behavior:"smooth"})},30);
+    try{
+      const payload={provider:p.provider,apiKey:p.apiKey,model:p.model,baseUrl:p.baseUrl||"",messages:chat.messages.slice(-24).map(m=>({role:m.role,content:m.content})),skillId:chat.skillId||null};
+      const res=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
+      const data=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(data.error||"AI request failed");
+      chat.messages.push({role:"assistant",content:data.content||"(No text returned)",createdAt:new Date().toISOString()});
+      chat.updatedAt=new Date().toISOString();chat.modelUsed=data.model||p.model;save();render();
+    }catch(err){
+      chat.messages.push({role:"assistant",content:"I couldn't complete that request. "+(err?.message||"Unknown error"),createdAt:new Date().toISOString(),error:true});
+      chat.updatedAt=new Date().toISOString();save();render();
+      toast(err?.message||"AI request failed","error");
+    }
+  }
+  window.sendMessage=sendMessage;
+
+  function projects(){
+    return shell("Projects","Keep work organized and connected to your conversations.",\`<div class="container"><div class="hero"><div><h1>Projects</h1><p>Create project spaces with local metadata and chat context.</p></div><button class="primary" onclick="createProject()">\${navIcon("plus")} New project</button></div><div class="grid grid-3">\${state.projects.length?state.projects.map(p=>\`<div class="card"><div class="row between"><div class="avatar" style="background:linear-gradient(135deg,#0f766e,#2563eb)">\${esc((p.name||"P").charAt(0).toUpperCase())}</div><span class="badge badge-success"><span class="dot"></span>Active</span></div><div style="margin-top:14px;font-size:17px;font-weight:850">\${esc(p.name)}</div><div class="panel-sub" style="margin-top:4px;line-height:1.5">\${esc(p.description||"No description yet.")}</div><div class="row wrap" style="margin-top:16px"><span class="badge badge-muted">\${fmtCount(p.chatCount||0)} chats</span><span class="badge badge-muted">Created \${time(p.createdAt)}</span></div><div class="row" style="margin-top:16px"><button class="secondary" onclick="openProject('\${p.id}')">Open</button><button class="icon-btn" title="Delete" onclick="deleteProject('\${p.id}')">\${navIcon("trash")}</button></div></div>\`).join(""):'<div class="card empty" style="grid-column:1/-1"><strong>No projects yet</strong>Use New project to create your first project space.</div>'}</div></div>\`);
+  }
+  function createProject(){
+    modal(\`<div class="modal-head"><div class="modal-title">Create project</div><button class="icon-btn" onclick="closeModal()">×</button></div><div class="grid"><div class="field"><label>Name</label><input id="project-name" placeholder="e.g. Product launch"></div><div class="field"><label>Description</label><textarea id="project-desc" rows="4" placeholder="What is this project about?"></textarea></div><div class="row" style="justify-content:flex-end"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveProject()">Create project</button></div></div>\`);
+  }
+  window.createProject=createProject;
+  window.saveProject=function(){const name=document.getElementById("project-name")?.value.trim();if(!name){toast("Project name is required","error");return}state.projects.unshift({id:id(),name,description:document.getElementById("project-desc")?.value.trim()||"",createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),chatCount:0});save();closeModal();toast("Project created","success");render()}
+  window.openProject=function(pid){const p=state.projects.find(x=>x.id===pid);if(!p)return;location.hash="/chat";setTimeout(()=>{newChat();const c=getChat();c.title=p.name+" · New chat";c.projectId=pid;save();render()},0)}
+  window.deleteProject=function(pid){state.projects=state.projects.filter(p=>p.id!==pid);state.chats.forEach(c=>{if(c.projectId===pid)delete c.projectId});save();toast("Project deleted","success");render()}
+
+  function models(){
+    const cards=providerCatalog.map(def=>{
+      const p=state.providers.find(x=>x.provider===def.id)||{provider:def.id,apiKey:"",model:def.model,baseUrl:def.base,isDefault:false};
+      return \`<div class="card provider-card"><div class="provider-top"><div><div class="provider-name">\${esc(def.name)}</div><div class="provider-desc">\${esc(def.desc)}</div></div><span class="badge \${p.apiKey?'badge-success':'badge-muted'}"><span class="dot"></span>\${p.apiKey?'Configured':'Not configured'}</span></div><div class="field-row"><div class="field"><label>Model</label><input data-provider="\${def.id}" data-field="model" value="\${esc(p.model||def.model)}" placeholder="\${esc(def.model)}"></div><div class="field"><label>Base URL</label><input data-provider="\${def.id}" data-field="baseUrl" value="\${esc(p.baseUrl||def.base)}" placeholder="\${esc(def.base)}"></div></div><div class="field"><label>API key</label><input data-provider="\${def.id}" data-field="apiKey" type="password" value="\${esc(p.apiKey||"")}" placeholder="Enter key locally"></div><div class="row between wrap"><label class="row" style="font-size:12px;color:var(--muted);font-weight:750"><input type="checkbox" data-provider="\${def.id}" data-field="isDefault" \${p.isDefault?"checked":""}> Use as default</label><div class="row"><button class="secondary" onclick="testProvider('\${def.id}')">Test</button><button class="primary" onclick="saveProvider('\${def.id}')">Save</button></div></div></div>\`
+    }).join("");
+    return shell("AI Models","Connect your own provider keys; credentials stay in this browser.",\`<div class="container"><div class="hero"><div><h1>AI Models</h1><p>Mark routes requests through your selected provider. Nothing is stored on the server.</p></div><span class="badge badge-blue">\${state.providers.filter(p=>p.apiKey).length} configured</span></div><div class="grid grid-2">\${cards}</div><div class="card" style="margin-top:16px"><div class="panel-head"><div><div class="panel-title">Security note</div><div class="panel-sub">API keys are stored in browser localStorage for this self-contained WebApp. Use a dedicated key with appropriate provider-side limits.</div></div></div><div class="panel-sub">Mark's Cloudflare worker only receives the key for the outbound request and does not persist it.</div></div></div>\`);
+  }
+  window.saveProvider=function(pid){
+    const inputs=[...document.querySelectorAll('[data-provider="'+pid+'"]')];
+    const get=f=>inputs.find(x=>x.dataset.field===f);
+    const def=providerCatalog.find(d=>d.id===pid);
+    let p=state.providers.find(x=>x.provider===pid);
+    if(!p){p={provider:pid,createdAt:new Date().toISOString()};state.providers.push(p)}
+    p.model=get("model")?.value.trim()||def.model;p.baseUrl=get("baseUrl")?.value.trim()||def.base;p.apiKey=get("apiKey")?.value.trim()||"";p.isDefault=!!get("isDefault")?.checked;
+    if(p.isDefault)state.providers.forEach(x=>{if(x!==p)x.isDefault=false});
+    state.providers=state.providers.filter(x=>x.apiKey||x.provider===pid);
+    save();toast(p.apiKey?"Provider saved":"Provider configuration saved","success");render()
+  }
+  window.testProvider=async function(pid){
+    saveProvider(pid);
+    const p=state.providers.find(x=>x.provider===pid);if(!p?.apiKey){toast("Add an API key first","error");return}
+    toast("Testing "+pid+"…");
+    try{
+      const r=await fetch("/api/chat",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({provider:p.provider,apiKey:p.apiKey,model:p.model,baseUrl:p.baseUrl,messages:[{role:"user",content:"Reply with exactly: OK"}],test:true})});
+      const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||"Provider test failed");toast("Provider responded: "+(d.content||"OK"),"success")
+    }catch(e){toast(e?.message||"Provider test failed","error")}
+  }
+
+  function skills(){
+    return shell("Skills","Reusable instructions you control and attach to chats.",\`<div class="container"><div class="hero"><div><h1>Skills</h1><p>Save repeatable instructions so Mark can behave consistently.</p></div><button class="primary" onclick="createSkill()">\${navIcon("plus")} New skill</button></div><div class="grid grid-2">\${state.skills.length?state.skills.map(s=>\`<div class="card"><div class="row between"><div style="font-size:16px;font-weight:850">\${esc(s.name)}</div><button class="icon-btn" onclick="deleteSkill('\${s.id}')">\${navIcon("trash")}</button></div><div class="panel-sub" style="margin-top:8px;white-space:pre-wrap;line-height:1.6">\${esc(s.prompt)}</div><div class="row" style="margin-top:15px"><span class="badge badge-muted">Saved \${time(s.createdAt)}</span><button class="secondary" onclick="applySkill('\${s.id}')">Use in new chat</button></div></div>\`).join(""):'<div class="card empty" style="grid-column:1/-1"><strong>No skills yet</strong>Create reusable instructions for research, writing, coding, planning, or your own workflows.</div>'}</div></div>\`);
+  }
+  window.createSkill=function(){modal(\`<div class="modal-head"><div class="modal-title">New skill</div><button class="icon-btn" onclick="closeModal()">×</button></div><div class="grid"><div class="field"><label>Name</label><input id="skill-name" placeholder="e.g. Executive brief"></div><div class="field"><label>Instruction</label><textarea id="skill-prompt" rows="7" placeholder="Tell Mark how to behave whenever this skill is used."></textarea></div><div class="row" style="justify-content:flex-end"><button class="secondary" onclick="closeModal()">Cancel</button><button class="primary" onclick="saveSkill()">Save skill</button></div></div>\`)}
+  window.saveSkill=function(){const name=document.getElementById("skill-name")?.value.trim(),prompt=document.getElementById("skill-prompt")?.value.trim();if(!name||!prompt){toast("Name and instruction are required","error");return}state.skills.unshift({id:id(),name,prompt,createdAt:new Date().toISOString()});save();closeModal();toast("Skill saved","success");render()}
+  window.deleteSkill=function(sid){state.skills=state.skills.filter(s=>s.id!==sid);save();toast("Skill deleted","success");render()}
+  window.applySkill=function(sid){const s=state.skills.find(x=>x.id===sid);if(!s)return;newChat();const c=getChat();c.skillId=s.id;c.title=s.name+" · New chat";c.messages.push({role:"user",content:"Use this skill for the conversation.\\n\\n"+s.prompt,createdAt:new Date().toISOString()});save();render();toast("Skill added to chat","success")}
+
+  function library(){
+    return shell("Library","Local exports and portable workspace snapshots.",\`<div class="container"><div class="hero"><div><h1>Library</h1><p>Export and restore your local Mark-Imti data without a server account.</p></div><div class="row"><button class="secondary" onclick="exportData()">\${navIcon("download")} Export data</button><button class="primary" onclick="document.getElementById('import-input').click()">\${navIcon("upload")} Import</button><input id="import-input" type="file" accept="application/json" hidden onchange="importData(event)"></div></div><div class="grid grid-2"><div class="card"><div class="panel-head"><div><div class="panel-title">Saved exports</div><div class="panel-sub">Each export is generated in your browser.</div></div></div><div class="list">\${state.exports.length?state.exports.slice().reverse().map(e=>\`<div class="list-item"><div><div style="font-weight:750">\${esc(e.name)}</div><div class="panel-sub">\${time(e.createdAt)}</div></div><span class="badge badge-success">Available</span></div>\`).join(""):'<div class="empty"><strong>No exports yet</strong>Export your workspace when you want a backup.</div>'}</div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Workspace snapshot</div><div class="panel-sub">Current local data at a glance.</div></div></div><div class="grid grid-2"><div><div class="panel-sub">Chats</div><div style="font-size:24px;font-weight:850;margin-top:4px">\${fmtCount(state.chats.length)}</div></div><div><div class="panel-sub">Projects</div><div style="font-size:24px;font-weight:850;margin-top:4px">\${fmtCount(state.projects.length)}</div></div><div><div class="panel-sub">Providers</div><div style="font-size:24px;font-weight:850;margin-top:4px">\${fmtCount(state.providers.filter(p=>p.apiKey).length)}</div></div><div><div class="panel-sub">Skills</div><div style="font-size:24px;font-weight:850;margin-top:4px">\${fmtCount(state.skills.length)}</div></div></div></div></div></div>\`);
+  }
+  window.exportData=function(){const snap={...state,exportedAt:new Date().toISOString()};const blob=new Blob([JSON.stringify(snap,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="mark-imti-backup-"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(a.href);state.exports.push({id:id(),name:a.download,createdAt:new Date().toISOString()});save();render();toast("Workspace exported","success")}
+  window.importData=function(e){const f=e.target.files?.[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{try{const incoming=JSON.parse(rd.result);state={...structuredClone(defaultState),...incoming};save();theme();toast("Workspace restored","success");render()}catch{toast("Invalid backup file","error")}};rd.readAsText(f)}
+
+  function settings(){
+    return shell("Settings","Control your local workspace and appearance.",\`<div class="container"><div class="hero"><div><h1>Settings</h1><p>Everything here is local to this browser.</p></div></div><div class="grid grid-2"><div class="card"><div class="panel-head"><div><div class="panel-title">Profile</div><div class="panel-sub">Used only in your local workspace UI.</div></div></div><div class="grid"><div class="field"><label>Display name</label><input id="display-name" value="\${esc(state.user.name)}"></div><div class="field"><label>Email</label><input id="display-email" value="\${esc(state.user.email)}"></div><div class="row" style="justify-content:flex-end"><button class="primary" onclick="saveProfile()">Save profile</button></div></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Appearance</div><div class="panel-sub">Choose light, dark, or follow your system.</div></div></div><div class="field"><label>Theme</label><select id="theme-select" onchange="setTheme(this.value)"><option value="system" \${state.settings.theme==="system"?"selected":""}>System</option><option value="light" \${state.settings.theme==="light"?"selected":""}>Light</option><option value="dark" \${state.settings.theme==="dark"?"selected":""}>Dark</option></select></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Data & privacy</div><div class="panel-sub">Export before clearing. Provider keys live in localStorage.</div></div></div><div class="row wrap"><button class="secondary" onclick="exportData()">\${navIcon("download")} Export backup</button><button class="danger" onclick="resetWorkspace()">Clear local workspace</button></div></div><div class="card"><div class="panel-head"><div><div class="panel-title">Connection</div><div class="panel-sub">Live deployment version</div></div><span class="badge badge-success"><span class="dot"></span>Online UI</span></div><div class="panel-sub">Version \${APP_VERSION}. The WebApp uses a dedicated Cloudflare Worker and does not depend on the retired backend service.</div></div></div></div>\`);
+  }
+  window.saveProfile=function(){state.user.name=document.getElementById("display-name").value.trim()||"Mark User";state.user.email=document.getElementById("display-email").value.trim()||"local@mark-imti.app";save();toast("Profile saved","success");render()}
+  window.setTheme=function(v){state.settings.theme=v;save();theme();render()}
+  window.toggleTheme=function(){state.settings.theme=document.body.classList.contains("dark")?"light":"dark";save();theme();render()}
+  window.resetWorkspace=function(){if(!confirm("Clear all local chats, projects, providers, skills, and settings?"))return;state=structuredClone(defaultState);currentChatId=null;save();theme();toast("Local workspace cleared","success");location.hash="/home"}
+
+  function page(){
+    if(route==="/home")return home();
+    if(route==="/chat")return chat();
+    if(route==="/projects")return projects();
+    if(route==="/models")return models();
+    if(route==="/skills")return skills();
+    if(route==="/library")return library();
+    if(route==="/settings")return settings();
+    return home();
+  }
+  function render(){theme();document.getElementById("root").innerHTML=page()}
+  render();
+})();
+</script>
+</body>
+</html>\`;
+
+function json(data,status=200){return new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json; charset=utf-8","cache-control":"no-store","access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"Content-Type"}})}
+async function providerRequest(body){
+  const {provider,apiKey,model,baseUrl,messages}=body||{};
+  if(!provider||!apiKey||!Array.isArray(messages)||!messages.length) return json({error:"provider, apiKey and messages are required"},400);
+  const p=String(provider).toUpperCase();
+  try{
+    if(p==="ANTHROPIC"){
+      const system=messages.find(m=>m.role==="system")?.content;
+      const clean=messages.filter(m=>m.role!=="system").map(m=>({role:m.role==="assistant"?"assistant":"user",content:String(m.content||"")}));
+      const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"content-type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:model||"claude-3-5-haiku-latest",max_tokens:2048,system,messages:clean})});
+      const raw=await r.text(); if(!r.ok) return json({error:providerError(raw,r.status)},r.status);
+      const data=JSON.parse(raw); const content=(data.content||[]).filter(x=>x.type==="text").map(x=>x.text).join("");
+      return json({content,model:data.model||model,provider:p});
+    }
+    if(p==="GEMINI"){
+      const chosen=model||"gemini-2.5-flash";
+      const r=await fetch("https://generativelanguage.googleapis.com/v1beta/models/"+encodeURIComponent(chosen)+":generateContent?key="+encodeURIComponent(apiKey),{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({contents:messages.filter(m=>m.role!=="system").map(m=>({role:m.role==="assistant"?"model":"user",parts:[{text:String(m.content||"")}]}))})});
+      const raw=await r.text();if(!r.ok)return json({error:providerError(raw,r.status)},r.status);
+      const data=JSON.parse(raw);const content=data?.candidates?.[0]?.content?.parts?.map(x=>x.text||"").join("")||"";
+      return json({content,model:chosen,provider:p});
+    }
+    const bases={OPENAI:"https://api.openai.com/v1",OPENROUTER:"https://openrouter.ai/api/v1",DEEPSEEK:"https://api.deepseek.com/v1",MISTRAL:"https://api.mistral.ai/v1",XAI:"https://api.x.ai/v1",CUSTOM:baseUrl||""};
+    const base=(baseUrl||bases[p]||"").replace(/\/+$/,"");
+    if(!base)return json({error:"A base URL is required for this provider."},400);
+    const chosen=model||({OPENAI:"gpt-4o-mini",OPENROUTER:"openai/gpt-4o-mini",DEEPSEEK:"deepseek-chat",MISTRAL:"mistral-small-latest",XAI:"grok-3-mini"}[p]||"gpt-4o-mini");
+    const headers={"content-type":"application/json","authorization":"Bearer "+apiKey};
+    if(p==="OPENROUTER"){headers["HTTP-Referer"]="https://mark-imti-web.imtiazrony570.workers.dev";headers["X-Title"]="Mark-Imti";}
+    const r=await fetch(base+"/chat/completions",{method:"POST",headers,body:JSON.stringify({model:chosen,messages:messages.map(m=>({role:m.role,content:String(m.content||"")})),temperature:.4})});
+    const raw=await r.text();if(!r.ok)return json({error:providerError(raw,r.status)},r.status);
+    const data=JSON.parse(raw);const content=data?.choices?.[0]?.message?.content;
+    if(typeof content!=="string")return json({error:"Provider returned no text."},502);
+    return json({content,model:data?.model||chosen,provider:p});
+  }catch(e){return json({error:String(e?.message||e)},502)}
+}
+function providerError(raw,status){
+  try{const d=JSON.parse(raw);return d?.error?.message||d?.message||("Provider error ("+status+")")}catch{return (raw||"Provider request failed").slice(0,500)}
+}
+const MANIFEST=\`{
+  "name":"Mark-Imti",
+  "short_name":"Mark",
+  "start_url":"/",
+  "display":"standalone",
+  "background_color":"#0b1020",
+  "theme_color":"#0b1020",
+  "description":"Professional personal AI workspace"
+}\`;
+const SW=\`const C="mark-imti-v1";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/","/manifest.webmanifest"]))));self.addEventListener("fetch",e=>{if(e.request.method==="GET"&&new URL(e.request.url).origin===location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const c=x.clone();caches.open(C).then(k=>k.put(e.request,c));return x}).catch(()=>caches.match("/"))))});\`;
+
+addEventListener("fetch",event=>event.respondWith((async()=>{
+  const url=new URL(event.request.url);
+  if(event.request.method==="OPTIONS") return new Response(null,{status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"Content-Type"}});
+  if(url.pathname==="/health") return json({status:"healthy",service:"mark-imti-web",version:APP_VERSION});
+  if(url.pathname==="/api/chat" && event.request.method==="POST"){const body=await event.request.json().catch(()=>null);return providerRequest(body)}
+  if(url.pathname==="/manifest.webmanifest") return new Response(MANIFEST,{headers:{"content-type":"application/manifest+json","cache-control":"public,max-age=86400"}});
+  if(url.pathname==="/sw.js") return new Response(SW,{headers:{"content-type":"application/javascript","cache-control":"public,max-age=86400"}});
+  if(url.pathname==="/favicon.svg") return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M18 32h28M32 18v28" stroke="white" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="32" r="19" fill="none" stroke="white" stroke-opacity=".5" stroke-width="2"/></svg>',{headers:{"content-type":"image/svg+xml","cache-control":"public,max-age=604800"}});
+  return new Response(HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-mark-version":APP_VERSION}});
+}))());
