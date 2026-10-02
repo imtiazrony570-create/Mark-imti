@@ -33,7 +33,7 @@ module.exports = async function handler(req,res) {
     if(!base)return res.status(400).json({error:"A base URL is required for this provider."});
     const chosen=model||({OPENAI:"gpt-4o-mini",OPENROUTER:"openai/gpt-4o-mini",DEEPSEEK:"deepseek-chat",MISTRAL:"mistral-small-latest",XAI:"grok-3-mini"}[p]||"gpt-4o-mini");
     const headers={"content-type":"application/json","authorization":"Bearer "+apiKey};
-    if(p==="OPENROUTER"){headers["HTTP-Referer"]="https://mark-imti.vercel.app";headers["X-Title"]="Mark-Imti";}
+    if(p==="OPENROUTER"){headers["HTTP-Referer"] = "https://" + (req.headers.host || "mark-imti.vercel.app");headers["X-Title"]="Mark-Imti";}
     response=await fetch(base+"/chat/completions",{method:"POST",headers,body:JSON.stringify({model:chosen,messages:messages.map(m=>({role:m.role,content:String(m.content||"")})),temperature:.4})});
     const raw=await response.text();if(!response.ok)return res.status(response.status).json({error:errMsg(raw,response.status)});
     const data=JSON.parse(raw);const content=data?.choices?.[0]?.message?.content;
