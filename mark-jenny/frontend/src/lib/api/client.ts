@@ -1,6 +1,6 @@
-// Use the same-origin proxy in deployed builds; direct backend URLs remain
-// available for desktop/self-hosted deployments through NEXT_PUBLIC_API_URL.
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || '/api/v1';
+// Static builds call the edge API directly; desktop/self-hosted deployments can
+// override it through NEXT_PUBLIC_API_URL.
+export const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mark-imti-api.kevin-clientmanager.workers.dev/api/v1';
 
 class ApiError extends Error {
   constructor(public status: number, message: string, public data?: unknown) {
@@ -32,7 +32,6 @@ async function request<T>(
   });
 
   if (!response.ok) {
-    // Read the body ONCE as text, then optionally parse JSON (never read twice)
     const raw = await response.text().catch(() => "");
     let message = raw || `Request failed (${response.status})`;
     try {
@@ -40,7 +39,6 @@ async function request<T>(
       const detail = (parsed as any)?.detail ?? (parsed as any)?.message;
       message = typeof detail === "string" ? detail : detail ? JSON.stringify(detail) : message;
     } catch {
-      // non-JSON error page (e.g. proxy/gateway HTML) — keep raw text, truncated
       message = raw.slice(0, 300) || message;
     }
     throw new ApiError(response.status, message, raw);
