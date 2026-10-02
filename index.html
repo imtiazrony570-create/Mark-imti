@@ -113,7 +113,7 @@ function listView(type){
  if(type==="projects")items=state.data.projects;
  if(type==="pinned-chats")items=state.data.chats.filter(x=>x.pinned);
  if(type==="pinned-projects")items=state.data.projects.filter(x=>x.pinned);
- return '<div class="page"><div class="pagehead"><div><h1>'+cfg[0]+'</h1><p>'+cfg[1]+'</p></div><div class="spacer"></div></div>'+(items.length?'<div class="grid">'+items.map(x=>card(type,x)).join("")+'</div>':'<div class="emptycard">Nothing here yet. Use the action above to create your first item.</div>')+'</div>'
+ return '<div class="page"><div class="pagehead"><div><h1>'+cfg[0]+'</h1><p>'+cfg[1]+'</p></div><div class="spacer"></div></div>'+(items.length?'<div class="grid">'+items.map(x=>card(type,x)).join("")+'</div>':'<div class="emptycard">Nothing here yet. Use the available create actions in the relevant workspace to add items.</div>')+'</div>'
 }
 function card(type,x){
  if(type==="skills")return '<div class="card"><button class="switch '+(x.enabled?"on":"")+'" data-skill="'+x.id+'" aria-label="Toggle '+esc(x.name)+'"></button><h3>'+esc(x.name)+'</h3><p>'+esc(x.description)+'</p><div class="meta">'+(x.enabled?"Enabled":"Disabled")+'</div></div>';
