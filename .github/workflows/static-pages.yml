@@ -1,0 +1,50 @@
+name: Build static Mark-Imti WebApp
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mark-jenny/frontend/package-lock.json
+      - name: Install dependencies
+        working-directory: mark-jenny/frontend
+        run: npm ci
+      - name: Build static site
+        working-directory: mark-jenny/frontend
+        env:
+          NEXT_PUBLIC_API_URL: https://mark-imti-api.kevin-clientmanager.workers.dev/api/v1
+          NEXT_PUBLIC_WS_URL: wss://mark-imti-api.kevin-clientmanager.workers.dev/api/v1/ws
+          NEXT_PUBLIC_BASE_PATH: /Mark-imti
+        run: npm run build
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: mark-jenny/frontend/out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
