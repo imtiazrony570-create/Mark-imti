@@ -164,7 +164,6 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
     }
   });
   const [pinnedProjects, setPinnedProjects] = useState<number[]>(() => loadPinned(PROJ_PIN_KEY));
-  const [pinnedBrowserSessions, setPinnedBrowserSessions] = useState<string[]>(() => loadPinned("mark.pinnedBrowserSessions").map(String));
   const [renamingId, setRenamingId] = useState<number | null>(null);
   const [renameText, setRenameText] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
@@ -246,12 +245,7 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
   };
 
   const toggleBrowserPin = (id: string) => {
-    setPinnedBrowserSessions((prev) => {
-      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
-      try { localStorage.setItem("mark.pinnedBrowserSessions", JSON.stringify(next)); } catch {}
-      chatData?.onToggleBrowserPin?.(id);
-      return next;
-    });
+    chatData?.onToggleBrowserPin?.(id);
   };
 
   const ChatContextMenu = ({ c }: { c: Chat }) => (
