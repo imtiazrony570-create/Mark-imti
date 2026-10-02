@@ -100,6 +100,7 @@ function chatView(){
  const body=msgs.length?'<div class="messages">'+msgs.map(m=>'<div class="msg '+m.role+'"><div class="bubble">'+esc(m.text)+'</div></div>').join("")+'</div>':'<div class="empty"><div class="emptyicon">✣</div><h1>What can I help you build?</h1><p>Describe what you want in plain words — Mark-Imti keeps the workspace local until you connect a real service.</p></div>';
  return '<div class="workspace">'+body+'</div><div class="composerzone"><div class="suggestions">'+["Create a plan","Research a topic","Write a report","Design a landing page","Organize my tasks"].map(x=>'<button class="chip" data-suggest="'+esc(x)+'">'+esc(x)+'</button>').join("")+'</div>'+composer("Ask anything, / for commands, @ for context...")+'</div>'
 }
+function searchView(){const q=(state.ui.searchQuery||"").toLowerCase();const results=[];state.data.chats.forEach(x=>{const hay=(x.title+" "+x.messages.map(m=>m.text).join(" ")).toLowerCase();if(hay.includes(q))results.push({kind:"Chat",title:x.title,desc:x.messages.length+" messages",action:"open-chat",id:x.id})});state.data.projects.forEach(x=>{if((x.title+" "+x.description).toLowerCase().includes(q))results.push({kind:"Project",title:x.title,desc:x.description,action:"open-project",id:x.id})});state.data.library.forEach(x=>{if((x.title+" "+x.description).toLowerCase().includes(q))results.push({kind:"Library",title:x.title,desc:x.description,action:"open-library",id:x.id})});return '<div class="page"><div class="pagehead"><div><h1>Search</h1><p>Search chats, projects, and library items without leaving the Mark-Imti shell.</p></div></div><div class="searchbar"><span>⌕</span><input id="globalSearch" value="'+esc(state.ui.searchQuery||"")+'" placeholder="Search workspace..."></div><div class="grid" style="margin-top:12px">'+(results.length?results.map(r=>'<div class="card"><div class="meta">'+r.kind+'</div><h3>'+esc(r.title)+'</h3><p>'+esc(r.desc)+'</p><div class="card-actions"><button class="ghost" data-'+r.action+'="'+r.id+'">Open</button></div></div>').join(""):'<div class="emptycard" style="grid-column:1/-1">No matching workspace items.</div>')+'</div></div>'}
 function quickView(){
  const actions=[["chat","New Chat","Start a focused conversation.","new-chat"],["search","Search","Search your local chats, projects, and library.","search"],["browser","Browse Web","Open the integrated browser workspace.","browser"],["projects","Create Project","Create a real project and open it.","new-project"],["library","Open Library","Browse saved resources.","library"],["schedule","Schedule Task","Create a scheduled task.","new-schedule"],["skills","Open Skills","Manage enabled workspace skills.","skills"],["settings","Settings","Open the integrated settings drawer.","settings"],["pin","Recent Activity","Review recent workspace activity.","activity"]];
  return '<div class="page"><div class="pagehead"><div><h1>Quick Action</h1><p>Useful actions that stay inside the Mark-Imti shell.</p></div></div><div class="quickgrid">'+actions.map(a=>'<button class="quickcard" data-act="'+a[3]+'"><div class="qicon">'+icons[a[0]]+'</div><strong>'+a[1]+'</strong><span>'+a[2]+'</span></button>').join("")+'</div></div>'
@@ -155,6 +156,7 @@ function render(){
  if(state.ui.mode==="browser")main=browserView();
  else if(section==="chat")main=chatView();
  else if(section==="quick")main=quickView();
+ else if(section==="search")main=searchView();
  else if(section==="projects"||section==="pinned-projects"||section==="library"||section==="skills"||section==="schedule"||section==="pinned-chats")main=listView(section);
  else if(section==="project")main=projectView();
  else main=quickView();
@@ -179,6 +181,8 @@ function bind(){
  document.querySelectorAll("[data-open-chat]").forEach(b=>b.onclick=()=>{state.ui.chatId=b.dataset.openChat;state.ui.mode="imti";state.ui.section="chat";save();render()});
  document.querySelectorAll("[data-pin-chat],[data-pin-chat2]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.pinChat||b.dataset.pinChat2;const c=state.data.chats.find(x=>x.id===id);if(c)c.pinned=!c.pinned;save();render()});
  document.querySelectorAll("[data-delete-chat]").forEach(b=>b.onclick=()=>deleteChat(b.dataset.deleteChat));
+ document.querySelectorAll("[data-open-library]").forEach(b=>b.onclick=()=>{state.ui.mode="mark";state.ui.section="library";save();render()});
+ const gs=document.getElementById("globalSearch");if(gs)gs.addEventListener("input",()=>{state.ui.searchQuery=gs.value;render();setTimeout(()=>{const x=document.getElementById("globalSearch");if(x){x.focus();x.selectionStart=x.value.length}},0)});
  document.querySelectorAll("[data-open-project]").forEach(b=>b.onclick=()=>{state.ui.projectId=b.dataset.openProject;state.ui.mode="mark";state.ui.section="project";save();render()});
  document.querySelectorAll("[data-edit-project]").forEach(b=>b.onclick=()=>editProject(b.dataset.editProject));
  document.querySelectorAll("[data-delete-project]").forEach(b=>b.onclick=()=>deleteProject(b.dataset.deleteProject));
@@ -217,7 +221,7 @@ function act(a){
  else if(a==="browse-query"){const i=document.getElementById("composer");if(i)browseQuery(i.value)}
  else if(a==="attach")toast("Attachment actions are local-only in this build.");
  else if(a==="think")toast("Think is a local UI mode; no external model is connected.");
- else if(a==="search"){toast("Use the visible sections and browser address/search controls to search this workspace.")}
+ else if(a==="search"){state.ui.searchQuery="";state.ui.mode="imti";state.ui.section="search";save();render();setTimeout(()=>document.getElementById("globalSearch")?.focus(),50)}
  else if(a==="activity"){toast("Recent activity is represented by updated timestamps in the workspace.")}
  else if(a==="save-profile"){document.querySelectorAll("[data-profile]").forEach(e=>state.data.profile[e.dataset.profile]=e.value);save();toast("Profile saved");render()}
  else if(a==="new-tab"){const t=getTabs();const n={id:uid("b"),title:"New Tab",url:"",history:[],future:[]};t.push(n);state.ui.browserTabId=n.id;saveTabs(t);save();render()}
