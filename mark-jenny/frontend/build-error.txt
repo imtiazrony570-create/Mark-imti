@@ -1,0 +1,26 @@
+
+> frontend@0.1.0 build
+> next build --webpack --webpack
+
+▲ Next.js 16.3.6 (webpack)
+⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /home/runner/work/Mark-imti/Mark-imti/package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /home/runner/work/Mark-imti/Mark-imti/mark-jenny/frontend/package-lock.json
+
+✓ Running next.config.ts took 27ms
+⚠ No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 14.3s
+  Running TypeScript ...
+src/lib/api/client.ts(168,47): error TS7006: Parameter 'm' implicitly has an 'any' type.
+Failed to type check.
+
