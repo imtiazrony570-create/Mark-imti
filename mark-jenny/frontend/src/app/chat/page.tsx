@@ -128,7 +128,14 @@ export default function ChatPage() {
   const [routeNote, setRouteNote] = useState<{ tool: string; icon: React.ReactNode; project?: { id: number; name: string }; think?: boolean } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Chat | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [browseSessions, setBrowseSessions] = useState<{ id: string; url?: string; status?: string; name?: string }[]>([]);
+  const [browseSessions, setBrowseSessions] = useState<{ id: string; url?: string; status?: string; name?: string; pinned?: boolean }[]>([]);
+  const [activeBrowserSessionId, setActiveBrowserSessionId] = useState<string | null>(null);
+  const [pinnedBrowserSessions, setPinnedBrowserSessions] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("mark.pinnedBrowserSessions") || "[]");
+      return Array.isArray(saved) ? saved.map(String) : [];
+    } catch { return []; }
+  });
   const [openTabs, setOpenTabs] = useState<{ id: number; title: string }[]>([]);
 
   const isPinned = (id: number) => pinned.includes(id);
@@ -176,19 +183,25 @@ export default function ChatPage() {
     try {
       const raw = await browserApi.listSessions();
       const list = Array.isArray(raw) ? raw : (raw as any)?.sessions || [];
-      // Normalize backend shape ({session_id, current_url}) to UI shape ({id, url})
-      setBrowseSessions(
-        list
-          .filter((s: any) => s && (s.session_id || s.id))
-          .map((s: any) => ({
-            id: String(s.id ?? s.session_id),
-            url: s.url ?? s.current_url ?? "",
-            name: s.name ?? "",
-            status: s.status ?? (s.has_page ? "ready" : "new"),
-          }))
-      );
-    } catch { setBrowseSessions([]); }
-  }, []);
+      const normalized = list
+        .filter((s: any) => s && (s.session_id || s.id))
+        .map((s: any) => ({
+          id: String(s.id ?? s.session_id),
+          url: s.url ?? s.current_url ?? "",
+          name: s.name ?? "",
+          status: s.status ?? (s.has_page ? "ready" : "new"),
+          pinned: pinnedBrowserSessions.includes(String(s.id ?? s.session_id)),
+        }));
+      setBrowseSessions(normalized);
+      setActiveBrowserSessionId((current) => {
+        if (current && normalized.some((s) => s.id === current)) return current;
+        return normalized[0]?.id ?? null;
+      });
+    } catch {
+      setBrowseSessions([]);
+      setActiveBrowserSessionId(null);
+    }
+  }, [pinnedBrowserSessions]);
 
   // --- Tab management (no forward deps) ---
   const openTab = useCallback((chatId: number, title?: string) => {
@@ -284,13 +297,107 @@ export default function ChatPage() {
 
   useEffect(() => { if (taskUpdate && activeChatId) fetchMsgs(activeChatId); }, [taskUpdate, activeChatId, fetchMsgs]);
 
+  const handleSelectProject = useCallback(async (id: number) => {
+    setMode("work");
+    setProjectId(id);
+    setMessages([]);
+    setActiveChatId(null);
+    try {
+      const res = await chatApi.list({ page: 1, page_size: 100, project_id: id });
+      const nextTabs = res.chats.map((c) => ({ id: c.id, title: c.title || "New session" }));
+      setOpenTabs(nextTabs);
+      if (res.chats.length > 0) {
+        setActiveChatId(res.chats[0].id);
+      }
+    } catch {
+      setOpenTabs([]);
+      toast.add({ title: "Couldn't load project chats", type: "error" });
+    }
+  }, []);
+
+  const handleRenameTab = useCallback(async (id: number, title: string) => {
+    if (!title.trim()) return;
+    try {
+      const updated = await chatApi.update(id, { title: title.trim() });
+      setChats((prev) => prev.map((c) => c.id === id ? { ...c, title: updated.title } : c));
+      setOpenTabs((prev) => prev.map((t) => t.id === id ? { ...t, title: updated.title || title.trim() } : t));
+    } catch {
+      toast.add({ title: "Couldn't rename chat", type: "error" });
+    }
+  }, []);
+
+  const handleAddToProject = useCallback(async (chatId: number, targetProjectId: number) => {
+    try {
+      const updated = await chatApi.update(chatId, { project_id: targetProjectId });
+      setChats((prev) => prev.map((c) => c.id === chatId ? { ...c, project_id: targetProjectId, project_name: updated.project_name } : c));
+      if (projectId === targetProjectId) {
+        setOpenTabs((prev) => prev.some((t) => t.id === chatId) ? prev : [...prev, { id: chatId, title: updated.title || "New session" }]);
+      }
+      toast.add({ title: "Chat added to project", type: "success" });
+    } catch {
+      toast.add({ title: "Couldn't add chat to project", type: "error" });
+    }
+  }, [projectId]);
+
+  const handleNewBrowserSession = useCallback(async () => {
+    try {
+      const created = await browserApi.createSession(false);
+      const id = String(created.session_id);
+      setPinnedBrowserSessions((prev) => prev.filter((x) => x !== id));
+      setBrowseSessions((prev) => [...prev.filter((s) => s.id !== id), { id, url: "", name: "", status: "ready", pinned: false }]);
+      setActiveBrowserSessionId(id);
+      setMode("browse");
+    } catch {
+      toast.add({ title: "Couldn't start browser session", description: "The browser backend did not create a session.", type: "error" });
+    }
+  }, []);
+
+  const handleSelectBrowserSession = useCallback((id: string) => {
+    setActiveBrowserSessionId(id);
+    setMode("browse");
+  }, []);
+
+  const handleToggleBrowserPin = useCallback((id: string) => {
+    setPinnedBrowserSessions((prev) => {
+      const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id];
+      try { localStorage.setItem("mark.pinnedBrowserSessions", JSON.stringify(next)); } catch {}
+      setBrowseSessions((sessions) => sessions.map((s) => s.id === id ? { ...s, pinned: next.includes(id) } : s));
+      return next;
+    });
+  }, []);
+
+  const handleCloseBrowserSession = useCallback(async (id: string) => {
+    try {
+      await browserApi.closeSession(id);
+      setBrowseSessions((prev) => {
+        const next = prev.filter((s) => s.id !== id);
+        if (activeBrowserSessionId === id) setActiveBrowserSessionId(next[0]?.id ?? null);
+        return next;
+      });
+      setPinnedBrowserSessions((prev) => {
+        const next = prev.filter((x) => x !== id);
+        try { localStorage.setItem("mark.pinnedBrowserSessions", JSON.stringify(next)); } catch {}
+        return next;
+      });
+      toast.add({ title: "Browser session closed", type: "success" });
+    } catch {
+      toast.add({ title: "Couldn't close browser session", type: "error" });
+    }
+  }, [activeBrowserSessionId]);
+
+  const handleSessionUrlChange = useCallback((sessionId: string, url: string) => {
+    setBrowseSessions((prev) => prev.map((s) => s.id === sessionId ? { ...s, url } : s));
+  }, []);
+
   const handleNewProject = async () => {
     try {
       const p = await projectsApi.create({ name: "New project" });
+      setProjects((prev) => [p, ...prev]);
       setProjectId(p.id);
-      fetchProjects();
       setMode("work");
-      window.location.href = `/projects/${p.id}`;
+      setOpenTabs([]);
+      setActiveChatId(null);
+      setMessages([]);
     } catch {
       toast.add({ title: "Couldn't create project", type: "error" });
     }
@@ -302,10 +409,12 @@ export default function ChatPage() {
     try {
       await chatApi.delete(deleteTarget.id);
       setChats((prev) => prev.filter((c) => c.id !== deleteTarget.id));
-      if (activeChatId === deleteTarget.id) {
-        setActiveChatId(chats.find((c) => c.id !== deleteTarget.id)?.id || null);
-        setMessages([]);
-      }
+      setOpenTabs((prev) => {
+        const next = prev.filter((t) => t.id !== deleteTarget.id);
+        if (activeChatId === deleteTarget.id) setActiveChatId(next[0]?.id ?? null);
+        return next;
+      });
+      if (activeChatId === deleteTarget.id) setMessages([]);
       toast.add({ title: "Chat deleted", type: "success" });
     } catch {
       toast.add({ title: "Couldn't delete chat", type: "error" });
@@ -408,12 +517,26 @@ export default function ChatPage() {
   const handleModeChange = async (m: "chat" | "work" | "browse") => {
     if (m === mode) return;
     setMode(m);
+    setRouteNote(null);
+
+    if (m === "browse") {
+      await fetchBrowseSessions();
+      return;
+    }
+
+    if (m === "work" && !projectId) {
+      setOpenTabs([]);
+      setActiveChatId(null);
+      setMessages([]);
+      return;
+    }
+
     try {
-      const c = await chatApi.create({ project_id: projectId });
+      const c = await chatApi.create({ project_id: m === "work" ? projectId : undefined });
       setChats((prev) => [c, ...prev]);
       setActiveChatId(c.id);
       setMessages([]);
-      setRouteNote(null);
+      setOpenTabs((prev) => [...prev, { id: c.id, title: c.title || "New session" }]);
     } catch {
       toast.add({ title: "Couldn't start a new session", type: "error" });
     }
@@ -438,9 +561,14 @@ export default function ChatPage() {
             onDelete: setDeleteTarget,
             projects,
             projectId,
-            onSelectProject: (id) => setProjectId(id),
+            onSelectProject: handleSelectProject,
             onNewProject: handleNewProject,
             browseSessions,
+            onSelectBrowserSession: handleSelectBrowserSession,
+            onNewBrowserSession: handleNewBrowserSession,
+            pinnedBrowserSessions,
+            onToggleBrowserPin: handleToggleBrowserPin,
+            onCloseBrowserSession: handleCloseBrowserSession,
             onRenameProject: (id, name) => {
               setProjects((prev) => prev.map((p) => p.id === id ? { ...p, name } : p));
             },
@@ -456,6 +584,10 @@ export default function ChatPage() {
             onTabSelect={handleTabSelect}
             onTabClose={closeTab}
             onTabNew={handleNewTab}
+            onRenameTab={handleRenameTab}
+            onDeleteTab={setDeleteTarget}
+            projects={projects.map((p) => ({ id: p.id, name: p.name }))}
+            onAddToProject={handleAddToProject}
             rightPanelOpen={workOpen}
             onToggleRightPanel={() => setWorkOpen((v) => !v)}
             activeProjectName={mode !== "browse" ? projects.find((p) => p.id === projectId)?.name : undefined}
@@ -463,6 +595,10 @@ export default function ChatPage() {
             onTogglePin={(id?: number) => { const target = id ?? activeChatId; if (target) togglePin(target); }}
             mode={mode}
             browserSessions={browseSessions}
+            activeBrowserSessionId={activeBrowserSessionId}
+            onSelectBrowserSession={handleSelectBrowserSession}
+            onCloseBrowserSession={handleCloseBrowserSession}
+            onToggleBrowserPin={handleToggleBrowserPin}
           />
           <div className="flex-1 flex min-h-0">
             {mode === "browse" ? (
@@ -472,8 +608,10 @@ export default function ChatPage() {
                 onSend={handleSend}
                 sending={sending}
                 activeChatId={activeChatId}
+                activeBrowserSessionId={activeBrowserSessionId}
                 onFile={handleFile}
                 onVoiceAsk={handleVoiceAsk}
+                onSessionUrlChange={handleSessionUrlChange}
               />
             ) : (
               <>
