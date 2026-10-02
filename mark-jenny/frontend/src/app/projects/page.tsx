@@ -46,7 +46,7 @@ export default function ProjectsPage() {
         title: "Project created",
         description: created.name,
         type: "success",
-        actionProps: { children: "Open", onClick: () => { window.location.href = `/projects/${created.id}`; } },
+        actionProps: { children: "Open", onClick: () => { window.location.href = `/projects/view?projectId=${created.id}`; } },
       });
     } catch (e: any) {
       toast.add({ title: "Couldn't create project", description: e?.message || "Try again.", type: "error" });
@@ -112,7 +112,7 @@ export default function ProjectsPage() {
                     <Card key={p.id} className="transition-shadow hover:shadow-md">
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-2">
-                          <Link href={`/projects/${p.id}`} className="group flex items-center gap-1 font-medium hover:text-blue-600">
+                          <Link href={`/projects/view?projectId=${p.id}`} className="group flex items-center gap-1 font-medium hover:text-blue-600">
                             {p.name} <ArrowRight className="h-3 w-3 opacity-0 transition-opacity group-hover:opacity-100" />
                           </Link>
                           <Badge variant={p.status === "active" ? "default" : "secondary"}>{p.status}</Badge>
