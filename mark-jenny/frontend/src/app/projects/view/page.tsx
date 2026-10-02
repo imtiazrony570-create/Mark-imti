@@ -119,7 +119,7 @@ export default function ProjectDetailPage() {
     },
     projects,
     projectId: id || undefined,
-    onSelectProject: (pid) => { if (pid) router.push(`/projects/${pid}`); },
+    onSelectProject: (pid) => { if (pid) router.push(`/projects/view?projectId=${pid}`); },
     onNewProject: handleNewProject,
     browseSessions: [],
     onRenameProject: (pid, name) => setProjects((prev) => prev.map((p) => p.id === pid ? { ...p, name } : p)),
