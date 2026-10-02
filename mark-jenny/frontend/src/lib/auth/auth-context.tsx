@@ -31,7 +31,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const fetchAccessToken = async (email: string, password: string) => {
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mark-imti-api.kevin-clientmanager.workers.dev/api/v1';
+    const STATIC_MODE = process.env.NEXT_PUBLIC_STATIC_MODE === 'true';
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://mark-imti-api.imtiazrony570.workers.dev/api/v1';
+    if (STATIC_MODE) {
+      localStorage.setItem('access_token', 'local');
+      localStorage.setItem('refresh_token', 'local');
+      localStorage.setItem('mark.local.email', email);
+      return;
+    }
     const formData = new URLSearchParams();
     formData.append('username', email);
     formData.append('password', password);
