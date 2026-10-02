@@ -271,12 +271,33 @@ function newChat(){
  save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50);
 }
 function sendChat(text){text=text.trim();if(!text)return;let c=currentChat();if(!c){newChat();c=currentChat()}c.messages.push({id:uid("m"),role:"user",text});c.updatedAt=now();const response="Demo/local response: I received your request. This Mark-Imti build keeps responses local and does not claim to use an external AI service. A real provider can be connected behind the service boundary later.";setTimeout(()=>{c.messages.push({id:uid("m"),role:"assistant",text:response});c.updatedAt=now();save();render()},140);save();render()}
-function newProject(){const title=prompt("Project name","New Project");if(!title?.trim())return;const p={id:uid("p"),title:title.trim(),description:"A new Mark-Imti project.",pinned:false,createdAt:now(),updatedAt:now()};state.data.projects.unshift(p);state.ui.mode="mark";state.ui.projectId=p.id;state.ui.section="project";save();render()}
+function newProject(){
+ const title=prompt("Project name","New Project");if(!title?.trim())return;
+ const p={id:uid("p"),title:title.trim(),description:"A new Mark-Imti project.",pinned:false,createdAt:now(),updatedAt:now()};
+ state.data.projects.unshift(p);openProject(p.id);
+}
 function editProject(id){const p=state.data.projects.find(x=>x.id===id);if(!p)return;const title=prompt("Project title",p.title);if(title===null)return;const desc=prompt("Project description",p.description);if(desc===null)return;p.title=title.trim()||p.title;p.description=desc.trim()||p.description;p.updatedAt=now();save();render()}
-function deleteProject(id){if(!confirm("Delete this project?"))return;state.data.projects=state.data.projects.filter(x=>x.id!==id);if(state.ui.projectId===id){state.ui.projectId=state.data.projects[0]?.id||null;state.ui.section="projects"}save();render()}
+function deleteProject(id){
+ if(!confirm("Delete this project and its project chats?"))return;
+ state.data.projects=state.data.projects.filter(x=>x.id!==id);
+ state.data.chats=state.data.chats.filter(c=>c.projectId!==id);
+ if(state.ui.projectId===id){
+  state.ui.projectId=state.data.projects[0]?.id||null;
+  const next=state.ui.projectId?projectChats(state.ui.projectId)[0]?.id:null;
+  state.ui.chatId=next||null;
+  state.ui.section=state.ui.projectId?"chat":"projects";
+ }
+ save();render();
+}
 function newLibrary(){const title=prompt("Library item title","New Resource");if(!title?.trim())return;const desc=prompt("Description","Saved Mark-Imti resource");if(desc===null)return;state.data.library.unshift({id:uid("l"),title:title.trim(),description:desc.trim(),type:"Note",pinned:false,createdAt:now()});save();render()}
 function newSchedule(){const title=prompt("Task title","New scheduled task");if(!title?.trim())return;const dt=prompt("Date/time (YYYY-MM-DDTHH:MM)",new Date(Date.now()+86400000).toISOString().slice(0,16));if(!dt)return;state.data.schedules.unshift({id:uid("s"),title:title.trim(),dateTime:dt,repeat:"Once",enabled:true});save();render()}
-function deleteChat(id){if(!confirm("Delete this chat?"))return;state.data.chats=state.data.chats.filter(x=>x.id!==id);if(state.ui.chatId===id){state.ui.chatId=state.data.chats[0]?.id||null;state.ui.section=state.ui.chatId?"chat":"quick"}save();render()}
+function deleteChat(id){
+ if(!confirm("Delete this chat?"))return;
+ state.data.chats=state.data.chats.filter(x=>x.id!==id);
+ state.ui.openChatIds=(state.ui.openChatIds||[]).filter(x=>x!==id);
+ if(state.ui.chatId===id){state.ui.chatId=state.ui.openChatIds.at(-1)||state.data.chats[0]?.id||null;state.ui.section=state.ui.chatId?"chat":"quick"}
+ save();render();
+}
 function bind(){
  document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>setMode(b.dataset.mode));
  document.querySelectorAll("[data-section]").forEach(b=>b.onclick=()=>{state.ui.section=b.dataset.section;save();render();closeSidebar()});
