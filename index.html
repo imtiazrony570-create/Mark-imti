@@ -116,7 +116,7 @@ body.dark .danger{background:#35151a;border-color:#5f2229;color:#fda4af}
   }
   function save(){localStorage.setItem(KEY,JSON.stringify(state))}
   function id(){return crypto.randomUUID?.()||String(Date.now()+Math.random())}
-  function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#039;"}[c]))}
+  function esc(s){return String(s??"").replace(/[&<>"\']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","\'":"&#039;"}[c]))}
   function time(iso){try{return new Intl.DateTimeFormat(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}).format(new Date(iso))}catch{return ""}}
   function fmtCount(n){return Number(n||0).toLocaleString()}
   function toast(msg,type=""){const el=document.getElementById("toast");const x=document.createElement("div");x.className="toast-item "+type;x.textContent=msg;el.appendChild(x);setTimeout(()=>x.remove(),3400)}
