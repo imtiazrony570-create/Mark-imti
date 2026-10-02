@@ -170,19 +170,43 @@ function card(type,x){
  if(type==="projects"||type==="pinned-projects")return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(x.description)+'</p><div class="meta">'+fmt(x.updatedAt)+(x.pinned?" · Pinned":"")+'</div><div class="card-actions"><button class="ghost" data-open-project="'+x.id+'">Open</button><button class="ghost" data-edit-project="'+x.id+'">Edit</button><button class="ghost" data-toggle-project="'+x.id+'">'+(x.pinned?"Unpin":"Pin")+'</button><button class="ghost danger" data-delete-project="'+x.id+'">Delete</button></div></div>';
  return '<div class="card"><h3>'+esc(x.title)+'</h3><p>'+esc(x.messages?.slice(-1)[0]?.text||"No messages yet.")+'</p><div class="meta">'+x.messages.length+' messages · '+(x.pinned?"Pinned":"Not pinned")+'</div><div class="card-actions"><button class="ghost" data-open-chat="'+x.id+'">Open</button><button class="ghost" data-pin-chat2="'+x.id+'">'+(x.pinned?"Unpin":"Pin")+'</button><button class="ghost danger" data-delete-chat="'+x.id+'">Delete</button></div></div>'
 }
+
 function projectView(){
  const p=currentProject();if(!p)return '<div class="page"><div class="emptycard">No project selected.</div></div>';
- return '<div class="page"><div class="pagehead"><div><h1>'+esc(p.title)+'</h1><p>'+esc(p.description)+'</p></div><div class="spacer"></div><button class="ghost" data-edit-project="'+p.id+'">Edit</button><button class="ghost" data-toggle-project="'+p.id+'">'+(p.pinned?"Unpin":"Pin")+'</button></div><div class="grid"><div class="card"><h3>Project workspace</h3><p>This project is local application data. Use the actions above to manage it without leaving the shell.</p><div class="meta">Created '+fmt(p.createdAt)+' · Updated '+fmt(p.updatedAt)+'</div></div><div class="card"><h3>Next step</h3><p>Create a chat from IMTI or add a library resource for this project.</p><div class="card-actions"><button class="ghost" data-act="new-chat">New Chat</button><button class="ghost" data-act="library">Library</button></div></div></div></div>'
+ return '<div class="page"><div class="pagehead"><div><h1>'+esc(p.title)+'</h1><p>'+esc(p.description)+'</p></div><div class="spacer"></div><button class="ghost" data-act="open-current-project">Open project chats</button><button class="ghost" data-edit-project="'+p.id+'">Edit</button><button class="ghost" data-toggle-project="'+p.id+'">'+(p.pinned?"Unpin":"Pin")+'</button></div><div class="grid"><div class="card"><h3>'+esc(projectChats(p.id).length)+' project chat'+(projectChats(p.id).length===1?"":"s")+'</h3><p>All chats assigned to this project stay grouped in the MARK top tab bar.</p><div class="meta">Created '+fmt(p.createdAt)+' · Updated '+fmt(p.updatedAt)+'</div></div><div class="card"><h3>Project workspace</h3><p>Open the project to switch between its chat tabs, or create another project chat from the tab bar.</p></div></div></div>'
 }
+
+function currentBrowserSession(){return (state.data.browserSessions||[]).find(x=>x.id===state.ui.browserSessionId)||(state.data.browserSessions||[])[0]||null}
+function currentBrowserTab(){const s=currentBrowserSession();return s?.tabs?.find(x=>x.id===s.activeTabId)||s?.tabs?.[0]||null}
 function browserView(){
- let tabs=getTabs();const active=tabs.find(t=>t.id===state.ui.browserTabId)||tabs[0];if(active&&!state.ui.browserTabId)state.ui.browserTabId=active.id;
- const isUrl=active?.url;
- return '<div class="browser"><section class="browser-main"><div class="browser-tabs">'+tabs.map(t=>'<button class="btab" data-browser-tab="'+t.id+'"><span>◎ '+esc(t.title||"New Tab")+'</span><b class="bclose" data-close-tab="'+t.id+'">×</b></button>').join("")+'<button class="bnew" data-act="new-tab" aria-label="New tab">＋</button></div><div class="browser-tools"><button data-act="back">'+icons.back+'</button><button data-act="forward">'+icons.forward+'</button><button data-act="reload">'+icons.reload+'</button><input id="address" class="address" value="'+esc(active?.url||"")+'" placeholder="Search or enter URL"><button data-act="go-address">↵</button></div><div class="browser-content" id="browserContent">'+(isUrl?'<div class="browserempty"><div class="fallback"><div class="globe">◎</div><h3>Browser content is isolated</h3><p>Some sites block embedding. Mark-Imti keeps the application shell intact and can open the address in a separate browser tab when needed.</p><button class="primary" data-act="open-external">Open externally '+icons.external+'</button></div></div>':'<div class="browserempty"><div><div class="globe">◎</div><strong>What should I browse?</strong><span>Tell me a website to open or a topic to research</span></div></div>')+'</div><div class="composerzone">'+composer("Ask Mark to browse the web...","browse-query")+'</div></section><aside class="browser-side"><div class="browser-tabs"><button class="btab" style="min-width:115px"><span>◎ New Tab</span></button><button class="bnew">＋</button></div><div class="browser-tools"><span>‹　›　↻</span><input class="address" placeholder="Search or enter URL"></div><div class="browser-content"><div class="browserempty"><div><div class="globe">◎</div><strong>New Tab</strong><span>Search or enter a URL to start</span></div></div></div></aside></div>'
+ const bs=currentBrowserSession();const active=currentBrowserTab();const isUrl=!!active?.url;
+ if(bs&&!state.ui.browserSessionId)state.ui.browserSessionId=bs.id;
+ return '<div class="browser"><section class="browser-main"><div class="browser-tools"><button data-act="back" aria-label="Back">'+icons.back+'</button><button data-act="forward" aria-label="Forward">'+icons.forward+'</button><button data-act="reload" aria-label="Reload">'+icons.reload+'</button><input id="address" class="address" value="'+esc(active?.url||"")+'" placeholder="Search or enter URL"><button data-act="go-address" aria-label="Go">↵</button></div><div class="browser-content" id="browserContent">'+(isUrl?'<div class="browserempty"><div class="fallback"><div class="globe">◎</div><h3>Browser content is isolated</h3><p>This site may block embedding through CSP, X-Frame-Options, authentication, or other browser security rules. Mark-Imti keeps the workspace intact and offers an external-open fallback.</p><button class="primary" data-act="open-external">Open externally '+icons.external+'</button></div></div>':'<div class="browserempty"><div><div class="globe">◎</div><strong>What should I browse?</strong><span>Tell me a website to open or a topic to research</span><small style="display:block;margin-top:8px;color:#4f4d53">Ask Mark to browse the web...</small></div></div>')+'</div><div class="composerzone">'+composer("Ask Mark to browse the web...","browse-query")+'</div></section><aside class="browser-side"><div class="browser-content"><div class="browserempty"><div><div class="globe">◎</div><strong>'+esc(bs?.title||"New browsing session")+'</strong><span>'+(bs?.tabs?.length||0)+' browsing tabs in this session</span></div></div></aside></div>'
 }
-function getTabs(){try{return JSON.parse(localStorage.getItem(KEY+"_tabs")||'[{"id":"b1","title":"New Tab","url":"","history":[],"future":[]}]')}catch(e){return[{id:"b1",title:"New Tab",url:"",history:[],future:[]}]}}
-function saveTabs(t){try{localStorage.setItem(KEY+"_tabs",JSON.stringify(t))}catch(e){}}
+function newBrowserSession(){
+ const s=defaultBrowserSession(uid("bs"),"New browsing session");
+ state.data.browserSessions.unshift(s);state.ui.mode="browser";state.ui.section="browser";state.ui.browserSessionId=s.id;save();render();closeSidebar();
+}
+function newBrowserTab(){
+ const s=currentBrowserSession();if(!s)return;
+ const t={id:uid("bt"),title:"New Tab",url:"",history:[],future:[]};
+ s.tabs.push(t);s.activeTabId=t.id;s.updatedAt=now();state.ui.mode="browser";state.ui.section="browser";save();render();
+}
+function closeBrowserTab(id){
+ const s=currentBrowserSession();if(!s)return;
+ s.tabs=s.tabs.filter(t=>t.id!==id);
+ if(!s.tabs.length){const t={id:uid("bt"),title:"New Tab",url:"",history:[],future:[]};s.tabs=[t];s.activeTabId=t.id}
+ else if(!s.tabs.some(t=>t.id===s.activeTabId))s.activeTabId=s.tabs[Math.max(0,s.tabs.length-1)].id;
+ s.updatedAt=now();save();render();
+}
 function normalizedUrl(v){v=v.trim();if(!v)return"";if(/^https?:\/\//i.test(v))return v;if(/^[a-z0-9.-]+\.[a-z]{2,}(\/.*)?$/i.test(v))return"https://"+v;return"https://www.google.com/search?q="+encodeURIComponent(v)}
-function browserNavigate(v){const url=normalizedUrl(v);if(!url)return;const tabs=getTabs();const t=tabs.find(x=>x.id===state.ui.browserTabId)||tabs[0];if(t.url)t.history=[...(t.history||[]),t.url].slice(-20);t.future=[];t.url=url;t.title=v.startsWith("http")?new URL(url).hostname:v.slice(0,24);saveTabs(tabs);save();render()}
+function browserNavigate(v){
+ const url=normalizedUrl(v);if(!url)return;const s=currentBrowserSession(),t=currentBrowserTab();if(!s||!t)return;
+ if(t.url)t.history=[...(t.history||[]),t.url].slice(-20);
+ t.future=[];t.url=url;
+ try{t.title=/^https?:\/\//i.test(v)?new URL(url).hostname:v.slice(0,28)}catch(e){t.title=v.slice(0,28)}
+ s.updatedAt=now();save();render();
+}
 function settingsModal(){
  const cats=["Profile","Appearance","Scheduled","Execution","Browser","Computer","Security","Core Laws","Advanced","Data","Skills","Connectors","Knowledge","Memory","Agents","AI Studio","About"];
  const q=state.ui.settingsQuery.toLowerCase();const filtered=cats.filter(x=>x.toLowerCase().includes(q));
@@ -211,7 +235,35 @@ function render(){
  applyTheme();bind();syncHash();
 }
 function applyTheme(){document.documentElement.dataset.density=state.data.appearance.density;document.body.classList.toggle("light",state.data.appearance.theme==="light")}
-function newChat(){const c={id:uid("c"),title:"New chat",pinned:false,createdAt:now(),updatedAt:now(),messages:[]};state.data.chats.unshift(c);state.ui.chatId=c.id;state.ui.mode="imti";state.ui.section="chat";save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50)}
+
+function openChatTab(id,modeOverride){
+ const c=state.data.chats.find(x=>x.id===id);if(!c)return;
+ state.ui.chatId=id;
+ if(modeOverride)state.ui.mode=modeOverride;
+ if(state.ui.mode==="mark"){state.ui.projectId=c.projectId||state.ui.projectId;state.ui.section="chat";}
+ else{state.ui.mode="imti";state.ui.section="chat";state.ui.openChatIds=[...(state.ui.openChatIds||[]).filter(x=>x!==id),id];}
+ save();render();closeSidebar();
+}
+function projectChats(projectId){return state.data.chats.filter(c=>c.projectId===projectId)}
+function openProject(id){
+ const p=state.data.projects.find(x=>x.id===id);if(!p)return;
+ state.ui.mode="mark";state.ui.section="chat";state.ui.projectId=id;
+ let chats=projectChats(id);
+ if(!chats.length){
+  const c={id:uid("c"),title:"Project chat",projectId:id,pinned:false,createdAt:now(),updatedAt:now(),messages:[]};
+  state.data.chats.unshift(c);chats=[c];state.ui.chatId=c.id;
+ }else{
+  state.ui.chatId=(chats.find(c=>c.id===state.ui.chatId)||chats[0]).id;
+ }
+ save();render();closeSidebar();
+}
+function newChat(){
+ const projectId=state.ui.mode==="mark"?state.ui.projectId:null;
+ const c={id:uid("c"),title:projectId?"New project chat":"New chat",projectId,pinned:false,createdAt:now(),updatedAt:now(),messages:[]};
+ state.data.chats.unshift(c);state.ui.chatId=c.id;
+ if(projectId){state.ui.mode="mark";state.ui.section="chat";}else{state.ui.mode="imti";state.ui.section="chat";state.ui.openChatIds=[...(state.ui.openChatIds||[]),c.id];}
+ save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50);
+}
 function sendChat(text){text=text.trim();if(!text)return;let c=currentChat();if(!c){newChat();c=currentChat()}c.messages.push({id:uid("m"),role:"user",text});c.updatedAt=now();const response="Demo/local response: I received your request. This Mark-Imti build keeps responses local and does not claim to use an external AI service. A real provider can be connected behind the service boundary later.";setTimeout(()=>{c.messages.push({id:uid("m"),role:"assistant",text:response});c.updatedAt=now();save();render()},140);save();render()}
 function newProject(){const title=prompt("Project name","New Project");if(!title?.trim())return;const p={id:uid("p"),title:title.trim(),description:"A new Mark-Imti project.",pinned:false,createdAt:now(),updatedAt:now()};state.data.projects.unshift(p);state.ui.mode="mark";state.ui.projectId=p.id;state.ui.section="project";save();render()}
 function editProject(id){const p=state.data.projects.find(x=>x.id===id);if(!p)return;const title=prompt("Project title",p.title);if(title===null)return;const desc=prompt("Project description",p.description);if(desc===null)return;p.title=title.trim()||p.title;p.description=desc.trim()||p.description;p.updatedAt=now();save();render()}
