@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { setSearchOpen } from "@/lib/nav/search-store";
 import { setSettingsOpen } from "@/lib/nav/settings-store";
 import { cn } from "@/lib/utils";
+import { DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent } from "@/components/ui/dropdown-menu";
 
 export interface Tab {
   id: number;
