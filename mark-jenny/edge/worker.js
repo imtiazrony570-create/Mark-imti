@@ -386,13 +386,15 @@ const MANIFEST=`{
 }`;
 const SW=`const C="mark-imti-v1";self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(["/","/manifest.webmanifest"]))));self.addEventListener("fetch",e=>{if(e.request.method==="GET"&&new URL(e.request.url).origin===location.origin)e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(x=>{const c=x.clone();caches.open(C).then(k=>k.put(e.request,c));return x}).catch(()=>caches.match("/"))))});\`;
 
-addEventListener("fetch",event=>event.respondWith((async()=>{
-  const url=new URL(event.request.url);
-  if(event.request.method==="OPTIONS") return new Response(null,{status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"Content-Type"}});
-  if(url.pathname==="/health") return json({status:"healthy",service:"mark-imti-web",version:APP_VERSION});
-  if(url.pathname==="/api/chat" && event.request.method==="POST"){const body=await event.request.json().catch(()=>null);return providerRequest(body)}
-  if(url.pathname==="/manifest.webmanifest") return new Response(MANIFEST,{headers:{"content-type":"application/manifest+json","cache-control":"public,max-age=86400"}});
-  if(url.pathname==="/sw.js") return new Response(SW,{headers:{"content-type":"application/javascript","cache-control":"public,max-age=86400"}});
-  if(url.pathname==="/favicon.svg") return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M18 32h28M32 18v28" stroke="white" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="32" r="19" fill="none" stroke="white" stroke-opacity=".5" stroke-width="2"/></svg>',{headers:{"content-type":"image/svg+xml","cache-control":"public,max-age=604800"}});
-  return new Response(HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-mark-version":APP_VERSION}});
-}))());
+addEventListener("fetch",event=>{
+  event.respondWith((async()=>{
+    const url=new URL(event.request.url);
+    if(event.request.method==="OPTIONS") return new Response(null,{status:204,headers:{"access-control-allow-origin":"*","access-control-allow-methods":"GET,POST,OPTIONS","access-control-allow-headers":"Content-Type"}});
+    if(url.pathname==="/health") return json({status:"healthy",service:"mark-imti",version:APP_VERSION});
+    if(url.pathname==="/api/chat" && event.request.method==="POST"){const body=await event.request.json().catch(()=>null);return providerRequest(body)}
+    if(url.pathname==="/manifest.webmanifest") return new Response(MANIFEST,{headers:{"content-type":"application/manifest+json","cache-control":"public,max-age=86400"}});
+    if(url.pathname==="/sw.js") return new Response(SW,{headers:{"content-type":"application/javascript","cache-control":"public,max-age=86400"}});
+    if(url.pathname==="/favicon.svg") return new Response('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" x2="1"><stop stop-color="#2563eb"/><stop offset="1" stop-color="#7c3aed"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><path d="M18 32h28M32 18v28" stroke="white" stroke-width="7" stroke-linecap="round"/><circle cx="32" cy="32" r="19" fill="none" stroke="white" stroke-opacity=".5" stroke-width="2"/></svg>',{headers:{"content-type":"image/svg+xml","cache-control":"public,max-age=604800"}});
+    return new Response(HTML,{headers:{"content-type":"text/html; charset=utf-8","cache-control":"no-store","x-mark-version":APP_VERSION}});
+  })());
+});
