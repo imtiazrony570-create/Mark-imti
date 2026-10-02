@@ -272,7 +272,7 @@ export function Sidebar({ isOpen, onToggle, chatData }: { isOpen: boolean; onTog
       onClick={() => {
         if (renamingId !== p.id) {
           chatData?.onSelectProject(p.id);
-          router.push(`/projects/${p.id}`);
+          router.push(`/projects/view?projectId=${p.id}`);
         }
       }}
       className={cn(
