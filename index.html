@@ -87,34 +87,55 @@ function currentChat(){return state.data.chats.find(c=>c.id===state.ui.chatId)||
 function currentProject(){return state.data.projects.find(p=>p.id===state.ui.projectId)||state.data.projects[0]||null}
 function modeLabel(){return state.ui.mode==="imti"?"IMTI":state.ui.mode==="mark"?"MARK":"BROWSER"}
 function sidebar(){
- const imti=state.ui.mode==="imti", mark=state.ui.mode==="mark", browser=state.ui.mode==="browser";
+ const mode=state.ui.mode;
+ const imti=mode==="imti",mark=mode==="mark",browser=mode==="browser";
  const nav=browser?[
-  ["browser",icons.browser,"Browser"]
+  ["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-browser-sessions",icons.pin,"Pinned Browsing Sessions"]
  ]:mark?[
-  ["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-projects",icons.pin,"Pinned Projects"],["projects",icons.projects,"Projects"]
+  ["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-projects",icons.pin,"Pinned Projects"]
  ]:[
   ["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["skills",icons.skills,"Skills"],["pinned-chats",icons.pin,"Pinned Chats"]
  ];
  let list="";
  if(imti){
-  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">RECENT CHATS</div>';
-  const chats=state.data.chats.length?state.data.chats:[];
-  list+=chats.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages · '+fmt(c.updatedAt)+'</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">ALL CHATS</div>';
+  const chats=state.data.chats||[];
+  list+=chats.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+(c.projectId?"Project chat · ":"")+c.messages.length+' messages · '+fmt(c.updatedAt)+'</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
   if(!chats.length)list+='<div class="sidebar-note">No chats yet. Start a new conversation.</div>';
   list+="</div>";
  }else if(mark){
-  list+='<div class="scroll"><div class="sectionlabel">PROJECTS</div>';
-  list+=state.data.projects.map(p=>'<div class="projectrow '+(p.id===state.ui.projectId?'active':'')+'" tabindex="0" data-project="'+p.id+'"><div class="rowmain"><div class="rowtitle">'+esc(p.title)+'</div><div class="rowsub">'+(p.pinned?"Pinned · ":"")+esc(p.description.slice(0,45))+'</div></div></div>').join("");
-  if(!state.data.projects.length)list+='<div class="sidebar-note">No projects yet.</div>';
-  list+='</div><button class="newbtn" data-act="new-project">＋ New Project</button>';
+  list+='<button class="newbtn" data-act="new-project">＋ New Project</button><div class="scroll"><div class="sectionlabel">ALL PROJECTS</div>';
+  const projects=state.data.projects||[];
+  list+=projects.map(p=>'<div class="projectrow '+(p.id===state.ui.projectId?'active':'')+'" tabindex="0" data-project="'+p.id+'"><div class="rowmain"><div class="rowtitle">'+esc(p.title)+'</div><div class="rowsub">'+(p.pinned?"Pinned · ":"")+esc(p.description.slice(0,45))+'</div></div><button class="rowaction iconbtn" data-toggle-project="'+p.id+'" title="'+(p.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!projects.length)list+='<div class="sidebar-note">No projects yet. Create one to start project chats.</div>';
+  list+="</div>";
  }else{
-  list+='<div class="scroll"><div class="sidebar-note">Ask Mark to browse in Browser mode — live sessions stay inside this workspace.</div></div>';
+  const sessions=state.data.browserSessions||[];
+  const shown=state.ui.section==="pinned-browser-sessions"?sessions.filter(x=>x.pinned):sessions;
+  list+='<button class="newbtn" data-act="new-browser-session">＋ New Browsing Session</button><div class="scroll"><div class="sectionlabel">'+(state.ui.section==="pinned-browser-sessions"?"PINNED BROWSING SESSIONS":"BROWSING SESSIONS")+'</div>';
+  list+=shown.map(bs=>'<div class="sessionrow '+(bs.id===state.ui.browserSessionId?'active':'')+'" tabindex="0" data-browser-session="'+bs.id+'"><div class="rowmain"><div class="rowtitle">'+esc(bs.title)+'</div><div class="rowsub">'+bs.tabs.length+' tabs · '+fmt(bs.updatedAt)+(bs.pinned?" · Pinned":"")+'</div></div><button class="rowaction iconbtn" data-pin-browser-session="'+bs.id+'" title="'+(bs.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!shown.length)list+='<div class="sidebar-note">No browsing sessions in this section.</div>';
+  list+="</div>";
  }
- return '<aside class="sidebar" id="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div></div><div class="modes">'+[["imti","▣","Imti"],["mark","</>","Mark"],["browser","◎","Browser"]].map(m=>'<button class="mode '+(state.ui.mode===m[0]?"active":"")+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join("")+'</div><nav class="nav">'+nav.map(n=>'<button class="navitem '+(state.ui.section===n[0]?"active":"")+'" data-section="'+n[0]+'">'+icons[n[0]]+'<span>'+n[2]+'</span></button>').join("")+'</nav>'+list+'<div class="sidebarfoot"><button class="navitem" data-act="settings">'+icons.settings+'<span>Settings</span></button><div class="sidebar-note">Local workspace · changes persist in this browser.</div></div></aside>'
+ return '<aside class="sidebar" id="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div></div><div class="modes">'+[["imti","▣","Imti"],["mark","</>","Mark"],["browser","◎","Browser"]].map(m=>'<button class="mode '+(mode===m[0]?"active":"")+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join("")+'</div><nav class="nav">'+nav.map(n=>'<button class="navitem '+(state.ui.section===n[0]?"active":"")+'" data-section="'+n[0]+'">'+n[1]+'<span>'+n[2]+'</span></button>').join("")+'</nav>'+list+'<div class="sidebarfoot"><button class="navitem" data-act="settings">'+icons.settings+'<span>Settings</span></button><div class="sidebar-note">Local workspace · changes persist in this browser.</div></div></aside>'
 }
+
 function topbar(){
- const c=currentChat();
- return '<div class="topbar"><button class="iconbtn drawerbtn" data-act="drawer" aria-label="Open sidebar">☰</button><span class="top-title">'+(state.ui.mode==="browser"?"Browser workspace":state.ui.mode==="mark"?"Mark workspace":c?esc(c.title):"IMTI workspace")+'</span><div class="top-spacer"></div><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div>'
+ let tabs="",context="";
+ if(state.ui.mode==="browser"){
+  const bs=currentBrowserSession();context=bs?.title||"Browser";
+  tabs=(bs?.tabs||[]).map(t=>'<button class="top-tab '+(t.id===bs.activeTabId?"active":"")+'" data-browser-tab="'+t.id+'"><span class="tabname">◎ '+esc(t.title||"New Tab")+'</span><span class="tabclose" data-close-browser-tab="'+t.id+'" title="Close tab">×</span></button>').join("");
+  tabs+='<button class="top-tab-new" data-act="new-browser-tab" aria-label="New browsing tab">＋</button>';
+ }else if(state.ui.mode==="mark"){
+  const p=currentProject();context=p?.title||"MARK";const chats=p?state.data.chats.filter(c=>c.projectId===p.id):[];
+  tabs=chats.map(c=>'<button class="top-tab '+(c.id===state.ui.chatId?"active":"")+'" data-chat-tab="'+c.id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+c.id+'" title="Close tab">×</span></button>').join("");
+  if(p&&!chats.length)tabs+='<button class="top-tab-new" data-act="new-chat" aria-label="New project chat">＋</button>';
+ }else{
+  context="IMTI";const ids=(state.ui.openChatIds||[]).filter(id=>state.data.chats.some(c=>c.id===id));
+  tabs=ids.map(id=>{const c=state.data.chats.find(x=>x.id===id);return '<button class="top-tab '+(id===state.ui.chatId?"active":"")+'" data-chat-tab="'+id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+id+'" title="Close tab">×</span></button>'}).join("");
+  tabs+='<button class="top-tab-new" data-act="new-chat" aria-label="New chat tab">＋</button>';
+ }
+ return '<div class="topbar"><button class="iconbtn drawerbtn" data-act="drawer" aria-label="Open sidebar">☰</button><span class="top-context">'+esc(context)+'</span><div class="top-tabs">'+tabs+'</div><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div>'
 }
 function composer(placeholder,sendAct="send-chat"){
  return '<div class="composer"><button class="circle" data-act="attach" aria-label="Add">＋</button><input id="composer" class="prompt" autocomplete="off" placeholder="'+esc(placeholder)+'"><button class="think" data-act="think">✣ Think</button><button class="send" data-act="'+sendAct+'" aria-label="Send">↑</button></div><div class="hint">'+(state.ui.mode==="browser"?"Browse mode — Mark opens the browser, searches, reads pages, and brings back answers.":"Enter sends · Shift+Enter is available for future multiline input · Demo responses are local.")+'</div>'
