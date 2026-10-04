@@ -91,7 +91,7 @@ function modeLabel(){return state.ui.mode==="imti"?"IMTI":state.ui.mode==="mark"
 function sidebar(){
  const mode=state.ui.mode;
  const imti=mode==="imti",mark=mode==="mark",browser=mode==="browser";
- const nav=browser?[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-browser-sessions",icons.pin,"Pinned Browser"]]:mark?[["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-projects",icons.pin,"Pinned Projects"]]:[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Scheduled"],["skills",icons.skills,"Skills"],["pinned-chats",icons.pin,"Pinned Chats"]];
+ const nav=browser?[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Scheduled"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"]]:[["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["schedule",icons.schedule,"Scheduled"],["skills",icons.skills,"Skills"]];
  let list="";
  if(imti){
   list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">PINNED</div>';
@@ -99,10 +99,10 @@ function sidebar(){
   list+=shown.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
   if(!shown.length)list+='<div class="sidebar-note">No chats yet.</div>'; list+="</div>";
  }else if(mark){
-  list+='<button class="newbtn" data-act="new-project">＋ New Project</button><div class="scroll"><div class="sectionlabel">PINNED</div>';
-  const projects=state.data.projects||[],shown=state.ui.section==="pinned-projects"?projects.filter(p=>p.pinned):projects;
-  list+=shown.map(p=>'<div class="projectrow '+(p.id===state.ui.projectId?'active':'')+'" tabindex="0" data-project="'+p.id+'"><div class="rowmain"><div class="rowtitle">'+esc(p.title)+'</div><div class="rowsub">'+(p.pinned?"Pinned":"Project")+'</div></div><button class="rowaction iconbtn" data-toggle-project="'+p.id+'" title="'+(p.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
-  if(!shown.length)list+='<div class="sidebar-note">No projects yet.</div>'; list+="</div>";
+  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">PINNED</div>';
+  const chats=state.data.chats||[],shown=chats.filter(c=>c.pinned);
+  list+=shown.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!shown.length)list+='<div class="sidebar-note">No pinned chats.</div>'; list+="</div>";
  }else{
   const sessions=state.data.browserSessions||[],shown=state.ui.section==="pinned-browser-sessions"?sessions.filter(x=>x.pinned):sessions;
   list+='<button class="newbtn" data-act="new-browser-session">＋ New Browsing Session</button><div class="scroll"><div class="sectionlabel">BROWSING SESSIONS</div>';
