@@ -70,7 +70,7 @@ function normalize(x){
  });
  const activeSession=browserSessions.find(x=>x.id===u.browserSessionId)||browserSessions[0];
  const openChatIds=Array.isArray(u.openChatIds)?u.openChatIds.filter(id=>chats.some(c=>c.id===id)):((u.chatId&&chats.some(c=>c.id===u.chatId))?[u.chatId]:[chats[0]?.id].filter(Boolean));
- return {data:{chats,projects:Array.isArray(d.projects)?d.projects:[],library:Array.isArray(d.library)?d.library:[],schedules:Array.isArray(d.schedules)?d.schedules:[],skills:Array.isArray(d.skills)?d.skills:[],browserSessions,profile:{...seed.profile,...(d.profile||{})},appearance:{...seed.appearance,...(d.appearance||{})}},ui:{mode:u.mode||"imti",section:u.section||"quick",chatId:u.chatId&&chats.some(c=>c.id===u.chatId)?u.chatId:(openChatIds[0]||null),projectId:u.projectId||null,browserSessionId:activeSession?.id||"bs1",openChatIds,settingsOpen:false,settingsSection:u.settingsSection||"Profile",settingsQuery:""}};
+ return {data:{chats,projects:Array.isArray(d.projects)?d.projects:[],library:Array.isArray(d.library)?d.library:[],schedules:Array.isArray(d.schedules)?d.schedules:[],skills:Array.isArray(d.skills)?d.skills:[],browserSessions,profile:{...seed.profile,...(d.profile||{})},appearance:{...seed.appearance,...(d.appearance||{})}},ui:{mode:u.mode||"imti",section:u.section||"quick",chatId:u.chatId&&chats.some(c=>c.id===u.chatId)?u.chatId:(openChatIds[0]||null),projectId:u.projectId||null,browserSessionId:activeSession?.id||"bs1",openChatIds,openProjectChatIds:u.openProjectChatIds&&typeof u.openProjectChatIds==="object"?u.openProjectChatIds:{},settingsOpen:false,settingsSection:u.settingsSection||"Profile",settingsQuery:""}};
 }
 function save(){try{localStorage.setItem(KEY,JSON.stringify({data:state.data,ui:{...state.ui,settingsOpen:false}}))}catch(e){}}
 function esc(v){const d=document.createElement("div");d.textContent=String(v??"");return d.innerHTML}
@@ -91,32 +91,57 @@ function modeLabel(){return state.ui.mode==="imti"?"IMTI":state.ui.mode==="mark"
 function sidebar(){
  const mode=state.ui.mode;
  const imti=mode==="imti",mark=mode==="mark",browser=mode==="browser";
- const nav=browser?[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Scheduled"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"]]:[["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["schedule",icons.schedule,"Scheduled"],["skills",icons.skills,"Skills"]];
+ const nav=imti
+  ?[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["skills",icons.skills,"Skills"],["pinned-chats",icons.pin,"Pinned Chats"]]
+  :mark
+   ?[["quick",icons.quick,"Quick Action"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-projects",icons.pin,"Pinned Projects"]]
+   :[["quick",icons.quick,"Quick Action"],["schedule",icons.schedule,"Schedule"],["library",icons.library,"Library"],["skills",icons.skills,"Skills"],["pinned-browser-sessions",icons.pin,"Pinned Browsing Sessions"]];
  let list="";
  if(imti){
-  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">PINNED</div>';
-  const chats=state.data.chats||[],shown=state.ui.section==="pinned-chats"?chats.filter(c=>c.pinned):chats;
+  const chats=state.data.chats||[];
+  const pinned=state.ui.section==="pinned-chats";
+  const shown=pinned?chats.filter(c=>c.pinned):chats.filter(c=>!c.pinned);
+  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">'+(pinned?"PINNED CHATS":"CHATS")+'</div>';
   list+=shown.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
-  if(!shown.length)list+='<div class="sidebar-note">No chats yet.</div>'; list+="</div>";
+  if(!shown.length)list+='<div class="sidebar-note">'+(pinned?"No pinned chats.":"No chats yet.")+'</div>';
+  list+="</div>";
  }else if(mark){
-  list+='<button class="newbtn" data-act="new-chat">＋ New Chat</button><div class="scroll"><div class="sectionlabel">PINNED</div>';
-  const chats=state.data.chats||[],shown=chats.filter(c=>c.pinned);
-  list+=shown.map(c=>'<div class="chatrow '+(c.id===state.ui.chatId?'active':'')+'" tabindex="0" data-chat="'+c.id+'"><div class="rowmain"><div class="rowtitle">'+esc(c.title)+'</div><div class="rowsub">'+c.messages.length+' messages</div></div><button class="rowaction iconbtn" data-pin-chat="'+c.id+'" title="'+(c.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
-  if(!shown.length)list+='<div class="sidebar-note">No pinned chats.</div>'; list+="</div>";
+  const projects=state.data.projects||[];
+  const pinned=state.ui.section==="pinned-projects";
+  const shown=pinned?projects.filter(p=>p.pinned):projects.filter(p=>!p.pinned);
+  list+='<button class="newbtn" data-act="new-project">＋ New Project</button><div class="scroll"><div class="sectionlabel">'+(pinned?"PINNED PROJECTS":"PROJECTS")+'</div>';
+  list+=shown.map(p=>'<div class="projectrow '+(p.id===state.ui.projectId?'active':'')+'" tabindex="0" data-project="'+p.id+'"><div class="rowmain"><div class="rowtitle">'+esc(p.title)+'</div><div class="rowsub">'+projectChats(p.id).length+' chats</div></div><button class="rowaction iconbtn" data-pin-project="'+p.id+'" title="'+(p.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!shown.length)list+='<div class="sidebar-note">'+(pinned?"No pinned projects.":"No projects yet.")+'</div>';
+  list+="</div>";
  }else{
-  const sessions=state.data.browserSessions||[],shown=state.ui.section==="pinned-browser-sessions"?sessions.filter(x=>x.pinned):sessions;
-  list+='<button class="newbtn" data-act="new-browser-session">＋ New Browsing Session</button><div class="scroll"><div class="sectionlabel">BROWSING SESSIONS</div>';
-  list+=shown.map(bs=>'<div class="sessionrow '+(bs.id===state.ui.browserSessionId?'active':'')+'" tabindex="0" data-browser-session="'+bs.id+'"><div class="rowmain"><div class="rowtitle">'+esc(bs.title)+'</div><div class="rowsub">'+bs.tabs.length+' tabs</div></div><button class="rowaction iconbtn" data-pin-browser-session="'+bs.id+'">'+icons.pin+'</button></div>').join("");
-  if(!shown.length)list+='<div class="sidebar-note">No browsing sessions yet.</div>'; list+="</div>";
+  const sessions=state.data.browserSessions||[];
+  const pinned=state.ui.section==="pinned-browser-sessions";
+  const shown=pinned?sessions.filter(x=>x.pinned):sessions.filter(x=>!x.pinned);
+  list+='<button class="newbtn" data-act="new-browser-session">＋ New Browsing Session</button><div class="scroll"><div class="sectionlabel">'+(pinned?"PINNED BROWSING SESSIONS":"BROWSING SESSIONS")+'</div>';
+  list+=shown.map(bs=>'<div class="sessionrow '+(bs.id===state.ui.browserSessionId?'active':'')+'" tabindex="0" data-browser-session="'+bs.id+'"><div class="rowmain"><div class="rowtitle">'+esc(bs.title)+'</div><div class="rowsub">'+bs.tabs.length+' tabs</div></div><button class="rowaction iconbtn" data-pin-browser-session="'+bs.id+'" title="'+(bs.pinned?"Unpin":"Pin")+'">'+icons.pin+'</button></div>').join("");
+  if(!shown.length)list+='<div class="sidebar-note">'+(pinned?"No pinned browsing sessions.":"No browsing sessions yet.")+'</div>';
+  list+="</div>";
  }
  return '<aside class="sidebar" id="sidebar"><div class="brandbar"><div class="brand">Mark-Imti</div><div class="headicons"><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" aria-label="Workspace">▣</button></div></div><div class="modes">'+[["imti","▣","Imti"],["mark","</>","Mark"],["browser","◎","Browser"]].map(m=>'<button class="mode '+(mode===m[0]?"active":"")+'" data-mode="'+m[0]+'"><span class="mi">'+m[1]+'</span>'+m[2]+'</button>').join("")+'</div><nav class="nav">'+nav.map(n=>'<button class="navitem '+(state.ui.section===n[0]?"active":"")+'" data-section="'+n[0]+'">'+n[1]+'<span>'+n[2]+'</span></button>').join("")+'</nav>'+list+'</aside>'
 }
 
 function topbar(){
  let tabs="";
- if(state.ui.mode==="browser"){const bs=currentBrowserSession();tabs=(bs?.tabs||[]).map(t=>'<button class="top-tab '+(t.id===bs.activeTabId?"active":"")+'" data-browser-tab="'+t.id+'"><span class="tabname">◎ '+esc(t.title||"New Tab")+'</span><span class="tabclose" data-close-browser-tab="'+t.id+'">×</span></button>').join("");tabs+='<button class="top-tab-new" data-act="new-browser-tab">＋</button>';}
- else if(state.ui.mode==="mark"){const p=currentProject(),chats=p?state.data.chats.filter(c=>c.projectId===p.id):[];tabs=chats.map(c=>'<button class="top-tab '+(c.id===state.ui.chatId?"active":"")+'" data-chat-tab="'+c.id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+c.id+'">×</span></button>').join("");tabs+='<button class="top-tab-new" data-act="new-chat">＋</button>';}
- else{const ids=(state.ui.openChatIds||[]).filter(id=>state.data.chats.some(c=>c.id===id));tabs=ids.map(id=>{const c=state.data.chats.find(x=>x.id===id);return '<button class="top-tab '+(id===state.ui.chatId?"active":"")+'" data-chat-tab="'+id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+id+'">×</span></button>'}).join("");tabs+='<button class="top-tab-new" data-act="new-chat">＋</button>';}
+ if(state.ui.mode==="browser"){
+  const bs=currentBrowserSession();
+  tabs=(bs?.tabs||[]).map(t=>'<button class="top-tab '+(t.id===bs.activeTabId?"active":"")+'" data-browser-tab="'+t.id+'"><span class="tabname">◎ '+esc(t.title||"New Tab")+'</span><span class="tabclose" data-close-browser-tab="'+t.id+'">×</span></button>').join("");
+  tabs+='<button class="top-tab-new" data-act="new-browser-tab">＋</button>';
+ }else if(state.ui.mode==="mark"){
+  const p=currentProject();
+  const openIds=(state.ui.openProjectChatIds&&p&&Array.isArray(state.ui.openProjectChatIds[p.id]))?state.ui.openProjectChatIds[p.id]:[];
+  const chats=p?projectChats(p.id).filter(c=>openIds.includes(c.id)):[];
+  tabs=chats.map(c=>'<button class="top-tab '+(c.id===state.ui.chatId?"active":"")+'" data-chat-tab="'+c.id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+c.id+'">×</span></button>').join("");
+  tabs+='<button class="top-tab-new" data-act="new-chat">＋</button>';
+ }else{
+  const ids=(state.ui.openChatIds||[]).filter(id=>state.data.chats.some(c=>c.id===id));
+  tabs=ids.map(id=>{const c=state.data.chats.find(x=>x.id===id);return '<button class="top-tab '+(id===state.ui.chatId?"active":"")+'" data-chat-tab="'+id+'"><span class="tabname">◉ '+esc(c.title)+'</span><span class="tabclose" data-close-chat-tab="'+id+'">×</span></button>'}).join("");
+  tabs+='<button class="top-tab-new" data-act="new-chat">＋</button>';
+ }
  return '<div class="topbar"><button class="iconbtn drawerbtn" data-act="drawer" aria-label="Open sidebar">☰</button><div class="top-tabs">'+tabs+'</div><button class="iconbtn" data-act="search" aria-label="Search">⌕</button><button class="iconbtn" data-act="settings" aria-label="Settings">⚙</button></div>'
 }
 function composer(placeholder,sendAct="send-chat"){
@@ -222,8 +247,16 @@ function openChatTab(id,modeOverride){
  const c=state.data.chats.find(x=>x.id===id);if(!c)return;
  state.ui.chatId=id;
  if(modeOverride)state.ui.mode=modeOverride;
- if(state.ui.mode==="mark"){state.ui.projectId=c.projectId||state.ui.projectId;state.ui.section="chat";}
- else{state.ui.mode="imti";state.ui.section="chat";state.ui.openChatIds=[...(state.ui.openChatIds||[]).filter(x=>x!==id),id];}
+ if(state.ui.mode==="mark"){
+  state.ui.projectId=c.projectId||state.ui.projectId;
+  state.ui.section="chat";
+  const pid=state.ui.projectId;
+  state.ui.openProjectChatIds=state.ui.openProjectChatIds||{};
+  state.ui.openProjectChatIds[pid]=[...(state.ui.openProjectChatIds[pid]||[]).filter(x=>x!==id),id];
+ }else{
+  state.ui.mode="imti";state.ui.section="chat";
+  state.ui.openChatIds=[...(state.ui.openChatIds||[]).filter(x=>x!==id),id];
+ }
  save();render();closeSidebar();
 }
 function projectChats(projectId){return state.data.chats.filter(c=>c.projectId===projectId)}
@@ -233,17 +266,24 @@ function openProject(id){
  let chats=projectChats(id);
  if(!chats.length){
   const c={id:uid("c"),title:"Project chat",projectId:id,pinned:false,createdAt:now(),updatedAt:now(),messages:[]};
-  state.data.chats.unshift(c);chats=[c];state.ui.chatId=c.id;
- }else{
-  state.ui.chatId=(chats.find(c=>c.id===state.ui.chatId)||chats[0]).id;
+  state.data.chats.unshift(c);chats=[c];
  }
+ state.ui.openProjectChatIds=state.ui.openProjectChatIds||{};
+ state.ui.openProjectChatIds[id]=chats.map(c=>c.id);
+ state.ui.chatId=chats[0]?.id||null;
  save();render();closeSidebar();
 }
 function newChat(){
  const projectId=state.ui.mode==="mark"?state.ui.projectId:null;
  const c={id:uid("c"),title:projectId?"New project chat":"New chat",projectId,pinned:false,createdAt:now(),updatedAt:now(),messages:[]};
  state.data.chats.unshift(c);state.ui.chatId=c.id;
- if(projectId){state.ui.mode="mark";state.ui.section="chat";}else{state.ui.mode="imti";state.ui.section="chat";state.ui.openChatIds=[...(state.ui.openChatIds||[]),c.id];}
+ if(projectId){
+  state.ui.mode="mark";state.ui.section="chat";
+  state.ui.openProjectChatIds=state.ui.openProjectChatIds||{};
+  state.ui.openProjectChatIds[projectId]=[...(state.ui.openProjectChatIds[projectId]||[]),c.id];
+ }else{
+  state.ui.mode="imti";state.ui.section="chat";state.ui.openChatIds=[...(state.ui.openChatIds||[]),c.id];
+ }
  save();render();setTimeout(()=>document.getElementById("composer")?.focus(),50);
 }
 function sendChat(text){text=text.trim();if(!text)return;let c=currentChat();if(!c){newChat();c=currentChat()}c.messages.push({id:uid("m"),role:"user",text});c.updatedAt=now();const response="Demo/local response: I received your request. This Mark-Imti build keeps responses local and does not claim to use an external AI service. A real provider can be connected behind the service boundary later.";setTimeout(()=>{c.messages.push({id:uid("m"),role:"assistant",text:response});c.updatedAt=now();save();render()},140);save();render()}
@@ -281,7 +321,8 @@ function bind(){
  document.querySelectorAll("[data-project]").forEach(b=>b.onclick=()=>openProject(b.dataset.project));
  document.querySelectorAll("[data-browser-session]").forEach(b=>b.onclick=()=>{state.ui.mode="browser";state.ui.section="browser";state.ui.browserSessionId=b.dataset.browserSession;save();render();closeSidebar()});
  document.querySelectorAll("[data-chat-tab]").forEach(b=>b.onclick=()=>openChatTab(b.dataset.chatTab,state.ui.mode==="mark"?"mark":"imti"));
- document.querySelectorAll("[data-close-chat-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.closeChatTab;state.ui.openChatIds=(state.ui.openChatIds||[]).filter(x=>x!==id);if(state.ui.chatId===id){const next=state.ui.openChatIds.at(-1);if(next)state.ui.chatId=next;else state.ui.section="quick"}save();render()});
+ document.querySelectorAll("[data-close-chat-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();const id=b.dataset.closeChatTab;if(state.ui.mode==="mark"){const pid=state.ui.projectId;state.ui.openProjectChatIds=state.ui.openProjectChatIds||{};state.ui.openProjectChatIds[pid]=(state.ui.openProjectChatIds[pid]||[]).filter(x=>x!==id);if(state.ui.chatId===id){const next=(state.ui.openProjectChatIds[pid]||[]).at(-1);state.ui.chatId=next||null;}}else{state.ui.openChatIds=(state.ui.openChatIds||[]).filter(x=>x!==id);if(state.ui.chatId===id){const next=state.ui.openChatIds.at(-1);state.ui.chatId=next||null;}}save();render()});
+ document.querySelectorAll("[data-pin-project]").forEach(b=>b.onclick=e=>{e.stopPropagation();const p=state.data.projects.find(x=>x.id===b.dataset.pinProject);if(p)p.pinned=!p.pinned;save();render()});
  document.querySelectorAll("[data-browser-tab]").forEach(b=>b.onclick=()=>{const ss=currentBrowserSession();if(ss){ss.activeTabId=b.dataset.browserTab;ss.updatedAt=now();state.ui.section="browser";save();render()}});
  document.querySelectorAll("[data-close-browser-tab]").forEach(b=>b.onclick=e=>{e.stopPropagation();closeBrowserTab(b.dataset.closeBrowserTab)});
  document.querySelectorAll("[data-pin-browser-session]").forEach(b=>b.onclick=e=>{e.stopPropagation();const ss=state.data.browserSessions.find(x=>x.id===b.dataset.pinBrowserSession);if(ss)ss.pinned=!ss.pinned;save();render()});
